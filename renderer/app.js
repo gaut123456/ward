@@ -5,6 +5,9 @@ let rolePreferences, queueTransition = null, actionVersion = 0, refreshVersion =
 let roleDraft = null, selectedRoleSlot = 'firstPreference';
 let queueStartedAt = null, duoKey = null, duoIconRequest = null;
 const roleLabels = { TOP: 'Top', JUNGLE: 'Jungle', MIDDLE: 'Mid', BOTTOM: 'ADC', UTILITY: 'Support', FILL: 'Fill' };
+const queueLabels = { 420: 'Solo / Duo', 440: 'Flex', 400: 'Normale', 430: 'Normale', 490: 'Partie rapide', 450: 'ARAM', 1700: 'Arena', 1900: 'URF', 0: 'Personnalisée' };
+const handledInvites = new Set();
+let inviteIconKey = null;
 const gamePhases = ['ReadyCheck', 'ChampSelect', 'InProgress', 'Reconnect', 'GameStart', 'WaitingForStats', 'PreEndOfGame', 'EndOfGame'];
 
 function isSearching() {
@@ -28,8 +31,10 @@ function render() {
   const labels = { ReadyCheck: accepted ? 'En attente des joueurs' : 'Accepter la partie', ChampSelect: 'Choisir mon champion',
     Reconnect: 'Ouvrir League', GameStart: 'Chargement de la partie', InProgress: 'Partie en cours',
     WaitingForStats: 'Fin de partie', PreEndOfGame: 'Fin de partie', EndOfGame: 'Partie terminée' };
-  $('play').disabled = busy || (!state.connected && state.starting) || (state.connected && inGame && !canAccept && !canOpen);
-  $('play').textContent = busy ? 'Un instant…' : !state.connected ? state.starting ? 'Lancement de League…' : 'Réessayer' : searching ? 'Annuler' : labels[state.phase] || 'Lancer';
+  const waitingLeader = state.connected && !searching && state.phase === 'Lobby' && state.isLeader === false;
+  $('play').disabled = busy || waitingLeader || (!state.connected && state.starting) || (state.connected && inGame && !canAccept && !canOpen);
+  $('play').textContent = busy ? 'Un instant…' : !state.connected ? state.starting ? 'Lancement de League…' : 'Réessayer' : searching ? 'Annuler' : waitingLeader ? 'En attente du chef' : labels[state.phase] || 'Lancer';
+  $('queue-label').textContent = state.connected && queueLabels[state.queueId] ? queueLabels[state.queueId] : 'Solo / Duo';
   $('play').classList.toggle('searching', searching);
   $('play').classList.toggle('ready-action', canAccept);
   document.querySelector('.widget').dataset.phase = state.connected ? searching ? 'Matchmaking' : state.phase : 'Disconnected';
@@ -48,6 +53,7 @@ function render() {
   for (const button of $('role-options').children) button.disabled = rolesLocked;
   renderRoleIcons();
   renderDuo();
+  renderInvite();
   $('connection-dot').className = `connection-dot ${state.connected ? 'online' : state.starting ? 'starting' : 'offline'}`;
   const phaseNotes = { ReadyCheck: accepted ? 'Accepté · les autres joueurs arrivent' : 'Une place t’attend dans la faille',
     ChampSelect: state.clientUi?.error || (state.clientUi?.opening ? 'Ouverture du client League…' : 'Sélection des champions · dans League'),
@@ -55,7 +61,12 @@ function render() {
     EndOfGame: 'Retour au salon…', WaitingForStats: 'Récupération des résultats…', PreEndOfGame: 'Récupération des résultats…' };
   if (((inGame || searching) && !$('feedback').classList.contains('error')) || Date.now() > noticeUntil) {
     const estimate = state.estimatedQueueTime > 0 ? `Attente estimée · ${formatTime(state.estimatedQueueTime)}` : 'Recherche de partie…';
-    feedback(state.connected ? searching ? estimate : phaseNotes[state.phase] || '' : state.message || 'Connexion…', !state.connected && !state.starting, false);
+    const update = state.update || {};
+    const updateNote = update.status === 'downloading' ? `Mise à jour ${update.version} · ${update.progress || 0} %`
+      : update.status === 'ready' ? `Mise à jour ${update.version} prête` : update.status === 'installing' ? `Installation de la mise à jour ${update.version}…` : '';
+    const note = waitingLeader ? 'Le chef du lobby lance la recherche' : phaseNotes[state.phase] || updateNote;
+    if (update.status === 'installing') feedback(updateNote, false, false);
+    else feedback(state.connected ? searching ? estimate : note : state.message || 'Connexion…', !state.connected && !state.starting, false);
   }
   renderTimer();
 }
@@ -115,6 +126,45 @@ function setLevel(element, level) {
   element.hidden = !Number.isInteger(level) || level <= 0;
   element.textContent = element.hidden ? '' : String(level);
 }
+function pendingInvites() {
+  const invitations = state.connected && Array.isArray(state.invitations) ? state.invitations : [];
+  for (const id of handledInvites) if (!invitations.some(invitation => invitation.id === id)) handledInvites.delete(id);
+  return invitations.filter(invitation => !handledInvites.has(invitation.id));
+}
+function renderInvite() {
+  const pending = pendingInvites(), invite = pending[0];
+  $('invite-toast').hidden = !invite;
+  document.querySelector('.widget').classList.toggle('has-invite', Boolean(invite));
+  if (!invite) { inviteIconKey = null; return; }
+  const queue = queueLabels[invite.queueId] || invite.gameMode || 'Partie';
+  $('invite-name').textContent = invite.name;
+  $('invite-queue').textContent = queue;
+  $('invite-toast').title = `${invite.name} t’invite · ${queue}`;
+  $('invite-more').hidden = pending.length < 2;
+  $('invite-more').textContent = `+${pending.length - 1}`;
+  $('invite-accept').disabled = $('invite-decline').disabled = busy;
+  const key = `${invite.id}:${invite.profileIconId}`;
+  if (key === inviteIconKey) return;
+  inviteIconKey = key;
+  $('invite-avatar').hidden = true;
+  if (!Number.isInteger(invite.profileIconId) || invite.profileIconId < 0) return;
+  window.league.getProfileIcon(invite.profileIconId).then(icon => {
+    if (inviteIconKey !== key || !icon) return;
+    $('invite-avatar').src = icon; $('invite-avatar').hidden = false;
+  }).catch(() => {});
+}
+function answerInvite(accept) {
+  const invite = pendingInvites()[0];
+  if (!invite) return;
+  action(async () => {
+    if (accept) await window.league.acceptInvitation(invite.id);
+    else await window.league.declineInvitation(invite.id);
+    handledInvites.add(invite.id);
+    feedback(accept ? `Tu rejoins le lobby de ${invite.name}` : 'Invitation refusée');
+  });
+}
+$('invite-accept').addEventListener('click', () => answerInvite(true));
+$('invite-decline').addEventListener('click', () => answerInvite(false));
 function formatTime(seconds) {
   const value = Math.max(0, Math.floor(seconds));
   return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`;

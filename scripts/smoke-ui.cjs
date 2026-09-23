@@ -14,6 +14,7 @@ let phase = 'None', lobby = null, failedSearch = false, searching = false, stale
 let ready = { state: 'Invalid' }, failAccept = false;
 let kicks = [];
 let allowKick = true;
+let received = [];
 let releaseIcon, failIcon = false, partnerIcon = 0, chatIcon = 0, partnerInChat = true;
 const iconBytes = fs.readFileSync(path.join(__dirname, '../renderer/assets/roles/middle.png'));
 const queueBegan = Date.now() - 83000;
@@ -64,6 +65,13 @@ lcu.call = async (method, route, body) => {
       kicks.push(id());
       if (lobby?.members) lobby.members = lobby.members.filter(member => String(member.summonerId) !== String(id()));
     }
+    return null;
+  }
+  if (route === '/lol-lobby/v2/received-invitations') return received;
+  const answer = route.match(/^\/lol-lobby\/v2\/received-invitations\/([\w-]+)\/(accept|decline)$/);
+  if (answer) {
+    assert.equal(method, 'POST');
+    received = received.filter(invitation => invitation.invitationId !== answer[1]);
     return null;
   }
   throw new Error(`Unexpected test route: ${method} ${route}`);
@@ -312,8 +320,32 @@ app.whenReady().then(async () => {
     assert.deepEqual(calls.slice(before).filter(c => c.method !== 'GET').map(c => c.route), ['/riotclient/ux-show']);
     assert.equal(await win.webContents.executeJavaScript(`getComputedStyle(document.querySelector('#open-client')).webkitAppRegion`), 'no-drag');
   }
+  // Invitations reçues : bandeau, refus, acceptation, puis lobby dont on n'est pas chef.
+  const js = code => win.webContents.executeJavaScript(code);
+  searching = false; phase = 'None';
+  received = [{ invitationId: 'inv-1', state: 'Pending', fromSummonerId: 42, gameConfig: { queueId: 440 } },
+    { invitationId: 'inv-2', state: 'Pending', fromSummonerId: 42, gameConfig: { queueId: 420 } },
+    { invitationId: 'old', state: 'Declined', fromSummonerId: 42, gameConfig: { queueId: 420 } }];
+  await js('refresh()');
+  await waitFor(win, `!document.querySelector('#invite-toast').hidden && document.querySelector('#invite-name').textContent === 'Partenaire' && document.querySelector('#invite-queue').textContent === 'Flex' && document.querySelector('#invite-more').textContent === '+1' && !document.querySelector('#invite-avatar').hidden`);
+  assert.equal(await js(`getComputedStyle(document.querySelector('#invite-accept')).webkitAppRegion`), 'no-drag');
+  await sleep(400); fs.writeFileSync(path.join(qa, 'invitation.png'), (await win.webContents.capturePage()).toPNG());
+  await js(`document.querySelector('#invite-decline').click()`);
+  await waitFor(win, `document.querySelector('#feedback').textContent === 'Invitation refusée' && document.querySelector('#invite-queue').textContent === 'Solo / Duo' && document.querySelector('#invite-more').hidden`);
+  assert.ok(calls.some(c => c.method === 'POST' && c.route === '/lol-lobby/v2/received-invitations/inv-1/decline'));
+  await js(`document.querySelector('#invite-accept').click()`);
+  await waitFor(win, `document.querySelector('#invite-toast').hidden && document.querySelector('#feedback').textContent === 'Tu rejoins le lobby de Partenaire'`);
+  assert.ok(calls.some(c => c.method === 'POST' && c.route === '/lol-lobby/v2/received-invitations/inv-2/accept'));
+  phase = 'Lobby'; lobby = { gameConfig: { queueId: 440 }, localMember: { summonerId: 99, isLeader: false }, members: [friend] };
+  await js('refresh()');
+  await waitFor(win, `document.querySelector('#play').textContent === 'En attente du chef' && document.querySelector('#play').disabled && document.querySelector('#queue-label').textContent === 'Flex' && document.querySelector('#kick-friend').hidden`);
+  searching = true; received = [{ invitationId: 'inv-3', state: 'Pending', fromSummonerId: 42, gameConfig: { queueId: 420 } }];
+  assert.equal(await js(`window.league.acceptInvitation('inv-3').then(() => false, () => true)`), true);
+  assert.equal(await js(`window.league.acceptInvitation('../lobby').then(() => false, () => true)`), true);
+  assert.equal(calls.some(c => c.route.endsWith('/inv-3/accept')), false);
+  received = []; lobby = null;
   searching = false; phase = 'None'; await win.webContents.executeJavaScript('refresh()');
   fs.writeFileSync(path.join(qa, 'widget-open-client.png'), (await win.webContents.capturePage()).toPNG());
-  console.log('PASS: compact UI, duo, roles, queue, ready-check, automatic handoff and manual client opener in lobby/queue/game. No live mutations.');
+  console.log('PASS: compact UI, duo, roles, queue, ready-check, automatic handoff, received invitations and manual client opener in lobby/queue/game. No live mutations.');
   app.exit(0);
 }).catch(error => { console.error(error); app.exit(1); });

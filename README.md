@@ -29,7 +29,7 @@ Le LCU est découvert via son lockfile, même sans processus `LeagueClientUx.exe
 
 ## Exécutable Windows portable
 
-`npm run build:exe` génère `out/Ward-0.1.2-portable.exe` pour Windows x64. Ce fichier est autonome : Node.js et les sources ne sont pas nécessaires sur le PC cible, mais League et Riot Client doivent y être installés. Double-clique dessus pour démarrer le widget. Aucun droit administrateur ni installation n’est demandé. Les préférences restent dans `%APPDATA%/ward`, comme en développement. Les rôles enregistrés sous l’ancien nom (`%APPDATA%/lol-ranked-widget`) sont repris automatiquement au premier lancement.
+`npm run build:exe` génère `out/Ward-0.1.3-portable.exe` pour Windows x64. Ce fichier est autonome : Node.js et les sources ne sont pas nécessaires sur le PC cible, mais League et Riot Client doivent y être installés. Double-clique dessus pour démarrer le widget. Aucun droit administrateur ni installation n’est demandé. Les préférences restent dans `%APPDATA%/ward`, comme en développement. Les rôles enregistrés sous l’ancien nom (`%APPDATA%/lol-ranked-widget`) sont repris automatiquement au premier lancement.
 
 L’emblème vert et or est une création vectorielle locale (`renderer/assets/app-icon.svg`). `npm run build:icon` en dérive automatiquement l’icône Windows en sept tailles, de 16 à 256 px, et l’icône de fenêtre. Cette génération est incluse dans `build:exe`.
 
@@ -56,3 +56,18 @@ Les icônes de rôles sont celles du client League, distribuées par [CommunityD
 ## Vérification
 
 `npm run check` vérifie la syntaxe. `npm test` vérifie les timers, l’ouverture du client, la récupération des lobbies verrouillés et la préservation des groupes et invitations. `npm run test:ui` vérifie le rendu et les interactions avec des réponses simulées : recherche/annulation, compte à rebours, erreur d’acceptation et nouvelle tentative, attente des autres joueurs, ouverture automatique/manuelle de la sélection et libellés des phases. Il ne lance aucune invitation ni recherche réelle ; les captures sont dans `.qa/`. `node scripts/check-client.cjs` vérifie la connexion locale en lecture seule ; ajouter `--launch` teste aussi le démarrage headless.
+
+## Mise à jour automatique
+
+Au lancement, l'exe portable interroge `https://api.github.com/repos/gaut123456/ward/releases/latest` (voir `electron/updater.cjs`). Si la release est plus récente que `package.json`, Ward télécharge son fichier `Ward-portable.exe` à côté de l'exe actuel, vérifie la taille et l'empreinte SHA-256 fournies par GitHub, attend un moment calme (ni recherche ni partie), puis se ferme : un script PowerShell remplace l'exe et relance Ward. Le journal est dans `%TEMP%\ward-update.log`. Rien ne se passe avec `npm start` (application non packagée).
+
+Pour publier une version :
+
+1. augmenter `version` dans `package.json` ;
+2. `npm run build:exe` ;
+3. créer une release GitHub `vX.Y.Z` contenant **`Ward-portable.exe`** (copie de `out/Ward-X.Y.Z-portable.exe`) ; sans ce fichier, les widgets installés ne se mettent pas à jour :
+
+```sh
+cp out/Ward-X.Y.Z-portable.exe out/Ward-portable.exe
+gh release create vX.Y.Z out/Ward-X.Y.Z-portable.exe out/Ward-portable.exe --title "Ward X.Y.Z"
+```

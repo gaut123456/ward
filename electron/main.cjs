@@ -1,15 +1,18 @@
-const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, dialog, net } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const lcu = require('./lcu.cjs');
 const { validateRoles, applyRoles } = require('./roles.cjs');
 const { queueState, readySnapshot, createClientHandoff } = require('./gameflow.cjs');
+const updater = require('./updater.cjs');
 const handoff = createClientHandoff();
 let readyState = readySnapshot(null), quitting = false;
 let mainWindow, readyWindow, poller, launchTask;
 let startupMessage = 'Démarrage de League…';
 let starting = false, dismissedReady = false, readyActive = false;
 const iconCache = new Map();
+const inviterCache = new Map();
+let updateState = { status: 'idle' };
 const preview = process.argv.includes('--preview');
 // Keep the same preferences when moving from npm start to the packaged exe.
 const defaultUserData = path.join(app.getPath('appData'), 'ward');
@@ -25,7 +28,8 @@ if (app.getPath('userData') === defaultUserData) {
     }
   } catch { /* Sans migration, les rôles seront simplement redemandés. */ }
 }
-if (preview && process.argv.includes('--smoke-test')) app.setPath('userData', fs.mkdtempSync(path.join(app.getPath('temp'), 'ward-smoke-')));
+// L'aperçu ne touche jamais League : préférences et verrou d'instance à part, pour ne pas bloquer le vrai Ward.
+if (preview) app.setPath('userData', fs.mkdtempSync(path.join(app.getPath('temp'), 'ward-preview-')));
 
 function savedRoles() {
   try { return validateRoles(JSON.parse(fs.readFileSync(path.join(app.getPath('userData'), 'roles.json'), 'utf8'))); }
@@ -128,11 +132,12 @@ async function ensureLobby() {
   return lcu.call('POST', '/lol-lobby/v2/lobby', { queueId: 420 });
 }
 
-ipcMain.handle('lcu:status', async () => {
+async function readStatus() {
   if (preview) return { connected: true, summoner: { displayName: 'Invocateur', summonerLevel: 120 }, phase: 'None' };
   try {
-    const [summoner, queue, lobby] = await Promise.all([
-      lcu.call('GET', '/lol-summoner/v1/current-summoner'), queueState(), currentLobby()
+    const [summoner, queue, lobby, received] = await Promise.all([
+      lcu.call('GET', '/lol-summoner/v1/current-summoner'), queueState(), currentLobby(),
+      lcu.call('GET', '/lol-lobby/v2/received-invitations').catch(() => [])
     ]);
     const localId = lobby?.localMember?.summonerId || summoner.summonerId;
     const partner = localId ? lobby?.members?.find(member => member.summonerId && String(member.summonerId) !== String(localId)) : null;
@@ -156,9 +161,67 @@ ipcMain.handle('lcu:status', async () => {
       }
     }
     const canKick = Boolean(partner && lobby.localMember?.isLeader === true && queue.phase === 'Lobby' && !queue.searching);
-    return { connected: true, summoner, duoPartner, canKick, ...queue, ready: readyState, clientUi: { ...handoff.state } };
+    const invitations = await describeInvitations(received);
+    // Only an explicit false means someone else leads: a lobby we created is ours.
+    const isLeader = lobby?.localMember?.isLeader !== false;
+    return { connected: true, summoner, duoPartner, canKick, isLeader, queueId: lobby?.gameConfig?.queueId ?? null, invitations,
+      ...queue, ready: readyState, clientUi: { ...handoff.state } };
   } catch (error) { return { connected: false, starting, message: startupMessage || error.message }; }
-});
+}
+ipcMain.handle('lcu:status', async () => ({ ...(await readStatus()), update: { ...updateState } }));
+
+// Mise à jour automatique au lancement de l'exe portable (voir updater.cjs).
+async function quietMoment() {
+  if (preview) return true;
+  try {
+    const { phase, searching } = await queueState();
+    return !searching && ['None', 'Lobby', 'EndOfGame'].includes(phase);
+  } catch { return true; } // League fermé : rien à interrompre.
+}
+async function runUpdater() {
+  const currentFile = process.env.PORTABLE_EXECUTABLE_FILE;
+  if (!app.isPackaged || !currentFile || (preview && process.env.WARD_UPDATE_TEST !== '1')) return;
+  const currentVersion = app.getVersion();
+  try {
+    updateState = { status: 'checking' };
+    const update = await updater.checkForUpdate({ currentVersion, fetch: net.fetch });
+    if (!update) { updateState = { status: 'idle' }; return; }
+    const downloaded = path.join(path.dirname(currentFile), `Ward-${update.version}.update`);
+    updateState = { status: 'downloading', version: update.version, progress: 0 };
+    await updater.download(update, downloaded, { fetch: net.fetch,
+      onProgress: progress => { updateState = { ...updateState, progress }; } });
+    updateState = { status: 'ready', version: update.version, progress: 100 };
+    while (!await quietMoment()) await new Promise(resolve => setTimeout(resolve, 2000));
+    updateState = { status: 'installing', version: update.version };
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    await updater.install({ currentFile, downloaded, target: updater.targetPath(currentFile, currentVersion, update.version),
+      args: process.argv.slice(1), tempDir: app.getPath('temp') });
+    app.quit();
+  } catch (error) {
+    updateState = { status: 'error', message: error.message };
+    console.warn(`Mise à jour impossible : ${error.message}`);
+  }
+}
+
+async function describeInvitations(received) {
+  const pending = (Array.isArray(received) ? received : [])
+    .filter(invitation => invitation?.state === 'Pending' && invitation.invitationId).slice(0, 5);
+  return Promise.all(pending.map(async invitation => {
+    const id = invitation.fromSummonerId;
+    let inviter = inviterCache.get(id);
+    if (!inviter) {
+      const summoner = id ? await lcu.call('GET', `/lol-summoner/v1/summoners/${id}`).catch(() => null) : null;
+      inviter = { name: summoner?.gameName || summoner?.displayName || invitation.fromSummonerName || 'Un ami',
+        profileIconId: summoner?.profileIconId };
+      if (summoner) {
+        if (inviterCache.size >= 20) inviterCache.clear();
+        inviterCache.set(id, inviter);
+      }
+    }
+    return { id: String(invitation.invitationId), fromSummonerId: id, name: inviter.name, profileIconId: inviter.profileIconId,
+      queueId: invitation.gameConfig?.queueId ?? null, gameMode: invitation.gameConfig?.gameMode || null };
+  }));
+}
 
 ipcMain.handle('profile:icon', async (_event, id) => {
   if (!Number.isInteger(id) || id < 0) return null;
@@ -242,6 +305,20 @@ ipcMain.handle('lobby:kick-member', async (_event, id) => {
     return true;
   } finally { kickPending = false; }
 });
+function invitationId(value) {
+  if (typeof value !== 'string' || !/^[\w-]{1,80}$/.test(value)) throw new Error('Invitation invalide.');
+  return value;
+}
+ipcMain.handle('invitation:accept', async (_event, value) => {
+  const id = invitationId(value);
+  const { phase, searching } = await queueState();
+  if (searching) throw new Error('Annule ta recherche avant de rejoindre ce lobby.');
+  if (!['None', 'Lobby'].includes(phase)) throw new Error('Impossible de rejoindre un lobby pendant une partie.');
+  await lcu.call('POST', `/lol-lobby/v2/received-invitations/${id}/accept`);
+});
+ipcMain.handle('invitation:decline', async (_event, value) => {
+  await lcu.call('POST', `/lol-lobby/v2/received-invitations/${invitationId(value)}/decline`);
+});
 ipcMain.handle('lobby:start-search', async () => {
   const lobby = await ensureLobby();
   const preferences = savedRoles() || lobbyRoles(lobby);
@@ -267,7 +344,7 @@ ipcMain.handle('widget:close', () => app.quit());
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance', () => { mainWindow?.show(); mainWindow?.focus(); });
-  app.whenReady().then(() => { createMainWindow(); startLeague(); watchReady(); });
+  app.whenReady().then(() => { createMainWindow(); startLeague(); watchReady(); runUpdater(); });
 }
 app.on('before-quit', () => { quitting = true; clearTimeout(poller); });
 app.on('window-all-closed', () => app.quit());

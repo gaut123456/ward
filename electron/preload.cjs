@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('league', {
   getOnlineFriends: () => ipcRenderer.invoke('friends:online'),
   inviteSummoner: (summonerId, name) => ipcRenderer.invoke('lobby:invite-summoner', summonerId, name),
   kickMember: (summonerId) => ipcRenderer.invoke('lobby:kick-member', summonerId),
+  acceptInvitation: (id) => ipcRenderer.invoke('invitation:accept', id),
+  declineInvitation: (id) => ipcRenderer.invoke('invitation:decline', id),
   startSearch: () => ipcRenderer.invoke('lobby:start-search'),
   cancelSearch: () => ipcRenderer.invoke('lobby:cancel-search'),
   acceptReady: () => ipcRenderer.invoke('ready:accept'),

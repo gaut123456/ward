@@ -10,7 +10,7 @@
 <body class="widget-body">
   <main class="widget" data-phase="Disconnected">
     <header class="header drag-handle">
-      <span id="queue-badge" class="queue-badge" aria-label="File d'attente"><i class="badge-gem" aria-hidden="true"></i><span class="badge-label">Solo / Duo</span><span id="feedback" class="feedback" role="status" title="">Connexion…</span></span>
+      <span id="queue-badge" class="queue-badge" aria-label="File d'attente"><i class="badge-gem" aria-hidden="true"></i><span id="queue-label" class="badge-label">Solo / Duo</span><span id="feedback" class="feedback" role="status" title="">Connexion…</span></span>
       <time id="queue-timer" class="queue-timer" aria-label="Temps de recherche" role="timer" hidden>0:00</time>
       <div class="header-actions">
         <button id="open-client" aria-label="Ouvrir le client League" title="Ouvrir le client League" disabled>
@@ -21,6 +21,14 @@
         </button>
       </div>
     </header>
+
+    <div id="invite-toast" class="invite-toast drag-handle" role="alert" hidden>
+      <span class="invite-avatar"><img id="invite-avatar" alt="" hidden /></span>
+      <span class="invite-text"><b id="invite-name"></b> t’invite · <span id="invite-queue" class="invite-queue"></span></span>
+      <span id="invite-more" class="invite-more" hidden></span>
+      <button id="invite-decline" class="invite-decline" aria-label="Refuser l'invitation" title="Refuser"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+      <button id="invite-accept" class="invite-accept" aria-label="Rejoindre le lobby" title="Rejoindre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+    </div>
 
     <div class="players">
       <div class="profile player" id="profile" title="Connexion à League…">

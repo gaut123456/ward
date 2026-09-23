@@ -179,6 +179,8 @@
   .w-host { width: 300px; height: 230px; }
   .r-host { width: 310px; height: 260px; }
   .win.popin { animation: popin 0.28s var(--ease); }
+  .win.dragging, .win.dragging * { cursor: grabbing !important; }
+  body.dragging-window { cursor: grabbing; user-select: none; }
   @keyframes popin { from { opacity: 0; scale: 0.96; } to { opacity: 1; scale: 1; } }
 
   .taskbar {
@@ -524,7 +526,7 @@
       <article class="feature">
         <span class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M17 7v6M14 10h6"/></svg></span>
         <h3>Duo en deux clics</h3>
-        <p>La liste de tes amis connectés se filtre pendant que tu tapes. Sinon, entre directement un Riot ID <span style="font-family:var(--mono);font-size:13px;color:var(--teal-pale)">Pseudo#TAG</span>.</p>
+        <p>La liste de tes amis connectés se filtre pendant que tu tapes. Sinon, entre directement un Riot ID <span style="font-family:var(--mono);font-size:13px;color:var(--teal-pale)">Pseudo#TAG</span>. Et quand un ami t'invite, tu acceptes ou tu refuses depuis le widget.</p>
       </article>
       <article class="feature">
         <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg></span>
@@ -619,7 +621,11 @@
       </details>
       <details>
         <summary>Faut-il installer quelque chose ?</summary>
-        <p>Non. C'est un exécutable portable pour Windows 10 et 11 (<code>Ward-0.1.2-portable.exe</code>) : tu le lances et le widget apparaît en haut à droite de ton écran. Il faut que League of Legends soit installé.</p>
+        <p>Non. C'est un exécutable portable pour Windows 10 et 11 (<code>Ward-0.1.3-portable.exe</code>) : tu le lances et le widget apparaît en haut à droite de ton écran. Il faut que League of Legends soit installé.</p>
+      </details>
+      <details>
+        <summary>Comment Ward se met-il à jour ?</summary>
+        <p>Tout seul. À chaque lancement, Ward regarde s'il existe une nouvelle version sur GitHub et la télécharge en arrière-plan. Il vérifie le fichier, attend que tu ne sois ni en recherche ni en partie, puis redémarre sur la nouvelle version.</p>
       </details>
       <details>
         <summary>Dois-je me connecter à chaque lancement ?</summary>
@@ -645,10 +651,10 @@
     <div class="hero-cta">
       <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
-        Télécharger la v0.1.2
+        Télécharger la v0.1.3
       </a>
     </div>
-    <div class="file"><span>Ward-0.1.2-portable.exe</span><span>x64</span><span>Portable</span></div>
+    <div class="file"><span>Ward-0.1.3-portable.exe</span><span>x64</span><span>Portable</span></div>
     <p class="source"><a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">Code source et versions sur GitHub</a></p>
   </div>
 </section>
@@ -674,7 +680,7 @@
     :host { display: block; user-select: none; cursor: default; }
     .widget-body, .ready-body { height: 100%; }
     .drag-handle, .panel-header, .ready-popup header { cursor: grab; touch-action: none; }
-    :host(.dragging) .drag-handle, :host(.dragging) .panel-header, :host(.dragging) header { cursor: grabbing; }`;
+    :host(.dragging), :host(.dragging) * { cursor: grabbing !important; }`;
 
   function runApp(ROOT, LEAGUE) {
 /*{{APP_JS}}*/
@@ -715,7 +721,8 @@
     const delay = ms => new Promise(resolve => later(resolve, ms));
     const readyListeners = [];
     const s = { connected: false, starting: true, phase: 'None', searchStart: 0, roles: null, partner: null,
-      ready: null, clientOpening: false, champDeadline: 0, champion: null, gameStart: 0, extraId: 90, t: {} };
+      ready: null, clientOpening: false, champDeadline: 0, champion: null, gameStart: 0, extraId: 90, t: {},
+      invites: [], isLeader: true, invited: false, connectedAt: 0 };
 
     const setPhase = phase => { s.phase = phase; ui.phaseChanged(phase); };
     const readySnapshot = () => s.ready
@@ -724,8 +731,31 @@
       : { active: false, response: 'None', elapsed: null, deadline: null, duration: READY_MS, sampledAt: Date.now() };
     const pushReady = () => { const value = readySnapshot(); readyListeners.forEach(cb => cb(value)); };
 
-    function connect() { s.connected = true; s.starting = false; ui.quest('launch'); }
+    function connect() { s.connected = true; s.starting = false; s.connectedAt = Date.now(); ui.quest('launch'); }
     later(connect, 1900);
+
+    // Invitation reçue (une fois par démo) et chef de lobby qui lance la recherche.
+    const INVITER = FRIENDS.find(friend => friend.name.startsWith('Lumen'));
+    function tick() {
+      const idle = s.connected && ['None', 'Lobby'].includes(s.phase);
+      if (idle && !s.invited && !s.partner && Date.now() - s.connectedAt > 15000) {
+        s.invited = true;
+        s.invites = [{ id: 'demo-invite', fromSummonerId: INVITER.summonerId, name: 'Lumen', profileIconId: INVITER.icon, queueId: 420, gameMode: 'CLASSIC' }];
+      }
+      if (!s.isLeader && s.partner && s.phase === 'Lobby' && s.roles && !s.t.leader) {
+        s.t.leader = later(() => {
+          s.t.leader = null;
+          if (s.isLeader || s.phase !== 'Lobby' || !s.roles) return;
+          setPhase('Matchmaking');
+          s.searchStart = Date.now();
+          ui.quest('search');
+          ui.notice('Lumen a lancé la recherche.');
+          s.t.found = later(startReady, 6000 + Math.random() * 3000);
+        }, 3500);
+      }
+      later(tick, 1000);
+    }
+    later(tick, 1000);
 
     function ensureLobby() {
       if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
@@ -784,7 +814,8 @@
         if (!s.connected) return { connected: false, starting: s.starting, message: s.starting ? 'Lancement de League…' : 'League est fermé' };
         const searching = s.phase === 'Matchmaking';
         return { connected: true, summoner: { summonerId: 1, gameName: 'Toi', summonerLevel: 379, profileIconId: 1 },
-          duoPartner: s.partner ? { ...s.partner } : null, canKick: Boolean(s.partner) && s.phase === 'Lobby',
+          duoPartner: s.partner ? { ...s.partner } : null, canKick: Boolean(s.partner) && s.isLeader && s.phase === 'Lobby',
+          isLeader: s.isLeader, queueId: s.phase === 'None' ? null : 420, invitations: s.invites.map(invite => ({ ...invite })),
           phase: s.phase, searching, sampledAt: Date.now(),
           timeInQueue: searching ? (Date.now() - s.searchStart) / 1000 : null,
           estimatedQueueTime: searching ? 95 : null,
@@ -825,8 +856,26 @@
       },
       async kickMember() {
         if (s.phase !== 'Lobby') throw new Error('Impossible d\'exclure un joueur maintenant.');
+        if (!s.isLeader) throw new Error('Seul le chef du lobby peut exclure un joueur.');
         await delay(200);
         s.partner = null;
+      },
+      async acceptInvitation(id) {
+        const invite = s.invites.find(item => item.id === id);
+        if (!invite) throw new Error('Cette invitation a expiré.');
+        if (s.phase === 'Matchmaking') throw new Error('Annule ta recherche avant de rejoindre ce lobby.');
+        if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Impossible de rejoindre un lobby pendant une partie.');
+        await delay(350);
+        s.invites = [];
+        s.isLeader = false;
+        s.partner = { summonerId: invite.fromSummonerId, displayName: invite.name, profileIconId: invite.profileIconId,
+          summonerLevel: INVITER.level, ...partnerRoles() };
+        setPhase('Lobby');
+        ui.quest('duo');
+      },
+      async declineInvitation(id) {
+        await delay(200);
+        s.invites = s.invites.filter(item => item.id !== id);
       },
       async startSearch() {
         if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
@@ -867,6 +916,8 @@
       get connected() { return s.connected; },
       get roles() { return s.roles; },
       get partner() { return s.partner; },
+      get invites() { return s.invites; },
+      get isLeader() { return s.isLeader; },
       get ready() { return s.ready; },
       get champion() { return s.champion; },
       champLeft: () => Math.max(0, s.champDeadline - Date.now()),
@@ -926,9 +977,11 @@
       const start = { x: event.clientX, y: event.clientY, ox: el._x, oy: el._y };
       el.setPointerCapture(event.pointerId);
       el.classList.add('dragging');
+      document.body.classList.add('dragging-window');
       const move = ev => place(el, start.ox + ev.clientX - start.x, start.oy + ev.clientY - start.y);
       const up = () => {
         el.classList.remove('dragging');
+        document.body.classList.remove('dragging-window');
         el.removeEventListener('pointermove', move);
         el.removeEventListener('pointerup', up);
         el.removeEventListener('pointercancel', up);
@@ -1019,6 +1072,8 @@
     if (hosts.widget.hidden) return { text: 'Widget fermé : clique sur son icône dans la barre des tâches pour le rouvrir.' };
     const phase = backend.phase;
     if (!backend.connected) return { text: 'League démarre en arrière-plan…' };
+    if (backend.invites.length && ['None', 'Lobby'].includes(backend.phase)) return { text: 'Lumen t’invite : rejoins son lobby avec ✓ ou refuse avec ✕, directement dans le widget.' };
+    if (!backend.isLeader && backend.phase === 'Lobby') return { text: backend.roles ? 'Tu es dans le lobby de Lumen : c’est elle qui lance la recherche.' : 'Tu es dans le lobby de Lumen : choisis tes rôles, elle lancera la recherche ensuite.' };
     if (phase === 'ReadyCheck') return { text: backend.ready?.response === 'Accepted' ? 'Accepté ! Les autres joueurs arrivent…' : 'Partie trouvée : accepte dans la popup ou dans le widget.' };
     if (phase === 'Matchmaking') return { text: 'Recherche en cours… Tu peux déplacer le widget pendant ce temps.' };
     if (phase === 'ChampSelect') return { text: backend.champion ? 'Champion verrouillé. La partie va commencer.' : 'Le client s’est ouvert tout seul : choisis un champion et verrouille-le.' };
