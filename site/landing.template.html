@@ -398,7 +398,7 @@
 <header class="hero" id="top">
   <div class="wrap hero-top">
     <div>
-      <span class="eyebrow">Ward · le widget de ta file classée</span>
+      <span class="eyebrow">Ward · ta file League depuis le bureau</span>
       <h1>La file classée, <em>sans ouvrir le client.</em></h1>
     </div>
     <div>
@@ -540,8 +540,8 @@
       </article>
       <article class="feature">
         <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <h3>Chef de lobby</h3>
-        <p>Si tu es chef de lobby, tu peux exclure ton partenaire depuis le widget, après confirmation.</p>
+        <h3>Tous tes modes de jeu</h3>
+        <p>Un clic sur le nom de la file pour passer en Flex, en ARAM ou en Arena. Le widget s'agrandit pour tout ton groupe, cache les rôles quand il n'y en a pas, et en Arena tu changes d'équipe d'un clic.</p>
       </article>
     </div>
   </div>
@@ -621,7 +621,7 @@
       </details>
       <details>
         <summary>Faut-il installer quelque chose ?</summary>
-        <p>Non. C'est un exécutable portable pour Windows 10 et 11 (<code>Ward-0.1.3-portable.exe</code>) : tu le lances et le widget apparaît en haut à droite de ton écran. Il faut que League of Legends soit installé.</p>
+        <p>Non. C'est un exécutable portable pour Windows 10 et 11 (<code>Ward-0.1.4-portable.exe</code>) : tu le lances et le widget apparaît en haut à droite de ton écran. Il faut que League of Legends soit installé.</p>
       </details>
       <details>
         <summary>Comment Ward se met-il à jour ?</summary>
@@ -633,7 +633,7 @@
       </details>
       <details>
         <summary>Quelles files sont prises en charge ?</summary>
-        <p>La file Classé Solo/Duo, seul ou à deux. Pour les autres modes, le bouton dans l'en-tête ouvre le client en un clic.</p>
+        <p>Solo/Duo, Flex, Normale, ARAM, ARAM Mayhem et l'Arena du moment, avec changement d'équipe. Ward lit les files ouvertes dans ton client, donc un nouveau mode ou une nouvelle Arena apparaît tout seul. Pour Swiftplay et Clash, qui se préparent dans le client, le bouton de l'en-tête l'ouvre en un clic.</p>
       </details>
       <details>
         <summary>Que se passe-t-il pendant la partie ?</summary>
@@ -651,10 +651,10 @@
     <div class="hero-cta">
       <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
-        Télécharger la v0.1.3
+        Télécharger la v0.1.4
       </a>
     </div>
-    <div class="file"><span>Ward-0.1.3-portable.exe</span><span>x64</span><span>Portable</span></div>
+    <div class="file"><span>Ward-0.1.4-portable.exe</span><span>x64</span><span>Portable</span></div>
     <p class="source"><a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">Code source et versions sur GitHub</a></p>
   </div>
 </section>
@@ -704,6 +704,15 @@
   ];
   const ROLES = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'UTILITY', 'FILL'];
   const READY_MS = 10733;
+  // Files proposées par la démo (mêmes champs que electron/queues.cjs).
+  const DEMO_QUEUES = [
+    { id: 420, label: 'Solo / Duo', group: 'kSummonersRift', positions: true, arena: false, ranked: true, maxParty: 2, premadeSizes: [1, 2], disabled: null },
+    { id: 440, label: 'Flex', group: 'kSummonersRift', positions: true, arena: false, ranked: true, maxParty: 5, premadeSizes: [1, 2, 3, 5], disabled: null },
+    { id: 400, label: 'Normale', group: 'kSummonersRift', positions: true, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
+    { id: 450, label: 'ARAM', group: 'kARAM', positions: false, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
+    { id: 2400, label: 'ARAM Mayhem', group: 'kARAM', positions: false, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
+    { id: 1740, label: 'Arena Bravoure', group: 'kAlternativeLeagueGameModes', positions: false, arena: true, teamSize: 3, ranked: false, maxParty: 18, premadeSizes: [], disabled: null }
+  ];
   const CHAMP_MS = 30000;
 
   function avatar(id) {
@@ -722,7 +731,31 @@
     const readyListeners = [];
     const s = { connected: false, starting: true, phase: 'None', searchStart: 0, roles: null, partner: null,
       ready: null, clientOpening: false, champDeadline: 0, champion: null, gameStart: 0, extraId: 90, t: {},
-      invites: [], isLeader: true, invited: false, connectedAt: 0 };
+      invites: [], isLeader: true, invited: false, connectedAt: 0,
+      party: [], queueId: 420, subteam: { subteamIndex: 1, intraSubteamPosition: 1 } };
+    const queue = () => {
+      const base = DEMO_QUEUES.find(item => item.id === s.queueId) || DEMO_QUEUES[0];
+      return { ...base, layout: base.arena ? 'arena' : base.maxParty > 2 ? 'party' : 'duo', teams: base.arena ? base.maxParty / base.teamSize : null, teamSize: base.arena ? base.teamSize : null };
+    };
+    function arenaSeat() {
+      const taken = new Set([`${s.subteam.subteamIndex}:${s.subteam.intraSubteamPosition}`, ...s.party.map(m => `${m.subteamIndex}:${m.intraSubteamPosition}`)]);
+      const { teams, teamSize } = queue();
+      for (const team of [s.subteam.subteamIndex, ...Array.from({ length: teams || 1 }, (_, i) => i + 1)]) {
+        for (let position = 1; position <= (teamSize || 2); position++) if (!taken.has(`${team}:${position}`)) return { subteamIndex: team, intraSubteamPosition: position };
+      }
+      return { subteamIndex: teams || 1, intraSubteamPosition: teamSize || 2 };
+    }
+    function blockedReason() {
+      const q = queue(), size = s.party.length + 1;
+      if (s.phase === 'None' || !s.isLeader) return null;
+      if (q.premadeSizes.length && !q.premadeSizes.includes(size)) return `En ${q.label}, on joue à ${q.premadeSizes.slice(0, -1).join(', ')} ou ${q.premadeSizes.at(-1)} (vous êtes ${size})`;
+      if (q.arena) {
+        const counts = new Map();
+        for (const seat of [s.subteam, ...s.party]) counts.set(seat.subteamIndex, (counts.get(seat.subteamIndex) || 0) + 1);
+        if ([...counts.values()].filter(count => count < q.teamSize).length > 1) return `Complète les équipes Arena : ${q.teamSize} joueurs par équipe`;
+      }
+      return null;
+    }
 
     const setPhase = phase => { s.phase = phase; ui.phaseChanged(phase); };
     const readySnapshot = () => s.ready
@@ -738,14 +771,14 @@
     const INVITER = FRIENDS.find(friend => friend.name.startsWith('Lumen'));
     function tick() {
       const idle = s.connected && ['None', 'Lobby'].includes(s.phase);
-      if (idle && !s.invited && !s.partner && Date.now() - s.connectedAt > 15000) {
+      if (idle && !s.invited && !s.party.length && Date.now() - s.connectedAt > 15000) {
         s.invited = true;
         s.invites = [{ id: 'demo-invite', fromSummonerId: INVITER.summonerId, name: 'Lumen', profileIconId: INVITER.icon, queueId: 420, gameMode: 'CLASSIC' }];
       }
-      if (!s.isLeader && s.partner && s.phase === 'Lobby' && s.roles && !s.t.leader) {
+      if (!s.isLeader && s.party.length && s.phase === 'Lobby' && (s.roles || !queue().positions) && !s.t.leader) {
         s.t.leader = later(() => {
           s.t.leader = null;
-          if (s.isLeader || s.phase !== 'Lobby' || !s.roles) return;
+          if (s.isLeader || s.phase !== 'Lobby' || (!s.roles && queue().positions)) return;
           setPhase('Matchmaking');
           s.searchStart = Date.now();
           ui.quest('search');
@@ -762,17 +795,17 @@
       if (s.phase === 'None') setPhase('Lobby');
     }
     function partnerRoles() {
-      const mine = [s.roles?.firstPreference, s.roles?.secondPreference];
+      const mine = [s.roles?.firstPreference, s.roles?.secondPreference, ...s.party.flatMap(m => [m.firstPreference, m.secondPreference])];
       const free = ['BOTTOM', 'UTILITY', 'TOP', 'JUNGLE', 'MIDDLE'].filter(role => !mine.includes(role));
       return { firstPreference: free[0], secondPreference: free[1] };
     }
     function join(friend) {
       later(() => {
-        if (s.phase !== 'Lobby' || s.partner) return;
+        if (s.phase !== 'Lobby' || s.party.length >= queue().maxParty - 1 || s.party.some(m => m.summonerId === friend.summonerId)) return;
         const short = friend.name.split('#')[0];
         if (friend.status === 'inGame') { ui.notice(`${short} est en partie et a refusé l'invitation. Essaie un ami « En ligne ».`, true); return; }
-        s.partner = { summonerId: friend.summonerId, displayName: short, profileIconId: friend.icon,
-          summonerLevel: friend.level, ...partnerRoles() };
+        s.party.push({ summonerId: friend.summonerId, displayName: short, profileIconId: friend.icon,
+          summonerLevel: friend.level, isLeader: false, ...partnerRoles(), ...arenaSeat() });
         ui.quest('duo');
         ui.notice(`${short} a rejoint ton lobby.`);
       }, 1500);
@@ -814,8 +847,11 @@
         if (!s.connected) return { connected: false, starting: s.starting, message: s.starting ? 'Lancement de League…' : 'League est fermé' };
         const searching = s.phase === 'Matchmaking';
         return { connected: true, summoner: { summonerId: 1, gameName: 'Toi', summonerLevel: 379, profileIconId: 1 },
-          duoPartner: s.partner ? { ...s.partner } : null, canKick: Boolean(s.partner) && s.isLeader && s.phase === 'Lobby',
-          isLeader: s.isLeader, queueId: s.phase === 'None' ? null : 420, invitations: s.invites.map(invite => ({ ...invite })),
+          duoPartner: s.party.length ? (({ isLeader, subteamIndex, intraSubteamPosition, ...rest }) => rest)(s.party[0]) : null,
+          members: s.party.map(member => ({ ...member })), canKick: Boolean(s.party.length) && s.isLeader && s.phase === 'Lobby',
+          isLeader: s.isLeader, queueId: s.phase === 'None' ? null : s.queueId, queue: queue(), blocked: blockedReason(),
+          localSubteam: s.phase === 'None' ? null : { ...s.subteam },
+          invitations: s.invites.map(invite => ({ ...invite })),
           phase: s.phase, searching, sampledAt: Date.now(),
           timeInQueue: searching ? (Date.now() - s.searchStart) / 1000 : null,
           estimatedQueueTime: searching ? 95 : null,
@@ -854,12 +890,39 @@
         await delay(250);
         join(friend);
       },
-      async kickMember() {
+      async kickMember(id) {
         if (s.phase !== 'Lobby') throw new Error('Impossible d\'exclure un joueur maintenant.');
         if (!s.isLeader) throw new Error('Seul le chef du lobby peut exclure un joueur.');
         await delay(200);
-        s.partner = null;
+        s.party = s.party.filter(member => member.summonerId !== id);
+        return true;
       },
+      async listQueues() { await delay(200); return { queues: DEMO_QUEUES.map(item => ({ ...item })), selected: s.queueId }; },
+      async selectQueue(id) {
+        const next = DEMO_QUEUES.find(item => item.id === id);
+        if (!next) throw new Error('Cette file n’est pas disponible.');
+        if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Annule la recherche avant de changer de file.');
+        if (!s.isLeader) throw new Error('Seul le chef du lobby peut changer de file.');
+        if (s.party.length + 1 > next.maxParty) throw new Error(`Trop de joueurs pour ${next.label} (${next.maxParty} maximum).`);
+        await delay(250);
+        s.queueId = id;
+        if (next.arena) {
+          s.subteam = { subteamIndex: 1, intraSubteamPosition: 1 };
+          const party = s.party; s.party = [];
+          for (const member of party) s.party.push({ ...member, ...arenaSeat() });
+        }
+        ui.quest('queue');
+        return { ...next };
+      },
+      async switchArenaTeam(subteamIndex, position) {
+        if (!queue().arena || s.phase !== 'Lobby') throw new Error('Change d’équipe avant de lancer la recherche.');
+        if (!Number.isInteger(subteamIndex) || subteamIndex < 1 || subteamIndex > queue().teams) throw new Error('Équipe invalide.');
+        if (!Number.isInteger(position) || position < 1 || position > queue().teamSize) throw new Error('Place invalide.');
+        if (s.party.some(m => m.subteamIndex === subteamIndex && m.intraSubteamPosition === position)) throw new Error('Cette place est déjà prise.');
+        await delay(200);
+        s.subteam = { subteamIndex, intraSubteamPosition: position };
+      },
+      async setWidgetSize(width, height) { ui.resizeWidget(width, height); },
       async acceptInvitation(id) {
         const invite = s.invites.find(item => item.id === id);
         if (!invite) throw new Error('Cette invitation a expiré.');
@@ -868,8 +931,9 @@
         await delay(350);
         s.invites = [];
         s.isLeader = false;
-        s.partner = { summonerId: invite.fromSummonerId, displayName: invite.name, profileIconId: invite.profileIconId,
-          summonerLevel: INVITER.level, ...partnerRoles() };
+        s.queueId = invite.queueId;
+        s.party = [{ summonerId: invite.fromSummonerId, displayName: invite.name, profileIconId: invite.profileIconId,
+          summonerLevel: INVITER.level, isLeader: true, ...partnerRoles(), subteamIndex: 1, intraSubteamPosition: 2 }];
         setPhase('Lobby');
         ui.quest('duo');
       },
@@ -879,7 +943,9 @@
       },
       async startSearch() {
         if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
-        if (!s.roles) throw new Error('Choisis tes positions avant de lancer.');
+        if (!s.roles && queue().positions) throw new Error('Choisis tes positions avant de lancer.');
+        const reason = blockedReason();
+        if (reason) throw new Error(reason);
         await delay(260);
         setPhase('Matchmaking');
         s.searchStart = Date.now();
@@ -915,7 +981,8 @@
       get phase() { return s.phase; },
       get connected() { return s.connected; },
       get roles() { return s.roles; },
-      get partner() { return s.partner; },
+      get partner() { return s.party[0] || null; },
+      get queue() { return queue(); },
       get invites() { return s.invites; },
       get isLeader() { return s.isLeader; },
       get ready() { return s.ready; },
@@ -1007,6 +1074,13 @@
     phaseChanged() { clientKey = ''; },
     showReady() { readyDismissed = false; show(hosts.ready); },
     hideReady(dismiss = false) { if (dismiss) readyDismissed = true; hosts.ready.hidden = true; },
+    resizeWidget(width, height) {
+      const host = hosts.widget;
+      if (!host) return;
+      const right = host._x + host.offsetWidth;
+      host.style.width = `${width}px`; host.style.height = `${height}px`;
+      place(host, right - width, host._y);
+    },
     hideWidget() { hosts.widget.hidden = true; tbWidget.classList.remove('open'); tbWidget.classList.add('nudge'); },
     showClient() { clientKey = ''; renderClient(); show(hosts.client); tbClient.hidden = false; tbClient.classList.add('open'); },
     hideClient() { hosts.client.hidden = true; tbClient.hidden = true; }
@@ -1064,7 +1138,8 @@
       li.classList.toggle('done', quests.has(li.dataset.quest));
       li.classList.toggle('on', li.dataset.quest === next);
     });
-    document.getElementById('progress').textContent = quests.size === QUESTS.length ? '6 / 6 étapes · bravo !' : `${quests.size} / 6 étapes`;
+    const done = QUESTS.filter(key => quests.has(key)).length;
+    document.getElementById('progress').textContent = done === QUESTS.length ? '6 / 6 étapes · bravo !' : `${done} / 6 étapes`;
   }
 
   function hintText() {
@@ -1080,8 +1155,10 @@
     if (phase === 'GameStart') return { text: 'Chargement de la partie…' };
     if (phase === 'InProgress') return { text: 'Partie en cours. Termine-la depuis la fenêtre du client quand tu veux.' };
     if (phase === 'EndOfGame') return { text: 'Fin de partie…' };
-    if (!backend.roles) return { text: 'Clique sur « Lancer » ou sur les icônes sous ton portrait pour choisir tes rôles.' };
+    if (!backend.roles && backend.queue.positions) return { text: 'Clique sur « Lancer » ou sur les icônes sous ton portrait pour choisir tes rôles.' };
+    if (backend.queue.arena && backend.phase === 'Lobby') return { text: `Arena : invite des amis, puis clique sur « Rejoindre » pour changer d’équipe. ${backend.queue.teamSize} joueurs par équipe.` };
     if (!backend.partner && !quests.has('duo')) return { text: 'Invite un ami avec le cercle « Inviter », ou clique directement sur « Lancer ».' };
+    if (!quests.has('queue')) return { text: 'Tout est prêt : clique sur « Lancer », ou sur « SOLO / DUO » pour changer de mode (Flex, ARAM, Arena…).' };
     return { text: 'Tout est prêt : clique sur « Lancer ».' };
   }
   function renderHint() {

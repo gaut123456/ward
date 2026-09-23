@@ -29,15 +29,16 @@ async function applyRoles(value) {
     const noInvitations = Array.isArray(invitations) && invitations.every(i => ['Declined', 'Revoked', 'Expired'].includes(i.state));
     if (phase !== 'Lobby' || search || ready?.state === 'InProgress' ||
       !player.currentParty?.activityLocked || player.currentParty.players?.length !== 1 ||
-      lobby.members?.length !== 1 || !lobby.localMember?.isLeader || lobby.gameConfig?.queueId !== 420 || !noInvitations) {
+      lobby.members?.length !== 1 || !lobby.localMember?.isLeader || !lobby.gameConfig?.queueId || !noInvitations) {
       throw new Error('League refuse les rôles : le lobby est verrouillé. Quitte puis recrée le lobby avant de réessayer.');
     }
-    // Recheck immediately before replacing only this isolated, idle Solo/Duo lobby.
+    // Recheck immediately before replacing only this isolated, idle lobby (same queue).
+    const queueId = lobby.gameConfig.queueId;
     const latest = await lcu.call('GET', '/lol-lobby/v2/lobby');
-    if (latest.members?.length !== 1 || !latest.localMember?.isLeader || latest.gameConfig?.queueId !== 420 ||
+    if (latest.members?.length !== 1 || !latest.localMember?.isLeader || latest.gameConfig?.queueId !== queueId ||
       await lcu.call('GET', '/lol-gameflow/v1/gameflow-phase') !== 'Lobby') throw new Error('Le lobby a changé. Réessaie.');
     await lcu.call('DELETE', '/lol-lobby/v2/lobby');
-    await lcu.call('POST', '/lol-lobby/v2/lobby', { queueId: 420 });
+    await lcu.call('POST', '/lol-lobby/v2/lobby', { queueId });
     await lcu.call('PUT', endpoint, preferences);
     recovered = true;
   }

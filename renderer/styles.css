@@ -196,6 +196,162 @@ svg { display: block; }
 
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
+/* ===== CHOIX DU MODE DE JEU ===== */
+.queue-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  height: 24px;
+  margin-left: -5px;
+  padding: 0 5px;
+  border-radius: 3px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  -webkit-app-region: no-drag;
+  transition: background var(--fast), color var(--fast);
+}
+.queue-button:hover:not(:disabled), .queue-button[aria-expanded="true"] { background: rgba(200, 170, 110, 0.1); color: var(--gold-1); }
+.queue-button:disabled { cursor: default; }
+.queue-button .chevron { width: 10px; height: 10px; margin-left: -3px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }
+.queue-button:disabled .chevron { display: none; }
+
+.queue-options {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 48px;
+  gap: 6px;
+  align-content: start;
+  margin: 0 -6px;
+  padding: 0 2px 0 6px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.queue-options::-webkit-scrollbar { width: 4px; }
+.queue-options::-webkit-scrollbar-thumb { background: var(--gold-5); border-radius: 2px; }
+.queue-options .empty-list { grid-column: 1 / -1; }
+.queue-option {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(30, 35, 40, 0.5), rgba(1, 10, 19, 0.75));
+  text-align: left;
+  transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);
+}
+.mode-icon {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border: 1px solid var(--gold-5);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, rgba(200, 170, 110, 0.14), rgba(1, 10, 19, 0.6));
+  color: var(--gold-3);
+  transition: var(--fast);
+}
+.mode-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.mode-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mode-text b {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold-1);
+}
+.mode-text small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; color: var(--grey-1); }
+.mode-text small .ranked { color: var(--gold-2); }
+.queue-option:hover:not(:disabled) { border-color: var(--gold-4); background: linear-gradient(180deg, rgba(200, 170, 110, 0.1), rgba(1, 10, 19, 0.75)); }
+.queue-option:hover:not(:disabled) .mode-icon { border-color: var(--gold-3); color: var(--gold-1); }
+.queue-option[aria-pressed="true"] {
+  border-color: var(--gold-2);
+  background: linear-gradient(180deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.04));
+  box-shadow: inset 0 0 12px var(--gold-glow);
+}
+.queue-option[aria-pressed="true"] .mode-icon { border-color: var(--gold-2); background: var(--gold-2); color: var(--void); }
+.queue-option.locked { opacity: 0.5; }
+.queue-option.locked small { color: var(--red); }
+
+/* ===== DISPOSITIONS : GROUPE ET ARENA ===== */
+.widget[data-positions="off"] .role-slots { display: none; }
+.party-slots { display: contents; }
+.widget[data-layout="party"] .players { justify-content: space-between; }
+.widget[data-layout="party"] .player { width: 80px; }
+.widget[data-layout="party"] .link, .widget[data-layout="arena"] .link { display: none; }
+.widget[data-layout="arena"] .players { justify-content: center; gap: 22px; }
+.widget[data-layout="arena"] .player { width: 88px; }
+.party-member .portrait { background: radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box, linear-gradient(160deg, var(--gold-1) 0%, var(--gold-2) 35%, var(--gold-4) 100%) border-box; }
+.party-member img, .chip-seat img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.party-member .portrait svg { fill: var(--grey-2); }
+.slot-empty { position: absolute; inset: 7px; border: 1px dashed var(--grey-3); border-radius: 50%; }
+
+/* Autres équipes Arena : pastilles cliquables */
+.arena-grid {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: -4px -12px 10px;
+  padding: 6px 12px 0;
+  border-top: 1px solid var(--line);
+}
+.strip-title {
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--grey-2);
+}
+.team-chip {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 9px 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: rgba(1, 10, 19, 0.6);
+  transition: var(--fast);
+}
+.chip-number {
+  width: 20px; height: 20px;
+  display: grid; place-items: center;
+  border: 1px solid var(--gold-4);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold-2);
+}
+.chip-seats { display: flex; gap: 3px; }
+.chip-seat {
+  width: 18px; height: 18px;
+  overflow: hidden;
+  border: 1px solid var(--gold-4);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, #16283a, var(--void));
+}
+.chip-seat svg { width: 100%; height: 100%; padding: 3px 3px 1px; fill: var(--grey-2); }
+.chip-seat.open { border: 1px dashed var(--grey-3); background: none; }
+.chip-label { font-size: 9.5px; color: var(--grey-1); }
+.team-chip.new .chip-number { border-style: dashed; color: var(--grey-1); }
+.team-chip:hover:not(:disabled) { border-color: var(--blue-3); background: rgba(10, 200, 185, 0.08); box-shadow: 0 0 10px var(--blue-glow); }
+.team-chip:hover:not(:disabled) .chip-seat.open { border-color: var(--blue-2); background: rgba(10, 200, 185, 0.18); }
+.team-chip:hover:not(:disabled) .chip-label { color: var(--blue-1); }
+.team-chip:disabled { opacity: 0.5; }
+
 /* ===== INVITATION REÇUE ===== */
 .invite-toast {
   position: absolute;

@@ -5,6 +5,7 @@ const lcu = require('./lcu.cjs');
 const { validateRoles, applyRoles } = require('./roles.cjs');
 const { queueState, readySnapshot, createClientHandoff } = require('./gameflow.cjs');
 const updater = require('./updater.cjs');
+const queues = require('./queues.cjs');
 const handoff = createClientHandoff();
 let readyState = readySnapshot(null), quitting = false;
 let mainWindow, readyWindow, poller, launchTask;
@@ -34,6 +35,41 @@ if (preview) app.setPath('userData', fs.mkdtempSync(path.join(app.getPath('temp'
 function savedRoles() {
   try { return validateRoles(JSON.parse(fs.readFileSync(path.join(app.getPath('userData'), 'roles.json'), 'utf8'))); }
   catch { return null; }
+}
+
+const DEFAULT_QUEUE = 420;
+function savedQueueId() {
+  try {
+    const id = JSON.parse(fs.readFileSync(path.join(app.getPath('userData'), 'settings.json'), 'utf8')).queueId;
+    return Number.isInteger(id) && id > 0 ? id : DEFAULT_QUEUE;
+  } catch { return DEFAULT_QUEUE; }
+}
+function saveQueueId(queueId) {
+  fs.mkdirSync(app.getPath('userData'), { recursive: true });
+  fs.writeFileSync(path.join(app.getPath('userData'), 'settings.json'), JSON.stringify({ queueId }));
+}
+
+// Files jouables (règles lues dans le client), gardées une minute en cache.
+let catalogCache = { at: 0, level: null, list: [] };
+async function queueCatalog(level) {
+  if (Date.now() - catalogCache.at < 60000 && catalogCache.level === level) return catalogCache.list;
+  const list = queues.playable(await lcu.call('GET', '/lol-game-queues/v1/queues'), level ?? Infinity);
+  catalogCache = { at: Date.now(), level, list };
+  return list;
+}
+
+// Infos de la file du lobby (ou de la file choisie s'il n'y a pas encore de lobby).
+function queueInfo(catalog, lobby) {
+  const config = lobby?.gameConfig;
+  const id = config?.queueId ?? savedQueueId();
+  const known = catalog.find(queue => queue.id === id);
+  const base = known || (config ? { id, label: queues.label({ id, gameMode: config.gameMode }), positions: Boolean(config.showPositionSelector),
+    arena: queues.isArena(config), maxParty: config.maxLobbySize || 5, premadeSizes: config.allowablePremadeSizes || [] }
+    : { id: DEFAULT_QUEUE, label: 'Solo / Duo', positions: true, arena: false, maxParty: 2, premadeSizes: [1, 2] });
+  const maxParty = config?.maxLobbySize || base.maxParty;
+  const teamSize = base.arena ? queues.arenaTeamSize(id, lobby?.members) : null;
+  return { ...base, maxParty, layout: base.arena ? 'arena' : maxParty > 2 ? 'party' : 'duo',
+    teams: base.arena ? queues.arenaTeams(maxParty, teamSize) : null, teamSize };
 }
 
 async function currentLobby() {
@@ -123,13 +159,19 @@ async function watchReady() {
   if (!quitting) poller = setTimeout(watchReady, 750);
 }
 
+// Garde le lobby existant (sa file est celle du chef) ; sinon crée celui de la file choisie.
 async function ensureLobby() {
   const { phase, searching } = await queueState();
   if (searching || !['None', 'Lobby'].includes(phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
   const lobby = await currentLobby();
-  if (lobby?.gameConfig?.queueId === 420) return lobby;
-  if (lobby) throw new Error('Quitte ton autre lobby dans League avant de lancer une Solo/Duo.');
-  return lcu.call('POST', '/lol-lobby/v2/lobby', { queueId: 420 });
+  if (lobby) return lobby;
+  const queueId = savedQueueId();
+  try { return await lcu.call('POST', '/lol-lobby/v2/lobby', { queueId }); }
+  catch (error) {
+    if (queueId === DEFAULT_QUEUE) throw error;
+    saveQueueId(DEFAULT_QUEUE);
+    throw new Error('Cette file n’est plus disponible : choisis-en une autre.');
+  }
 }
 
 async function readStatus() {
@@ -140,32 +182,40 @@ async function readStatus() {
       lcu.call('GET', '/lol-lobby/v2/received-invitations').catch(() => [])
     ]);
     const localId = lobby?.localMember?.summonerId || summoner.summonerId;
-    const partner = localId ? lobby?.members?.find(member => member.summonerId && String(member.summonerId) !== String(localId)) : null;
-    let duoPartner = partner ? { summonerId: partner.summonerId, displayName: partner.summonerName,
-      profileIconId: partner.summonerIconId, summonerLevel: partner.summonerLevel,
-      firstPreference: partner.firstPositionPreference, secondPreference: partner.secondPositionPreference } : null;
-    if (duoPartner) {
-      // Chat presence is the only source that updates while the partner sits
+    const others = localId ? (lobby?.members || []).filter(member => member.summonerId && String(member.summonerId) !== String(localId)) : [];
+    const members = others.map(member => ({ summonerId: member.summonerId, displayName: member.summonerName,
+      profileIconId: member.summonerIconId, summonerLevel: member.summonerLevel, isLeader: member.isLeader === true,
+      firstPreference: member.firstPositionPreference, secondPreference: member.secondPositionPreference,
+      subteamIndex: member.subteamIndex, intraSubteamPosition: member.intraSubteamPosition }));
+    if (members.length) {
+      // Chat presence is the only source that updates while a member sits
       // in the lobby; the lobby copy and the summoner endpoint lag behind.
       const friends = await lcu.call('GET', '/lol-chat/v1/friends').catch(() => null);
-      const presence = (Array.isArray(friends) ? friends : [])
-        .find(friend => String(friend.summonerId) === String(duoPartner.summonerId));
-      if (presence?.icon !== undefined) duoPartner.profileIconId = presence.icon;
-      else if (duoPartner.profileIconId === undefined) {
-        const fresh = await lcu.call('GET', `/lol-summoner/v1/summoners/${duoPartner.summonerId}`).catch(() => null);
-        if (fresh?.profileIconId !== undefined) {
-          duoPartner.profileIconId = fresh.profileIconId;
-          if (fresh.summonerLevel !== undefined) duoPartner.summonerLevel = fresh.summonerLevel;
-          if (fresh.gameName || fresh.displayName) duoPartner.displayName = fresh.gameName || fresh.displayName;
+      await Promise.all(members.map(async member => {
+        const presence = (Array.isArray(friends) ? friends : []).find(friend => String(friend.summonerId) === String(member.summonerId));
+        if (presence?.icon !== undefined) member.profileIconId = presence.icon;
+        else if (member.profileIconId === undefined) {
+          const fresh = await lcu.call('GET', `/lol-summoner/v1/summoners/${member.summonerId}`).catch(() => null);
+          if (fresh?.profileIconId !== undefined) {
+            member.profileIconId = fresh.profileIconId;
+            if (fresh.summonerLevel !== undefined) member.summonerLevel = fresh.summonerLevel;
+            if (fresh.gameName || fresh.displayName) member.displayName = fresh.gameName || fresh.displayName;
+          }
         }
-      }
+      }));
     }
-    const canKick = Boolean(partner && lobby.localMember?.isLeader === true && queue.phase === 'Lobby' && !queue.searching);
+    const { isLeader: partnerLeads, subteamIndex, intraSubteamPosition, ...duoPartner } = members[0] || {};
+    const canKick = Boolean(members.length && lobby.localMember?.isLeader === true && queue.phase === 'Lobby' && !queue.searching);
     const invitations = await describeInvitations(received);
     // Only an explicit false means someone else leads: a lobby we created is ours.
     const isLeader = lobby?.localMember?.isLeader !== false;
-    return { connected: true, summoner, duoPartner, canKick, isLeader, queueId: lobby?.gameConfig?.queueId ?? null, invitations,
-      ...queue, ready: readyState, clientUi: { ...handoff.state } };
+    const catalog = await queueCatalog(summoner.summonerLevel).catch(() => []);
+    const lobbyQueue = queueInfo(catalog, lobby);
+    const blocked = lobby && isLeader ? queues.blockReason(lobby, lobbyQueue) : null;
+    return { connected: true, summoner, duoPartner: members.length ? duoPartner : null, members, canKick, isLeader,
+      queueId: lobby?.gameConfig?.queueId ?? null, queue: lobbyQueue, blocked,
+      localSubteam: lobby?.localMember ? { subteamIndex: lobby.localMember.subteamIndex, intraSubteamPosition: lobby.localMember.intraSubteamPosition } : null,
+      invitations, ...queue, ready: readyState, clientUi: { ...handoff.state } };
   } catch (error) { return { connected: false, starting, message: startupMessage || error.message }; }
 }
 ipcMain.handle('lcu:status', async () => ({ ...(await readStatus()), update: { ...updateState } }));
@@ -248,7 +298,7 @@ ipcMain.handle('roles:save', async (_event, value) => {
   if (searching || !['None', 'Lobby'].includes(phase)) throw new Error('Annule la recherche avant de changer tes rôles.');
   const lobby = await currentLobby();
   let recovered = false;
-  if (lobby?.gameConfig?.queueId === 420) {
+  if (lobby?.gameConfig && lobby.gameConfig.showPositionSelector !== false) {
     ({ recovered } = await applyRoles(preferences));
   }
   fs.mkdirSync(app.getPath('userData'), { recursive: true });
@@ -305,6 +355,46 @@ ipcMain.handle('lobby:kick-member', async (_event, id) => {
     return true;
   } finally { kickPending = false; }
 });
+ipcMain.handle('queues:list', async () => {
+  if (preview) return { queues: [], selected: DEFAULT_QUEUE };
+  const summoner = await lcu.call('GET', '/lol-summoner/v1/current-summoner').catch(() => null);
+  const [catalog, lobby] = await Promise.all([queueCatalog(summoner?.summonerLevel), currentLobby()]);
+  return { queues: catalog, selected: lobby?.gameConfig?.queueId ?? savedQueueId() };
+});
+ipcMain.handle('queue:select', async (_event, value) => {
+  const id = Number(value);
+  if (!Number.isSafeInteger(id) || id <= 0) throw new Error('File invalide.');
+  const queue = (await queueCatalog((await lcu.call('GET', '/lol-summoner/v1/current-summoner')).summonerLevel)).find(item => item.id === id);
+  if (!queue) throw new Error('Cette file n’est pas disponible.');
+  if (queue.disabled) throw new Error(queue.disabled);
+  const { phase, searching } = await queueState();
+  if (searching || !['None', 'Lobby'].includes(phase)) throw new Error('Annule la recherche avant de changer de file.');
+  const lobby = await currentLobby();
+  if (lobby?.localMember?.isLeader === false) throw new Error('Seul le chef du lobby peut changer de file.');
+  if ((lobby?.members?.length || 1) > queue.maxParty) throw new Error(`Trop de joueurs pour ${queue.label} (${queue.maxParty} maximum).`);
+  saveQueueId(id);
+  if (lobby && lobby.gameConfig?.queueId !== id) await lcu.call('POST', '/lol-lobby/v2/lobby', { queueId: id });
+  return queue;
+});
+ipcMain.handle('arena:team', async (_event, subteamIndex, position) => {
+  const { phase, searching } = await queueState();
+  if (searching || phase !== 'Lobby') throw new Error('Change d’équipe avant de lancer la recherche.');
+  const lobby = await currentLobby();
+  if (!lobby || !queues.isArena(lobby.gameConfig)) throw new Error('Tu n’es pas dans un lobby Arena.');
+  const error = queues.arenaSlotError(lobby, subteamIndex, position);
+  if (error) throw new Error(error);
+  await lcu.call('PUT', '/lol-lobby/v2/lobby/subteamData', { subteamIndex, intraSubteamPosition: position });
+});
+// Taille du widget selon la file : il s'agrandit vers la gauche pour rester collé au bord droit.
+ipcMain.handle('widget:size', (_event, width, height) => {
+  if (!mainWindow || ![300, 440].includes(width) || !Number.isInteger(height) || height < 200 || height > 480) return;
+  const bounds = mainWindow.getBounds();
+  if (bounds.width === width && bounds.height === height) return;
+  const area = screen.getDisplayMatching(bounds).workArea;
+  const x = Math.max(area.x, Math.min(bounds.x + bounds.width - width, area.x + area.width - width));
+  const y = Math.max(area.y, Math.min(bounds.y, area.y + area.height - height));
+  mainWindow.setBounds({ x, y, width, height });
+});
 function invitationId(value) {
   if (typeof value !== 'string' || !/^[\w-]{1,80}$/.test(value)) throw new Error('Invitation invalide.');
   return value;
@@ -321,9 +411,15 @@ ipcMain.handle('invitation:decline', async (_event, value) => {
 });
 ipcMain.handle('lobby:start-search', async () => {
   const lobby = await ensureLobby();
-  const preferences = savedRoles() || lobbyRoles(lobby);
-  if (!preferences) throw new Error('Choisis tes rôles avant de lancer la recherche.');
-  await applyRoles(preferences);
+  if (lobby.gameConfig?.showPositionSelector !== false) {
+    const preferences = savedRoles() || lobbyRoles(lobby);
+    if (!preferences) throw new Error('Choisis tes rôles avant de lancer la recherche.');
+    await applyRoles(preferences);
+  }
+  const catalog = await queueCatalog().catch(() => []);
+  const latest = await currentLobby(); // Relecture juste avant la recherche : rôles et restrictions à jour.
+  const reason = latest && queues.blockReason(latest, queueInfo(catalog, latest));
+  if (reason) throw new Error(reason);
   await lcu.call('POST', '/lol-lobby/v2/lobby/matchmaking/search');
   return { searching: true };
 });

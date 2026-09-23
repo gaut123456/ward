@@ -15,6 +15,20 @@ let ready = { state: 'Invalid' }, failAccept = false;
 let kicks = [];
 let allowKick = true;
 let received = [];
+const queueBase = { queueAvailability: 'Available', isVisible: true, isEnabled: true, category: 'PvP', isCustom: false, showQuickPlaySlotSelection: false, minLevel: 0 };
+const QUEUES = [
+  { ...queueBase, id: 420, name: 'Ranked Solo/Duo', gameMode: 'CLASSIC', type: 'RANKED_SOLO_5x5', gameSelectModeGroup: 'kSummonersRift', showPositionSelector: true, isRanked: true, maximumParticipantListSize: 2, allowablePremadeSizes: [0, 1, 2], minLevel: 30 },
+  { ...queueBase, id: 440, name: 'Ranked Flex', gameMode: 'CLASSIC', type: 'RANKED_FLEX_SR', gameSelectModeGroup: 'kSummonersRift', showPositionSelector: true, isRanked: true, maximumParticipantListSize: 5, allowablePremadeSizes: [1, 2, 3, 5], minLevel: 30 },
+  { ...queueBase, id: 480, name: 'Swiftplay', gameMode: 'SWIFTPLAY', type: 'SWIFTPLAY', gameSelectModeGroup: 'kSummonersRift', showQuickPlaySlotSelection: true, maximumParticipantListSize: 5 },
+  { ...queueBase, id: 450, name: 'ARAM', gameMode: 'ARAM', type: 'ARAM_UNRANKED_5x5', gameSelectModeGroup: 'kARAM', showPositionSelector: false, maximumParticipantListSize: 5, allowablePremadeSizes: [0, 1, 2, 3, 4, 5] },
+  { ...queueBase, id: 1740, name: 'Bravery Arena', gameMode: 'CHERRY', type: 'CHERRY', gameSelectModeGroup: 'kAlternativeLeagueGameModes', showPositionSelector: false, maximumParticipantListSize: 18 }
+];
+const gameConfigFor = queueId => {
+  const queue = QUEUES.find(item => item.id === queueId);
+  assert.ok(queue, `file inconnue ${queueId}`);
+  return { queueId, gameMode: queue.gameMode, maxLobbySize: queue.maximumParticipantListSize, showPositionSelector: queue.showPositionSelector,
+    allowablePremadeSizes: queue.allowablePremadeSizes, premadeSizeAllowed: true };
+};
 let releaseIcon, failIcon = false, partnerIcon = 0, chatIcon = 0, partnerInChat = true;
 const iconBytes = fs.readFileSync(path.join(__dirname, '../renderer/assets/roles/middle.png'));
 const queueBegan = Date.now() - 83000;
@@ -43,7 +57,11 @@ lcu.call = async (method, route, body) => {
   if (['/riotclient/launch-ux', '/riotclient/ux-show'].includes(route)) return null;
   if (route === '/lol-chat/v1/friends') return Array.from({ length: 11 }, (_, i) => ({ gameName: `Ami ${i + 1}`, gameTag: 'EUW', summonerId: i + 1, availability: 'chat', lol: { gameStatus: 'outOfGame' } })).concat(partnerInChat ? [{ summonerId: 42, gameName: 'Partenaire', gameTag: 'EUW', availability: 'chat', icon: chatIcon, lol: { gameStatus: 'outOfGame' } }] : []);
   if (route === '/lol-lobby/v2/lobby') {
-    if (method === 'POST') { assert.equal(body.queueId, 420); phase = 'Lobby'; return lobby = { gameConfig: { queueId: 420 } }; }
+    if (method === 'POST') {
+      phase = 'Lobby';
+      if (lobby?.members) { lobby.gameConfig = gameConfigFor(body.queueId); return lobby; } // Changement de file : le groupe reste.
+      return lobby = { gameConfig: body.queueId === 420 ? { queueId: 420 } : gameConfigFor(body.queueId) };
+    }
     if (!lobby) throw Object.assign(new Error('Not found'), { status: 404 });
     return lobby;
   }
@@ -68,6 +86,12 @@ lcu.call = async (method, route, body) => {
     return null;
   }
   if (route === '/lol-lobby/v2/received-invitations') return received;
+  if (route === '/lol-game-queues/v1/queues') return QUEUES;
+  if (route === '/lol-lobby/v2/lobby/subteamData') {
+    assert.equal(method, 'PUT');
+    Object.assign(lobby.localMember, { subteamIndex: body.subteamIndex, intraSubteamPosition: body.intraSubteamPosition });
+    return null;
+  }
   const answer = route.match(/^\/lol-lobby\/v2\/received-invitations\/([\w-]+)\/(accept|decline)$/);
   if (answer) {
     assert.equal(method, 'POST');
@@ -344,8 +368,72 @@ app.whenReady().then(async () => {
   assert.equal(await js(`window.league.acceptInvitation('../lobby').then(() => false, () => true)`), true);
   assert.equal(calls.some(c => c.route.endsWith('/inv-3/accept')), false);
   received = []; lobby = null;
+
+  // Files : menu, Flex (groupe de 5, blocage à 4), ARAM (sans rôles), Arena (équipes), retour Solo/Duo.
+  phase = 'None'; searching = false;
+  await js('refresh()');
+  await waitFor(win, `!document.querySelector('#queue-button').disabled`);
+  await js(`document.querySelector('#queue-button').click()`);
+  await waitFor(win, `!document.querySelector('#queue-panel').hidden && document.querySelectorAll('.queue-option').length === 4`);
+  assert.deepEqual(await js(`[...document.querySelectorAll('.queue-option b')].map(b => b.textContent)`), ['Solo / Duo', 'Flex', 'ARAM', 'Arena']);
+  assert.equal(await js(`document.querySelector('[data-queue="420"]').getAttribute('aria-pressed')`), 'true');
+  await sleep(300); fs.writeFileSync(path.join(qa, 'queues.png'), (await win.webContents.capturePage()).toPNG());
+  const postsBeforeFlex = calls.filter(c => c.method === 'POST' && c.route === '/lol-lobby/v2/lobby').length;
+  await js(`document.querySelector('[data-queue="440"]').click()`);
+  await waitFor(win, `document.querySelector('#queue-panel').hidden && document.querySelector('#queue-label').textContent === 'Flex' && document.querySelectorAll('.party-member').length === 4`);
+  for (let i = 0; i < 20 && win.getSize()[0] !== 440; i++) await sleep(100);
+  assert.deepEqual(win.getSize(), [440, 230]);
+  const lobbyPostsBefore = calls.filter(c => c.method === 'POST' && c.route === '/lol-lobby/v2/lobby').length;
+  assert.equal(lobbyPostsBefore, postsBeforeFlex); // Sans lobby, le choix est seulement mémorisé.
+  const mate = (id, name, first, second) => ({ summonerId: id, summonerName: name, summonerIconId: 0, summonerLevel: 50 + id, firstPositionPreference: first, secondPositionPreference: second });
+  lobby = { gameConfig: { ...gameConfigFor(440), premadeSizeAllowed: false }, restrictions: [], localMember: { summonerId: 99, isLeader: true },
+    members: [{ summonerId: 99, isLeader: true }, mate(42, 'Partenaire', 'BOTTOM', 'UTILITY'), mate(7, 'Brume', 'TOP', 'JUNGLE'), mate(8, 'Nox', 'MIDDLE', 'FILL')] };
+  phase = 'Lobby';
+  await js('refresh()');
+  await waitFor(win, `document.querySelector('#play').disabled && document.querySelector('#feedback').textContent === 'En Flex, on joue à 1, 2, 3 ou 5 (vous êtes 4)' && document.querySelector('#feedback').classList.contains('error')`);
+  assert.deepEqual(await js(`[...document.querySelectorAll('.party-member .player-name')].map(n => n.textContent)`), ['Partenaire', 'Brume', 'Nox']);
+  assert.equal(await js(`document.querySelectorAll('.party-member .role-slots').length`), 3);
+  assert.equal(await js(`document.querySelectorAll('.party-member .kick-friend').length`), 3);
+  assert.equal(await js(`document.querySelectorAll('.party-member .add-friend').length`), 1);
+  await sleep(300); fs.writeFileSync(path.join(qa, 'flex.png'), (await win.webContents.capturePage()).toPNG());
+  // ARAM : le groupe reste, les rôles disparaissent et le widget rapetisse.
+  lobby.gameConfig.premadeSizeAllowed = true;
+  await js(`document.querySelector('#queue-button').click()`);
+  await waitFor(win, `document.querySelectorAll('.queue-option').length === 4`);
+  await js(`document.querySelector('[data-queue="450"]').click()`);
+  await waitFor(win, `document.querySelector('#queue-label').textContent === 'ARAM' && !document.querySelector('#play').disabled`);
+  assert.equal(calls.filter(c => c.method === 'POST' && c.route === '/lol-lobby/v2/lobby').length, lobbyPostsBefore + 1);
+  assert.equal(await js(`getComputedStyle(document.querySelector('#profile .role-slots')).display`), 'none');
+  for (let i = 0; i < 20 && win.getSize()[1] !== 204; i++) await sleep(100);
+  assert.deepEqual(win.getSize(), [440, 204]);
+  // Arena : 4 joueurs max en Solo/Duo refusé, équipes de deux, déplacement validé.
+  assert.equal(await js(`window.league.selectQueue(420).then(() => false, error => error.message.includes('Trop de joueurs'))`), true);
+  lobby = { gameConfig: gameConfigFor(1740), restrictions: [], localMember: { summonerId: 99, isLeader: true, subteamIndex: 1, intraSubteamPosition: 1 },
+    members: [{ summonerId: 99, isLeader: true, subteamIndex: 1, intraSubteamPosition: 1 }, { ...mate(42, 'Partenaire'), subteamIndex: 1, intraSubteamPosition: 2 }] };
+  await js('refresh()');
+  await waitFor(win, `!document.querySelector('#arena-grid').hidden && document.querySelectorAll('.team-chip').length === 1 && document.querySelectorAll('.party-member').length === 2 && document.querySelector('#queue-label').textContent === 'Arena Bravoure'`);
+  // Arena Bravoure : équipes de 3 → toi + 2 places en grand, les autres équipes en pastilles.
+  assert.deepEqual(await js(`[...document.querySelectorAll('.party-member .player-name')].map(n => n.textContent)`), ['Partenaire']);
+  assert.equal(await js(`document.querySelectorAll('.party-member .add-friend').length`), 1);
+  assert.equal(await js(`document.querySelector('.team-chip').dataset.team + document.querySelector('.team-chip').className`), '2team-chip new');
+  assert.equal(await js(`document.querySelector('#feedback').textContent.startsWith('En Flex')`), false);
+  for (let i = 0; i < 20 && win.getSize()[1] !== 262; i++) await sleep(100);
+  assert.deepEqual(win.getSize(), [440, 262]);
+  await sleep(300); fs.writeFileSync(path.join(qa, 'arena.png'), (await win.webContents.capturePage()).toPNG());
+  assert.equal(await js(`window.league.switchArenaTeam(1, 2).then(() => false, error => error.message.includes('Cette place est déjà prise.'))`), true);
+  assert.equal(await js(`window.league.switchArenaTeam(99, 1).then(() => false, error => error.message.includes('Équipe invalide.'))`), true);
+  await js(`document.querySelector('.team-chip').click()`);
+  await waitFor(win, `document.querySelector('.team-chip')?.dataset.team === '1' && !document.querySelector('.team-chip').classList.contains('new') && document.querySelectorAll('.party-member .player-name').length === 0`);
+  assert.deepEqual(calls.filter(c => c.route === '/lol-lobby/v2/lobby/subteamData').map(c => c.body), [{ subteamIndex: 2, intraSubteamPosition: 1 }]);
+  // Retour en Solo/Duo seul : taille d'origine.
+  lobby = null; phase = 'None';
+  assert.equal((await js(`window.league.selectQueue(420)`)).label, 'Solo / Duo');
+  await js('refresh()');
+  await waitFor(win, `document.querySelector('#queue-label').textContent === 'Solo / Duo' && !document.querySelector('#duo-slot').hidden`);
+  for (let i = 0; i < 20 && win.getSize()[0] !== 300; i++) await sleep(100);
+  assert.deepEqual(win.getSize(), [300, 230]);
   searching = false; phase = 'None'; await win.webContents.executeJavaScript('refresh()');
   fs.writeFileSync(path.join(qa, 'widget-open-client.png'), (await win.webContents.capturePage()).toPNG());
-  console.log('PASS: compact UI, duo, roles, queue, ready-check, automatic handoff, received invitations and manual client opener in lobby/queue/game. No live mutations.');
+  console.log('PASS: compact UI, duo, roles, queue, ready-check, automatic handoff, received invitations, queues (Flex/ARAM/Arena) and manual client opener in lobby/queue/game. No live mutations.');
   app.exit(0);
 }).catch(error => { console.error(error); app.exit(1); });

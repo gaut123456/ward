@@ -10,7 +10,7 @@
 <body class="widget-body">
   <main class="widget" data-phase="Disconnected">
     <header class="header drag-handle">
-      <span id="queue-badge" class="queue-badge" aria-label="File d'attente"><i class="badge-gem" aria-hidden="true"></i><span id="queue-label" class="badge-label">Solo / Duo</span><span id="feedback" class="feedback" role="status" title="">Connexion…</span></span>
+      <span id="queue-badge" class="queue-badge"><button id="queue-button" class="queue-button" aria-label="Changer de file" title="Changer de file" aria-haspopup="dialog" aria-controls="queue-panel" aria-expanded="false" disabled><i class="badge-gem" aria-hidden="true"></i><span id="queue-label" class="badge-label">Solo / Duo</span><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><span id="feedback" class="feedback" role="status" title="">Connexion…</span></span>
       <time id="queue-timer" class="queue-timer" aria-label="Temps de recherche" role="timer" hidden>0:00</time>
       <div class="header-actions">
         <button id="open-client" aria-label="Ouvrir le client League" title="Ouvrir le client League" disabled>
@@ -30,7 +30,7 @@
       <button id="invite-accept" class="invite-accept" aria-label="Rejoindre le lobby" title="Rejoindre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
     </div>
 
-    <div class="players">
+    <div id="players" class="players">
       <div class="profile player" id="profile" title="Connexion à League…">
         <div class="portrait-frame">
           <div class="portrait">
@@ -68,9 +68,21 @@
           <div id="duo-secondary-role" class="role-slot secondary-slot"><img src="assets/roles/unselected.png" alt="Secondaire : non sélectionné" /></div>
         </div>
       </div>
+
+      <div id="party-slots" class="party-slots" hidden></div>
     </div>
 
+    <div id="arena-grid" class="arena-grid" aria-label="Autres équipes Arena" hidden></div>
+
     <button id="play" class="primary play" disabled>Lancement de League…</button>
+
+    <section id="queue-panel" class="panel queue-panel" role="dialog" aria-labelledby="queue-title" hidden>
+      <div class="panel-header">
+        <div class="panel-title"><h2 id="queue-title">Mode de jeu</h2><span class="panel-sub">Modes ouverts dans ton client</span></div>
+        <button id="close-queues" aria-label="Fermer le choix de la file"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+      </div>
+      <div id="queue-options" class="queue-options" role="group" aria-labelledby="queue-title"><p class="empty-list">Chargement…</p></div>
+    </section>
 
     <section id="roles-panel" class="panel roles-panel" role="dialog" aria-labelledby="role-picker-title" hidden>
       <div class="panel-header">
