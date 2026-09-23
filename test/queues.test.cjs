@@ -15,13 +15,17 @@ const QUEUES = [
   { ...base, id: 2000, name: 'Tutorial Part 1', gameMode: 'TUTORIAL_MODULE_1', type: 'TUTORIAL_MODULE_1', gameSelectModeGroup: 'kAlternativeLeagueGameModes' },
   { ...base, id: 4310, name: '', gameMode: 'JADE', type: 'JADE_RANKED_SOLO_5x5', gameSelectModeGroup: 'kJade' },
   { ...base, id: 420, name: 'Ranked Solo/Duo', gameMode: 'CLASSIC', type: 'RANKED_SOLO_5x5', gameSelectModeGroup: 'kSummonersRift', showPositionSelector: true, isRanked: true, maximumParticipantListSize: 2, allowablePremadeSizes: [0, 1, 2], minLevel: 30, gameSelectPriority: 20 },
-  { ...base, id: 2400, name: 'ARAM: Mayhem', gameMode: 'KIWI', type: 'KIWI', gameSelectModeGroup: 'kARAM', queueAvailability: 'NotAvailable' }
+  { ...base, id: 2400, name: 'ARAM: Mayhem', gameMode: 'KIWI', type: 'KIWI', gameSelectModeGroup: 'kARAM', queueAvailability: 'NotAvailable' },
+  { ...base, id: 3140, name: 'Multiplayer Practice Tool Custom', gameMode: 'PRACTICETOOL', type: 'NORMAL', category: 'Custom', isCustom: true, maximumParticipantListSize: 14 },
+  { ...base, id: 3100, name: 'SR Blind Pick Custom', gameMode: 'CLASSIC', type: 'NORMAL', category: 'Custom', isCustom: true }
 ];
 
 test('ne garde que les files jouables depuis le widget, dans un ordre stable', () => {
   const list = playable(QUEUES, 377);
-  assert.deepEqual(list.map(queue => queue.id), [420, 440, 400, 450, 1740]);
-  assert.deepEqual(list.map(queue => queue.label), ['Solo / Duo', 'Flex', 'Normale', 'ARAM', 'Arena Bravoure']);
+  assert.deepEqual(list.map(queue => queue.id), [420, 440, 400, 450, 1740, 3140]);
+  assert.deepEqual(list.map(queue => queue.label), ['Solo / Duo', 'Flex', 'Normale', 'ARAM', 'Arena Bravoure', 'Entraînement']);
+  assert.deepEqual(list.find(queue => queue.id === 3140), { id: 3140, label: 'Entraînement', group: 'kPractice', positions: false, arena: false, teamSize: null,
+    custom: true, ranked: false, maxParty: 1, premadeSizes: [], disabled: null });
   const arena = list.find(queue => queue.id === 1740);
   assert.equal(arena.arena, true);
   assert.equal(arena.positions, false);

@@ -6,6 +6,8 @@ const lcu = require('../electron/lcu.cjs');
 const clientUi = require('../electron/client-ui.cjs');
 const realCreateClientUi = clientUi.createClientUi;
 clientUi.createClientUi = options => realCreateClientUi({ ...options, inspect: async () => ({ exists: true, hasWindow: true, visible: true }) });
+let uxVisible = false;
+clientUi.inspectUx = async () => ({ exists: true, hasWindow: uxVisible, visible: uxVisible });
 const qa = path.resolve('.qa');
 fs.mkdirSync(qa, { recursive: true });
 app.setPath('userData', fs.mkdtempSync(path.join(qa, 'electron-')));
@@ -15,19 +17,53 @@ let ready = { state: 'Invalid' }, failAccept = false;
 let kicks = [];
 let allowKick = true;
 let received = [];
+let csSession = null;
+const STAT = [{ perks: [5008, 5005, 5007], type: 'kStatMod' }, { perks: [5008, 5010, 5001], type: 'kStatMod' }, { perks: [5011, 5013, 5001], type: 'kStatMod' }];
+const RUNE_STYLES = [
+  { id: 8000, name: 'Precision', iconPath: '/lol-game-data/assets/v1/perk-images/Styles/8000.png', allowedSubStyles: [8100], slots: [
+    { perks: [8005, 8008, 8021, 8010], type: 'kKeyStone' }, { perks: [9101, 9111, 8009], type: 'kMixedRegularSplashable' },
+    { perks: [9104, 9105, 9103], type: 'kMixedRegularSplashable' }, { perks: [8014, 8017, 8299], type: 'kMixedRegularSplashable' }, ...STAT] },
+  { id: 8100, name: 'Domination', iconPath: '/lol-game-data/assets/v1/perk-images/Styles/8100.png', allowedSubStyles: [8000], slots: [
+    { perks: [8112, 8128, 9923], type: 'kKeyStone' }, { perks: [8126, 8139, 8143], type: 'kMixedRegularSplashable' },
+    { perks: [8137, 8140, 8141], type: 'kMixedRegularSplashable' }, { perks: [8135, 8105, 8106], type: 'kMixedRegularSplashable' }, ...STAT] }
+];
+const RUNE_PERKS = [...new Set(RUNE_STYLES.flatMap(style => style.slots.flatMap(slot => slot.perks)))]
+  .map(id => ({ id, name: `Rune ${id}`, iconPath: `/lol-game-data/assets/v1/perk-images/${id}.png`, shortDesc: `Effet <b>${id}</b>` }));
+let runePages = [
+  { id: 11, name: 'Ma page', current: true, isEditable: true, isValid: true, isTemporary: false, primaryStyleId: 8000, subStyleId: 8100, selectedPerkIds: [8005, 9111, 9104, 8014, 8126, 8137, 5008, 5008, 5011] },
+  { id: 12, name: 'Page Riot', current: false, isEditable: false, isValid: true, isTemporary: false, primaryStyleId: 8100, subStyleId: 8000, selectedPerkIds: [8112, 8126, 8137, 8135, 9111, 9104, 5008, 5008, 5011] }
+];
+const csSessionFor = ({ ban = false } = {}) => ({
+  queueId: 420, isCustomGame: false, localPlayerCellId: 2,
+  timer: { phase: 'BAN_PICK', adjustedTimeLeftInPhase: 27000, totalTimeInPhase: 30000, isInfinite: false },
+  myTeam: [
+    { cellId: 0, gameName: 'Aerith', nameVisibilityType: 'VISIBLE', assignedPosition: 'top', championId: 266, championPickIntent: 0, spell1Id: 4, spell2Id: 12 },
+    { cellId: 1, gameName: '', nameVisibilityType: 'HIDDEN', assignedPosition: 'jungle', championId: 0, championPickIntent: 64, spell1Id: 4, spell2Id: 11 },
+    { cellId: 2, gameName: 'Invocateur', nameVisibilityType: 'VISIBLE', assignedPosition: 'middle', championId: 0, championPickIntent: 0, spell1Id: 4, spell2Id: 14 }
+  ],
+  theirTeam: [{ cellId: 5, championId: 0 }, { cellId: 6, championId: 0 }],
+  bans: { myTeamBans: [], theirTeamBans: [], numBans: 2 },
+  actions: [
+    [{ id: 3, actorCellId: 0, type: 'pick', championId: 266, completed: true, isInProgress: false, isAllyAction: true }],
+    [{ id: 1, actorCellId: 2, type: 'ban', championId: 0, completed: !ban, isInProgress: ban, isAllyAction: true }],
+    [{ id: 4, actorCellId: 2, type: 'pick', championId: 0, completed: false, isInProgress: !ban, isAllyAction: true }]
+  ],
+  trades: [], benchChampions: [], benchEnabled: false, allowRerolling: false
+});
 const queueBase = { queueAvailability: 'Available', isVisible: true, isEnabled: true, category: 'PvP', isCustom: false, showQuickPlaySlotSelection: false, minLevel: 0 };
 const QUEUES = [
   { ...queueBase, id: 420, name: 'Ranked Solo/Duo', gameMode: 'CLASSIC', type: 'RANKED_SOLO_5x5', gameSelectModeGroup: 'kSummonersRift', showPositionSelector: true, isRanked: true, maximumParticipantListSize: 2, allowablePremadeSizes: [0, 1, 2], minLevel: 30 },
   { ...queueBase, id: 440, name: 'Ranked Flex', gameMode: 'CLASSIC', type: 'RANKED_FLEX_SR', gameSelectModeGroup: 'kSummonersRift', showPositionSelector: true, isRanked: true, maximumParticipantListSize: 5, allowablePremadeSizes: [1, 2, 3, 5], minLevel: 30 },
   { ...queueBase, id: 480, name: 'Swiftplay', gameMode: 'SWIFTPLAY', type: 'SWIFTPLAY', gameSelectModeGroup: 'kSummonersRift', showQuickPlaySlotSelection: true, maximumParticipantListSize: 5 },
   { ...queueBase, id: 450, name: 'ARAM', gameMode: 'ARAM', type: 'ARAM_UNRANKED_5x5', gameSelectModeGroup: 'kARAM', showPositionSelector: false, maximumParticipantListSize: 5, allowablePremadeSizes: [0, 1, 2, 3, 4, 5] },
-  { ...queueBase, id: 1740, name: 'Bravery Arena', gameMode: 'CHERRY', type: 'CHERRY', gameSelectModeGroup: 'kAlternativeLeagueGameModes', showPositionSelector: false, maximumParticipantListSize: 18 }
+  { ...queueBase, id: 1740, name: 'Bravery Arena', gameMode: 'CHERRY', type: 'CHERRY', gameSelectModeGroup: 'kAlternativeLeagueGameModes', showPositionSelector: false, maximumParticipantListSize: 18 },
+  { ...queueBase, id: 3140, name: 'Multiplayer Practice Tool Custom', gameMode: 'PRACTICETOOL', type: 'NORMAL', category: 'Custom', isCustom: true, showPositionSelector: false, maximumParticipantListSize: 14 }
 ];
 const gameConfigFor = queueId => {
   const queue = QUEUES.find(item => item.id === queueId);
   assert.ok(queue, `file inconnue ${queueId}`);
   return { queueId, gameMode: queue.gameMode, maxLobbySize: queue.maximumParticipantListSize, showPositionSelector: queue.showPositionSelector,
-    allowablePremadeSizes: queue.allowablePremadeSizes, premadeSizeAllowed: true };
+    allowablePremadeSizes: queue.allowablePremadeSizes, premadeSizeAllowed: true, isCustom: Boolean(queue.isCustom) };
 };
 let releaseIcon, failIcon = false, partnerIcon = 0, chatIcon = 0, partnerInChat = true;
 const iconBytes = fs.readFileSync(path.join(__dirname, '../renderer/assets/roles/middle.png'));
@@ -87,6 +123,49 @@ lcu.call = async (method, route, body) => {
   }
   if (route === '/lol-lobby/v2/received-invitations') return received;
   if (route === '/lol-game-queues/v1/queues') return QUEUES;
+  if (route === '/lol-lobby/v1/lobby/custom/start-champ-select') { assert.equal(method, 'POST'); phase = 'ChampSelect'; return { success: true }; }
+  if (route === '/lol-champ-select/v1/session') { if (!csSession) throw Object.assign(new Error('Not found'), { status: 404 }); return csSession; }
+  if (route === '/lol-champ-select/v1/pickable-champion-ids') return [103, 64, 266, 238];
+  if (route === '/lol-champ-select/v1/bannable-champion-ids') return [103, 64, 266, 238, 157];
+  if (route === '/lol-perks/v1/recommended-champion-positions') return { 103: { recommendedPositions: ['MIDDLE'] }, 64: { recommendedPositions: ['JUNGLE'] }, 266: { recommendedPositions: ['TOP'] }, 238: { recommendedPositions: ['MIDDLE'] }, 157: { recommendedPositions: ['MIDDLE', 'TOP'] } };
+  if (route === '/lol-champ-select/v1/all-grid-champions') return [{ id: 238, positionsFavorited: ['MIDDLE'] }];
+  if (route === '/lol-game-data/assets/v1/champion-summary.json') return [{ id: -1, name: 'None', alias: 'None' }, { id: 103, name: 'Ahri', alias: 'Ahri' }, { id: 64, name: 'Lee Sin', alias: 'LeeSin' }, { id: 266, name: 'Aatrox', alias: 'Aatrox' }, { id: 238, name: 'Zed', alias: 'Zed' }, { id: 157, name: 'Yasuo', alias: 'Yasuo' }];
+  if (route === '/lol-game-data/assets/v1/summoner-spells.json') return [
+    { id: 4, name: 'Flash', gameModes: ['CLASSIC'], iconPath: '/lol-game-data/assets/DATA/Spells/Icons2D/Summoner_flash.png' },
+    { id: 14, name: 'Ignite', gameModes: ['CLASSIC'], iconPath: '/lol-game-data/assets/DATA/Spells/Icons2D/SummonerIgnite.png' },
+    { id: 6, name: 'Ghost', gameModes: ['CLASSIC'], iconPath: '/lol-game-data/assets/DATA/Spells/Icons2D/Summoner_haste.png' },
+    { id: 32, name: 'Mark', gameModes: ['ARAM'], iconPath: '/lol-game-data/assets/DATA/Spells/Icons2D/Summoner_Mark.png' }];
+  if (route === '/lol-gameflow/v1/session') return { gameData: { queue: { gameMode: 'CLASSIC' } } };
+  if (route === '/lol-perks/v1/styles') return RUNE_STYLES;
+  if (route === '/lol-perks/v1/perks') return RUNE_PERKS;
+  if (route === '/lol-perks/v1/inventory') return { canAddCustomPage: false, ownedPageCount: 2 };
+  if (route === '/lol-perks/v1/pages') return runePages;
+  if (route === '/lol-perks/v1/recommended-pages/champion/103/position/middle/map/11') return [{ keystone: { id: 8112 }, primaryPerkStyleId: 8100, secondaryPerkStyleId: 8000,
+    perks: [8112, 8139, 8140, 8106, 9111, 8014, 5005, 5008, 5001].map(id => ({ id })), summonerSpellIds: [14, 4] }];
+  if (route === '/lol-perks/v1/currentpage') { assert.equal(method, 'PUT'); runePages = runePages.map(page => ({ ...page, current: page.id === body })); return null; }
+  const runePage = route.match(/^\/lol-perks\/v1\/pages\/(\d+)$/);
+  if (runePage) { assert.equal(method, 'PUT'); runePages = runePages.map(page => page.id === Number(runePage[1]) ? { ...page, ...body } : page); return null; }
+  if (route.startsWith('/lol-game-data/assets/v1/perk-images/')) return iconBytes;
+  if (route.startsWith('/lol-game-data/assets/v1/champion-icons/') || route.startsWith('/lol-game-data/assets/DATA/')) return iconBytes;
+  const csAction = route.match(/^\/lol-champ-select\/v1\/session\/actions\/(\d+)(\/complete)?$/);
+  if (csAction) {
+    const act = csSession.actions.flat().find(item => item.id === Number(csAction[1]));
+    const me = csSession.myTeam.find(player => player.cellId === csSession.localPlayerCellId);
+    if (csAction[2]) { assert.equal(method, 'POST'); act.completed = true; act.isInProgress = false; if (act.type === 'pick') me.championId = act.championId; }
+    else {
+      assert.equal(method, 'PATCH'); act.championId = body.championId;
+      if (body.completed) { act.completed = true; act.isInProgress = false; if (act.type === 'pick') me.championId = act.championId; }
+      else if (act.type === 'pick') me.championPickIntent = body.championId;
+    }
+    return null;
+  }
+  if (route === '/lol-champ-select/v1/session/my-selection/reroll') { assert.equal(method, 'POST'); Object.assign(csSession, { rerollsRemaining: 0 }); csSession.myTeam[1].championId = 238; return null; }
+  const bench = route.match(/^\/lol-champ-select\/v1\/session\/bench\/swap\/(\d+)$/);
+  if (bench) { assert.equal(method, 'POST'); const me = csSession.myTeam[1]; csSession.benchChampions = [{ championId: me.championId }]; me.championId = Number(bench[1]); return null; }
+  const swap = route.match(/^\/lol-champ-select\/v1\/session\/champion-swaps\/(\d+)\/(accept|decline)$/);
+  if (swap) { assert.equal(method, 'POST'); csSession.trades = csSession.trades.map(t => t.id === Number(swap[1]) ? { ...t, state: swap[2] === 'accept' ? 'ACCEPTED' : 'DECLINED' } : t); return null; }
+  if (route === '/lol-champ-select/v1/session/my-selection') { assert.equal(method, 'PATCH'); Object.assign(csSession.myTeam.find(player => player.cellId === 2), body); return null; }
+  if (route === '/process-control/v1/process/quit') { assert.equal(method, 'POST'); return null; }
   if (route === '/lol-lobby/v2/lobby/subteamData') {
     assert.equal(method, 'PUT');
     Object.assign(lobby.localMember, { subteamIndex: body.subteamIndex, intraSubteamPosition: body.intraSubteamPosition });
@@ -111,6 +190,9 @@ async function waitFor(win, expression) {
 }
 app.whenReady().then(async () => {
   const win = BrowserWindow.getAllWindows()[0];
+  // Captures fiables même si la fenêtre de test est recouverte : pas de mise en pause du rendu.
+  win.webContents.setBackgroundThrottling(false);
+  win.webContents.on('console-message', (_event, level, message, line, source) => { if (level >= 3) console.error('[page]', message, source, line); });
   if (win.webContents.isLoading()) await new Promise(resolve => win.webContents.once('did-finish-load', resolve));
   await waitFor(win, `document.querySelector('#play').textContent === 'Lancer'`);
   assert.equal(win.isAlwaysOnTop(), false);
@@ -120,7 +202,7 @@ app.whenReady().then(async () => {
   const loadedDuo = `!document.querySelector('#duo-portrait').hidden && document.querySelector('#add-friend').hidden && !document.querySelector('#duo-avatar').hidden && document.querySelector('#duo-avatar').naturalWidth > 0`;
   assert.equal(await win.webContents.executeJavaScript(emptySlot), true);
   const slotTop = await win.webContents.executeJavaScript(`document.querySelector('#add-friend').getBoundingClientRect().top`);
-  fs.writeFileSync(path.join(qa, 'widget.png'), (await win.webContents.capturePage()).toPNG());
+  fs.writeFileSync(path.join(qa, 'widget.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   lobby = { localMember: { summonerId: 99 }, members: [{ summonerId: '99', summonerIconId: 8 }] };
   await win.webContents.executeJavaScript('refresh()');
   assert.equal(await win.webContents.executeJavaScript(emptySlot), true);
@@ -140,7 +222,7 @@ app.whenReady().then(async () => {
   assert.equal(await win.webContents.executeJavaScript(`document.querySelector('#duo-portrait').getBoundingClientRect().top`), slotTop);
   assert.equal(await win.webContents.executeJavaScript(`document.querySelector('#invitations').hidden`), true);
   assert.deepEqual(win.getSize(), [300, 230]);
-  await sleep(400); fs.writeFileSync(path.join(qa, 'duo.png'), (await win.webContents.capturePage()).toPNG());
+  await sleep(400); fs.writeFileSync(path.join(qa, 'duo.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   await win.webContents.executeJavaScript('refresh()');
   assert.equal(calls.filter(c => c.route.endsWith('/profile-icons/0.jpg')).length, 1);
   friend.firstPositionPreference = 'FILL'; friend.secondPositionPreference = 'UNSELECTED';
@@ -231,7 +313,7 @@ app.whenReady().then(async () => {
    assert.deepEqual(win.getSize(), [300, 230]);
    await win.webContents.executeJavaScript(`document.querySelector('[data-role="MIDDLE"]').click()`);
   await waitFor(win, `document.querySelector('#role-picker-title').textContent === 'Rôle secondaire' && !document.querySelector('[data-role="JUNGLE"]').disabled`);
-  await sleep(400); fs.writeFileSync(path.join(qa, 'roles.png'), (await win.webContents.capturePage()).toPNG());
+  await sleep(400); fs.writeFileSync(path.join(qa, 'roles.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   await win.webContents.executeJavaScript(`document.querySelector('[data-role="JUNGLE"]').click()`);
   await waitFor(win, `document.querySelector('#roles-panel').hidden && !document.querySelector('#play').disabled`);
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(app.getPath('userData'), 'roles.json'), 'utf8')), { firstPreference: 'MIDDLE', secondPreference: 'JUNGLE' });
@@ -248,7 +330,7 @@ app.whenReady().then(async () => {
   await win.webContents.executeJavaScript(`document.querySelector('#add-friend').click()`);
   await waitFor(win, `document.querySelectorAll('.friend-item').length === 12`);
    assert.deepEqual(win.getSize(), [300, 230]);
-   await sleep(400); fs.writeFileSync(path.join(qa, 'invitations.png'), (await win.webContents.capturePage()).toPNG());
+   await sleep(400); fs.writeFileSync(path.join(qa, 'invitations.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   await win.webContents.executeJavaScript(`document.querySelector('.friend-item button').click()`);
   await waitFor(win, `document.querySelector('#feedback').textContent === 'Invitation envoyée' && !document.querySelector('#play').disabled`);
   assert.equal(calls.filter(c => c.route === '/lol-lobby/v2/lobby' && c.method === 'POST').length, 1);
@@ -263,7 +345,7 @@ app.whenReady().then(async () => {
   const positionCall = calls.slice(0, startIndex).findLast(c=>c.route.endsWith('/position-preferences'));
   assert.deepEqual(positionCall.body, { firstPreference: 'MIDDLE', secondPreference: 'JUNGLE' });
   assert.equal(calls[startIndex - 1].route, '/lol-lobby/v2/lobby'); // Read-back confirms server roles before queuing.
-  fs.writeFileSync(path.join(qa, 'searching.png'), (await win.webContents.capturePage()).toPNG());
+  fs.writeFileSync(path.join(qa, 'searching.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   assert.equal(calls.filter(c => c.route === '/lol-lobby/v2/lobby' && c.method === 'POST').length, 1);
   await win.webContents.executeJavaScript(`document.querySelector('#play').click()`);
   await waitFor(win, `document.querySelector('#play').textContent === 'Lancer'`);
@@ -293,7 +375,7 @@ app.whenReady().then(async () => {
   }
   assert.notEqual(await win.webContents.executeJavaScript(`document.querySelector('#queue-timer').textContent`), oldTimer);
   assert.ok((await win.webContents.executeJavaScript(`document.querySelector('#feedback').textContent`)).includes('1:35'));
-  fs.writeFileSync(path.join(qa, 'searching.png'), (await win.webContents.capturePage()).toPNG());
+  fs.writeFileSync(path.join(qa, 'searching.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   phase = 'ReadyCheck'; ready = { state: 'InProgress', playerResponse: 'None', timer: 2 };
   await waitFor(win, `document.querySelector('#play').textContent === 'Accepter la partie' && !document.querySelector('#play').disabled`);
   const popup = BrowserWindow.getAllWindows().find(w => w !== win);
@@ -316,16 +398,92 @@ app.whenReady().then(async () => {
   fs.writeFileSync(path.join(qa, 'accepted.png'), (await popup.webContents.capturePage()).toPNG());
   phase = 'ChampSelect'; ready = { state: 'Invalid' };
   await waitFor(win, `document.querySelector('#play').textContent === 'Choisir mon champion' && !document.querySelector('#play').disabled`);
-  for (let i = 0; i < 20 && !calls.some(c => c.route === '/riotclient/ux-show'); i++) await sleep(100);
+  // Sans session lisible, l'ancien bouton reste ; le client ne s'ouvre plus tout seul (Ward gère la sélection).
+  await sleep(1600);
   assert.ok(popup.isDestroyed());
   assert.equal(calls.filter(c => c.route === '/riotclient/launch-ux').length, 0);
-  assert.equal(calls.filter(c => c.route === '/riotclient/ux-show').length, 1);
-  await sleep(1600);
-  assert.equal(calls.filter(c => c.route === '/riotclient/ux-show').length, 1);
-  fs.writeFileSync(path.join(qa, 'champ-select.png'), (await win.webContents.capturePage()).toPNG());
+  assert.equal(calls.filter(c => c.route === '/riotclient/ux-show').length, 0);
   await win.webContents.executeJavaScript(`document.querySelector('#play').click()`);
   await waitFor(win, `!document.querySelector('#play').disabled`);
-  assert.equal(calls.filter(c => c.route === '/riotclient/ux-show').length, 2);
+  assert.equal(calls.filter(c => c.route === '/riotclient/ux-show').length, 1);
+  // Sélection des champions dans le widget.
+  const run = code => win.webContents.executeJavaScript(code).catch(error => { console.error(`Échec dans la page : ${code.slice(0, 140)}`); throw error; });
+  csSession = csSessionFor();
+  await run('refresh()');
+  await waitFor(win, `!document.querySelector('#champ-select').hidden && document.querySelectorAll('.cs-champ').length === 4`); // Yasuo n'est pas jouable : absent de la grille.
+  for (let i = 0; i < 20 && win.getSize()[0] !== 640; i++) await sleep(100);
+  assert.deepEqual(win.getSize(), [640, 480]);
+  await waitFor(win, `[...document.querySelectorAll('.cs-champ img')].every(img => !img.hidden && img.naturalWidth > 0) && [...document.querySelectorAll('.cs-spell img')].length === 2`); // Icônes chargées.
+  assert.deepEqual(await run(`[...document.querySelectorAll('.allies .cs-player b')].map(n => n.textContent)`), ['Aerith', 'Invocateur 2', 'Toi']);
+  assert.equal(await run(`document.querySelector('.allies .cs-player.local').classList.contains('acting')`), true);
+  assert.equal(await run(`document.querySelector('.cs-champ').dataset.id`), '238'); // Favori du poste en premier.
+  assert.equal(await run(`document.querySelector('#feedback').textContent`), 'À toi de choisir');
+  assert.equal(await run(`/^\\d+ s$/.test(document.querySelector('#queue-timer').textContent) && !document.querySelector('#queue-timer').hidden`), true);
+  await run(`document.querySelector('[data-cs-role="JUNGLE"]').click()`);
+  await waitFor(win, `[...document.querySelectorAll('.cs-champ')].map(n => n.getAttribute('aria-label')).join() === 'Lee Sin'`);
+  await run(`{ document.querySelector('[data-cs-role="ALL"]').click(); const search = document.querySelector('#cs-search'); search.value = 'ah'; search.dispatchEvent(new Event('input')); }`);
+  await waitFor(win, `[...document.querySelectorAll('.cs-champ')].map(n => n.getAttribute('aria-label')).join() === 'Ahri'`);
+  await run(`document.querySelector('.cs-champ[data-id="103"]').click()`);
+  await waitFor(win, `document.querySelector('#cs-action').textContent === 'Verrouiller Ahri' && !document.querySelector('#cs-action').disabled`);
+  assert.deepEqual(calls.filter(c => c.method === 'PATCH' && c.route === '/lol-champ-select/v1/session/actions/4').map(c => c.body), [{ championId: 103 }]); // Survol sans verrouiller.
+  await run(`{ const search = document.querySelector('#cs-search'); search.value = ''; search.dispatchEvent(new Event('input')); }`);
+  await sleep(400); fs.writeFileSync(path.join(qa, 'champ-select.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
+  await run(`document.querySelector('#cs-spell1').click()`);
+  await waitFor(win, `!document.querySelector('#spells-panel').hidden && document.querySelectorAll('.spell-option').length === 3`);
+  await run(`[...document.querySelectorAll('.spell-option')].find(o => o.title === 'Ghost').click()`);
+  await waitFor(win, `document.querySelector('#spells-panel').hidden`);
+  assert.deepEqual(calls.filter(c => c.route === '/lol-champ-select/v1/session/my-selection').map(c => c.body), [{ spell1Id: 6, spell2Id: 14 }]);
+  // Runes : pages, page Riot non modifiable, recommandation pour Ahri au mid, enregistrement + sorts conseillés.
+  await waitFor(win, `document.querySelector('#cs-runes').textContent === 'Ma page'`);
+  await run(`document.querySelector('#cs-runes').click()`);
+  await waitFor(win, `!document.querySelector('#runes-panel').hidden && document.querySelectorAll('.rune-page').length === 2 && document.querySelectorAll('.rune-reco').length === 1`);
+  assert.equal(await run(`document.querySelector('#rune-recos .rune-label').textContent`), 'Recommandées · Ahri Mid');
+  assert.equal(await run(`document.querySelectorAll('.rune-perk.keystone').length`), 4);
+  assert.equal(await run(`document.querySelector('.rune-perk.keystone[aria-pressed="true"]') !== null && !document.querySelector('#rune-save').disabled`), true);
+  await run(`[...document.querySelectorAll('.rune-page')].find(chip => chip.textContent === 'Page Riot').click()`);
+  await waitFor(win, `document.querySelector('#runes-sub').textContent === 'Page non modifiable' && document.querySelector('#rune-save').disabled`);
+  assert.deepEqual(calls.filter(c => c.route === '/lol-perks/v1/currentpage').map(c => c.body), [12]);
+  await run(`[...document.querySelectorAll('.rune-page')].find(chip => chip.textContent === 'Ma page').click()`);
+  await waitFor(win, `document.querySelector('#runes-sub').textContent === 'Page modifiable'`);
+  await run(`document.querySelector('.rune-reco').click()`);
+  await waitFor(win, `document.querySelector('#rune-name').value === 'Ahri · Mid' && !document.querySelector('#rune-save').disabled`);
+  assert.equal(await run(`getComputedStyle(document.querySelector('#runes-panel')).opacity`), '1');
+  await sleep(1500); fs.writeFileSync(path.join(qa, 'runes.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
+  await run(`document.querySelector('#rune-save').click()`);
+  await waitFor(win, `document.querySelector('#runes-panel').hidden && document.querySelector('#feedback').textContent === 'Runes et sorts appliqués'`);
+  const savedPage = calls.filter(c => c.method === 'PUT' && c.route === '/lol-perks/v1/pages/11').at(-1).body;
+  assert.deepEqual([savedPage.name, savedPage.primaryStyleId, savedPage.subStyleId, savedPage.selectedPerkIds], ['Ahri · Mid', 8100, 8000, [8112, 8139, 8140, 8106, 9111, 8014, 5005, 5008, 5001]]);
+  assert.deepEqual(calls.filter(c => c.route === '/lol-champ-select/v1/session/my-selection').at(-1).body, { spell1Id: 14, spell2Id: 4 });
+  await waitFor(win, `document.querySelector('#cs-runes').textContent === 'Ahri · Mid'`);
+  await run(`document.querySelector('#cs-action').click()`);
+  await waitFor(win, `document.querySelector('#cs-action').textContent === 'Ahri verrouillé' && document.querySelector('#cs-action').disabled`);
+  assert.deepEqual(calls.filter(c => c.method === 'PATCH' && c.route === '/lol-champ-select/v1/session/actions/4').at(-1).body, { championId: 103, completed: true });
+  assert.equal(calls.some(c => c.route.endsWith('/complete')), false);
+  // Phase de bannissement.
+  csSession = csSessionFor({ ban: true });
+  await run('refresh()');
+  await waitFor(win, `document.querySelector('#cs-action').textContent === 'Choisis un champion à bannir' && champSelectNote(state.champSelect) === 'À toi de bannir'`);
+  await run(`document.querySelector('.cs-champ[data-id="238"]').click()`);
+  await waitFor(win, `document.querySelector('#cs-action').textContent === 'Bannir Zed' && document.querySelector('#cs-action').classList.contains('ban')`);
+  // ARAM : champion attribué, relance, banc ; demande d'échange d'un allié.
+  csSession = { queueId: 450, isCustomGame: false, localPlayerCellId: 1, timer: { phase: 'BAN_PICK', adjustedTimeLeftInPhase: 50000, totalTimeInPhase: 60000 },
+    myTeam: [{ cellId: 0, gameName: 'Aerith', assignedPosition: '', championId: 266 }, { cellId: 1, gameName: 'Invocateur', assignedPosition: '', championId: 103, spell1Id: 4, spell2Id: 14 }],
+    theirTeam: [], bans: { numBans: 0 }, actions: [], allowRerolling: true, rerollsRemaining: 1, benchEnabled: true, benchChampions: [{ championId: 64 }],
+    trades: [{ id: 7, cellId: 0, state: 'RECEIVED' }] };
+  await run('refresh()');
+  await waitFor(win, `!document.querySelector('#cs-aram').hidden && document.querySelector('#cs-grid').hidden && document.querySelector('#cs-aram-name').textContent === 'Ahri' && document.querySelector('#cs-reroll').textContent === 'Relancer (1)'`);
+  await waitFor(win, `!document.querySelector('#cs-swap').hidden && document.querySelector('#cs-swap-text').textContent === 'Aerith te propose son champion Aatrox'`);
+  await waitFor(win, `document.querySelector('.allies .cs-player small').textContent === 'Aatrox'`);
+  await sleep(300); fs.writeFileSync(path.join(qa, 'aram.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
+  await run(`document.querySelector('#cs-reroll').click()`);
+  await waitFor(win, `document.querySelector('#cs-aram-name').textContent === 'Zed' && document.querySelector('#cs-reroll').disabled`);
+  await run(`document.querySelector('#cs-bench .cs-champ[data-id="64"]').click()`);
+  await waitFor(win, `document.querySelector('#cs-aram-name').textContent === 'Lee Sin'`);
+  await run(`document.querySelector('#cs-swap-accept').click()`);
+  await waitFor(win, `document.querySelector('#cs-swap').hidden`);
+  assert.ok(calls.some(c => c.method === 'POST' && c.route === '/lol-champ-select/v1/session/champion-swaps/7/accept'));
+  assert.equal(await run(`window.league.answerSwap('champion', 7, true).then(() => false, e => e.message.includes('plus valable'))`), true);
+  csSession = null;
   phase = 'GameStart';
   await win.webContents.executeJavaScript('refresh()');
   assert.equal(await win.webContents.executeJavaScript(`document.querySelector('#play').textContent`), 'Chargement de la partie');
@@ -353,7 +511,7 @@ app.whenReady().then(async () => {
   await js('refresh()');
   await waitFor(win, `!document.querySelector('#invite-toast').hidden && document.querySelector('#invite-name').textContent === 'Partenaire' && document.querySelector('#invite-queue').textContent === 'Flex' && document.querySelector('#invite-more').textContent === '+1' && !document.querySelector('#invite-avatar').hidden`);
   assert.equal(await js(`getComputedStyle(document.querySelector('#invite-accept')).webkitAppRegion`), 'no-drag');
-  await sleep(400); fs.writeFileSync(path.join(qa, 'invitation.png'), (await win.webContents.capturePage()).toPNG());
+  await sleep(400); fs.writeFileSync(path.join(qa, 'invitation.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   await js(`document.querySelector('#invite-decline').click()`);
   await waitFor(win, `document.querySelector('#feedback').textContent === 'Invitation refusée' && document.querySelector('#invite-queue').textContent === 'Solo / Duo' && document.querySelector('#invite-more').hidden`);
   assert.ok(calls.some(c => c.method === 'POST' && c.route === '/lol-lobby/v2/received-invitations/inv-1/decline'));
@@ -374,10 +532,10 @@ app.whenReady().then(async () => {
   await js('refresh()');
   await waitFor(win, `!document.querySelector('#queue-button').disabled`);
   await js(`document.querySelector('#queue-button').click()`);
-  await waitFor(win, `!document.querySelector('#queue-panel').hidden && document.querySelectorAll('.queue-option').length === 4`);
-  assert.deepEqual(await js(`[...document.querySelectorAll('.queue-option b')].map(b => b.textContent)`), ['Solo / Duo', 'Flex', 'ARAM', 'Arena']);
+  await waitFor(win, `!document.querySelector('#queue-panel').hidden && document.querySelectorAll('.queue-option').length === 5`);
+  assert.deepEqual(await js(`[...document.querySelectorAll('.queue-option b')].map(b => b.textContent)`), ['Solo / Duo', 'Flex', 'ARAM', 'Arena', 'Entraînement']);
   assert.equal(await js(`document.querySelector('[data-queue="420"]').getAttribute('aria-pressed')`), 'true');
-  await sleep(300); fs.writeFileSync(path.join(qa, 'queues.png'), (await win.webContents.capturePage()).toPNG());
+  await sleep(300); fs.writeFileSync(path.join(qa, 'queues.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   const postsBeforeFlex = calls.filter(c => c.method === 'POST' && c.route === '/lol-lobby/v2/lobby').length;
   await js(`document.querySelector('[data-queue="440"]').click()`);
   await waitFor(win, `document.querySelector('#queue-panel').hidden && document.querySelector('#queue-label').textContent === 'Flex' && document.querySelectorAll('.party-member').length === 4`);
@@ -395,11 +553,11 @@ app.whenReady().then(async () => {
   assert.equal(await js(`document.querySelectorAll('.party-member .role-slots').length`), 3);
   assert.equal(await js(`document.querySelectorAll('.party-member .kick-friend').length`), 3);
   assert.equal(await js(`document.querySelectorAll('.party-member .add-friend').length`), 1);
-  await sleep(300); fs.writeFileSync(path.join(qa, 'flex.png'), (await win.webContents.capturePage()).toPNG());
+  await sleep(300); fs.writeFileSync(path.join(qa, 'flex.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   // ARAM : le groupe reste, les rôles disparaissent et le widget rapetisse.
   lobby.gameConfig.premadeSizeAllowed = true;
   await js(`document.querySelector('#queue-button').click()`);
-  await waitFor(win, `document.querySelectorAll('.queue-option').length === 4`);
+  await waitFor(win, `document.querySelectorAll('.queue-option').length === 5`);
   await js(`document.querySelector('[data-queue="450"]').click()`);
   await waitFor(win, `document.querySelector('#queue-label').textContent === 'ARAM' && !document.querySelector('#play').disabled`);
   assert.equal(calls.filter(c => c.method === 'POST' && c.route === '/lol-lobby/v2/lobby').length, lobbyPostsBefore + 1);
@@ -419,7 +577,7 @@ app.whenReady().then(async () => {
   assert.equal(await js(`document.querySelector('#feedback').textContent.startsWith('En Flex')`), false);
   for (let i = 0; i < 20 && win.getSize()[1] !== 262; i++) await sleep(100);
   assert.deepEqual(win.getSize(), [440, 262]);
-  await sleep(300); fs.writeFileSync(path.join(qa, 'arena.png'), (await win.webContents.capturePage()).toPNG());
+  await sleep(300); fs.writeFileSync(path.join(qa, 'arena.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
   assert.equal(await js(`window.league.switchArenaTeam(1, 2).then(() => false, error => error.message.includes('Cette place est déjà prise.'))`), true);
   assert.equal(await js(`window.league.switchArenaTeam(99, 1).then(() => false, error => error.message.includes('Équipe invalide.'))`), true);
   await js(`document.querySelector('.team-chip').click()`);
@@ -432,8 +590,34 @@ app.whenReady().then(async () => {
   await waitFor(win, `document.querySelector('#queue-label').textContent === 'Solo / Duo' && !document.querySelector('#duo-slot').hidden`);
   for (let i = 0; i < 20 && win.getSize()[0] !== 300; i++) await sleep(100);
   assert.deepEqual(win.getSize(), [300, 230]);
+  // Outil d'entraînement : partie perso, « Lancer » démarre la sélection sans recherche.
+  assert.equal((await js(`window.league.selectQueue(3140)`)).label, 'Entraînement');
+  await js('refresh()');
+  await waitFor(win, `document.querySelector('#queue-label').textContent === 'Entraînement' && document.querySelector('#play').textContent === 'Lancer' && !document.querySelector('#duo-slot').hidden`);
+  assert.equal(await js(`getComputedStyle(document.querySelector('#profile .role-slots')).display`), 'none');
+  const searchesBefore = calls.filter(c => c.route.endsWith('/matchmaking/search') && c.method === 'POST').length;
+  await js(`document.querySelector('#play').click()`);
+  await waitFor(win, `document.querySelector('#feedback').textContent === 'Sélection des champions…'`);
+  assert.deepEqual(calls.filter(c => c.method === 'POST' && c.route === '/lol-lobby/v2/lobby').at(-1).body,
+    { queueId: 3140, isCustom: true, customGameLobby: { lobbyName: 'Ward', configuration: {} } });
+  assert.equal(calls.filter(c => c.route === '/lol-lobby/v1/lobby/custom/start-champ-select').length, 1);
+  assert.equal(calls.filter(c => c.route.endsWith('/matchmaking/search') && c.method === 'POST').length, searchesBefore);
+  lobby = null; phase = 'None';
+  await js(`window.league.selectQueue(420)`);
+  await js('refresh()');
+  await waitFor(win, `document.querySelector('#queue-label').textContent === 'Solo / Duo'`);
   searching = false; phase = 'None'; await win.webContents.executeJavaScript('refresh()');
-  fs.writeFileSync(path.join(qa, 'widget-open-client.png'), (await win.webContents.capturePage()).toPNG());
-  console.log('PASS: compact UI, duo, roles, queue, ready-check, automatic handoff, received invitations, queues (Flex/ARAM/Arena) and manual client opener in lobby/queue/game. No live mutations.');
+  fs.writeFileSync(path.join(qa, 'widget-open-client.png'), (await (win.webContents.invalidate(), sleep(120)).then(() => win.webContents.capturePage())).toPNG());
+  // ✕ : League en arrière-plan au lobby → fermé proprement avec Ward (via process-control, jamais taskkill).
+  const realQuit = app.quit;
+  let quitRequested = 0;
+  app.quit = () => { quitRequested++; };
+  phase = 'Lobby'; searching = false; uxVisible = false;
+  await win.webContents.executeJavaScript(`window.league.closeWidget()`);
+  assert.equal(quitRequested, 1);
+  assert.equal(win.isVisible(), false);
+  assert.deepEqual(calls.filter(c => c.route === '/process-control/v1/process/quit').map(c => c.method), ['POST']);
+  app.quit = realQuit;
+  console.log('PASS: compact UI, duo, roles, queue, ready-check, automatic handoff, received invitations, queues (Flex/ARAM/Arena/Practice Tool), champion select (hover, lock, ban, spells, runes, ARAM, swaps) and manual client opener in lobby/queue/game. No live mutations.');
   app.exit(0);
 }).catch(error => { console.error(error); app.exit(1); });

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --enable-logging",
-    "check": "node --check electron/main.cjs && node --check electron/lcu.cjs && node --check electron/roles.cjs && node --check electron/gameflow.cjs && node --check electron/client-ui.cjs && node --check electron/updater.cjs && node --check electron/queues.cjs && node --check electron/preload.cjs && node --check renderer/app.js && node --check renderer/ready.js",
+    "check": "node --check electron/main.cjs && node --check electron/lcu.cjs && node --check electron/roles.cjs && node --check electron/gameflow.cjs && node --check electron/client-ui.cjs && node --check electron/updater.cjs && node --check electron/queues.cjs && node --check electron/shutdown.cjs && node --check electron/champselect.cjs && node --check electron/runes.cjs && node --check electron/preload.cjs && node --check renderer/app.js && node --check renderer/champselect.js && node --check renderer/runes.js && node --check renderer/ready.js",
     "test": "node --test test/*.test.cjs",
     "test:ui": "electron scripts/smoke-ui.cjs",
     "build:icon": "electron scripts/build-icon.cjs",

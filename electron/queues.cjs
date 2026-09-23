@@ -10,6 +10,8 @@ const ARENA_TEAM_SIZES = { 1740: 3 };
 const DEFAULT_ARENA_TEAM_SIZE = 2;
 
 const isArena = queue => queue?.gameMode === 'CHERRY';
+// Outil d'entraînement : partie personnalisée (pas de recherche), proposée comme une file.
+const isPractice = queue => queue?.gameMode === 'PRACTICETOOL';
 
 function arenaTeamSize(queueId, members = []) {
   const observed = Math.max(0, ...members.map(member => Number.isInteger(member?.intraSubteamPosition) ? member.intraSubteamPosition : 0));
@@ -19,6 +21,7 @@ function arenaTeamSize(queueId, members = []) {
 function label(queue) {
   if (!queue) return 'Solo / Duo';
   if (LABELS[queue.id]) return LABELS[queue.id];
+  if (isPractice(queue)) return 'Entraînement';
   if (isArena(queue)) return /bravery/i.test(queue.name || '') ? 'Arena Bravoure' : 'Arena';
   return queue.shortName || queue.name || `File ${queue.id}`;
 }
@@ -31,17 +34,18 @@ function premadeSizes(queue) {
 // présélectionner), Clash, tutoriels, TFT et files personnalisées.
 function playable(queues, summonerLevel = Infinity) {
   return (Array.isArray(queues) ? queues : [])
-    .filter(queue => queue && queue.queueAvailability === 'Available' && queue.isVisible !== false && queue.isEnabled !== false &&
-      queue.category === 'PvP' && GROUPS.includes(queue.gameSelectModeGroup) && !queue.isCustom &&
-      !queue.showQuickPlaySlotSelection && queue.gameMode !== 'TFT' && !/CLASH|TUTORIAL|PVE|TFT/.test(queue.type || '') &&
-      (queue.name || queue.shortName))
-    .map(queue => ({
+    .filter(queue => queue && queue.queueAvailability === 'Available' && queue.isEnabled !== false && (queue.name || queue.shortName) &&
+      ((queue.isCustom && isPractice(queue)) || (queue.isVisible !== false && queue.category === 'PvP' && GROUPS.includes(queue.gameSelectModeGroup) &&
+        !queue.isCustom && !queue.showQuickPlaySlotSelection && queue.gameMode !== 'TFT' && !/CLASH|TUTORIAL|PVE|TFT/.test(queue.type || ''))))
+    .map(queue => isPractice(queue) ? { id: queue.id, label: label(queue), group: 'kPractice', positions: false, arena: false, teamSize: null,
+      custom: true, ranked: false, maxParty: 1, premadeSizes: [], disabled: null, order: [GROUPS.length, 0, 0] } : ({
       id: queue.id,
       label: label(queue),
       group: queue.gameSelectModeGroup,
       positions: Boolean(queue.showPositionSelector),
       arena: isArena(queue),
       teamSize: isArena(queue) ? arenaTeamSize(queue.id) : null,
+      custom: false,
       ranked: Boolean(queue.isRanked),
       maxParty: queue.maximumParticipantListSize || 5,
       premadeSizes: premadeSizes(queue),
@@ -125,4 +129,4 @@ function arenaSlotError(lobby, subteamIndex, position) {
   return taken ? 'Cette place est déjà prise.' : null;
 }
 
-module.exports = { label, playable, layoutFor, blockReason, arenaTeamSize, arenaTeams, arenaSlotError, isArena, joinFr };
+module.exports = { isPractice, label, playable, layoutFor, blockReason, arenaTeamSize, arenaTeams, arenaSlotError, isArena, joinFr };

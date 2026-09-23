@@ -104,41 +104,62 @@ function spawnClient(executable, args) {
   });
 }
 
-async function launch(onProgress = () => {}) {
-  try { await call('GET', '/riotclient/region-locale'); return; } catch {}
-  const league = await findLeague();
+// Riot Client lancé et connecté (session réutilisée pour lancer League).
+async function riotSession(onProgress, league) {
   const riotLock = path.join(process.env.LOCALAPPDATA, 'Riot Games/Riot Client/Config/lockfile');
-  let riot;
+  const installs = JSON.parse(fs.readFileSync(path.join(process.env.ProgramData || 'C:\\ProgramData', 'Riot Games/RiotClientInstalls.json'), 'utf8'));
+  const normalize = p => path.resolve(p).toLowerCase();
+  const associated = Object.entries(installs.associated_client || {}).find(([folder]) => normalize(folder) === normalize(path.dirname(league)))?.[1];
+  const executable = associated || installs.rc_live || installs.rc_default;
   try {
-    riot = readLockfile(riotLock);
+    const riot = readLockfile(riotLock);
     await request(riot, 'GET', '/rso-auth/v1/authorization');
-  } catch {
-    onProgress('Connexion à Riot…');
-    const installs = JSON.parse(fs.readFileSync(path.join(process.env.ProgramData || 'C:\\ProgramData', 'Riot Games/RiotClientInstalls.json'), 'utf8'));
-    const normalize = p => path.resolve(p).toLowerCase();
-    const associated = Object.entries(installs.associated_client || {}).find(([folder]) => normalize(folder) === normalize(path.dirname(league)))?.[1];
-    await spawnClient(associated || installs.rc_live || installs.rc_default, ['--launch-background-mode']);
-    riot = null;
-    for (let attempt = 0; attempt < 60; attempt++) {
-      await delay(1000);
-      try {
-        const candidate = readLockfile(riotLock);
-        await request(candidate, 'GET', '/rso-auth/v1/authorization');
-        riot = candidate; break;
-      } catch { onProgress('Connecte-toi dans Riot Client…'); }
-    }
-    if (!riot) throw new Error('Connecte-toi dans Riot Client, puis réessaie.');
-  }
-  onProgress('Démarrage de League…');
-  // Supplying the current Riot session avoids ExitForDirectLaunch (the redirect
-  // back to the launcher). Credentials stay local and are never logged or saved.
-  await spawnClient(league, ['--headless', '--no-rads', '--disable-self-update',
-    `--riotclient-app-port=${riot.port}`, `--riotclient-auth-token=${riot.token}`]);
+    return { riot, executable };
+  } catch {}
+  onProgress('Connexion à Riot…');
+  await spawnClient(executable, ['--launch-background-mode']);
   for (let attempt = 0; attempt < 60; attempt++) {
     await delay(1000);
-    try { await call('GET', '/lol-summoner/v1/current-summoner'); return; } catch {}
+    try {
+      const riot = readLockfile(riotLock);
+      await request(riot, 'GET', '/rso-auth/v1/authorization');
+      return { riot, executable };
+    } catch { onProgress('Connecte-toi dans Riot Client…'); }
+  }
+  throw new Error('Connecte-toi dans Riot Client, puis réessaie.');
+}
+
+async function uxRunning() {
+  try {
+    const { stdout } = await exec('tasklist.exe', ['/FI', 'IMAGENAME eq LeagueClientUx.exe', '/NH'], { windowsHide: true, timeout: 4000 });
+    return /LeagueClientUx\.exe/i.test(stdout);
+  } catch { return false; }
+}
+
+// Lance League PAR LE RIOT CLIENT (API de lancement, comme le bouton « Jouer ») : c'est le seul
+// chemin prévu par Riot, et c'est lui qui gère Vanguard. Ne jamais lancer LeagueClient.exe
+// directement ni toucher aux services Vanguard : ça a déclenché VAN 2266 puis une
+// « Vanguard Security Violation 290 ». Le journal reste en ASCII (console Windows).
+async function launch(onProgress = () => {}, log = () => {}) {
+  try { await call('GET', '/riotclient/region-locale'); return { launched: false }; } catch {}
+  const started = Date.now();
+  const stamp = text => log(`${((Date.now() - started) / 1000).toFixed(1)} s - ${text}`);
+  const league = await findLeague();
+  const { riot, executable } = await riotSession(onProgress, league);
+  stamp('Riot Client pret');
+  onProgress('Démarrage de League…');
+  try {
+    await request(riot, 'POST', '/product-launcher/v1/products/league_of_legends/patchlines/live');
+    stamp('League lance par le Riot Client');
+  } catch (error) {
+    stamp(`API de lancement refusee (${error.status || error.message}) : lancement comme le raccourci League`);
+    await spawnClient(executable, ['--launch-product=league_of_legends', '--launch-patchline=live']);
+  }
+  for (let attempt = 0; attempt < 480; attempt++) {
+    await delay(250);
+    try { await call('GET', '/lol-summoner/v1/current-summoner'); stamp('client League pret'); return { launched: true }; } catch {}
   }
   throw new Error('League ne répond pas. Vérifie la connexion ou une mise à jour dans Riot Client.');
 }
 
-module.exports = { findLeague, readLockfile, request, discover, call, launch };
+module.exports = { findLeague, readLockfile, request, discover, call, launch, uxRunning };

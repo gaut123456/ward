@@ -402,7 +402,7 @@
       <h1>La file classée, <em>sans ouvrir le client.</em></h1>
     </div>
     <div>
-      <p class="lede">Un widget de 300 pixels posé sur ton bureau. Tu choisis tes rôles, tu invites ton duo, tu lances la recherche et tu acceptes la partie. League tourne en arrière-plan et ne s'affiche qu'à la sélection des champions.</p>
+      <p class="lede">Un widget de 300 pixels posé sur ton bureau. Tu choisis tes rôles, tu invites ton duo, tu lances la recherche et tu acceptes la partie. League tourne en arrière-plan du début à la fin : même la sélection des champions, les sorts et les runes se font dans Ward.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
@@ -492,7 +492,7 @@
       <li data-quest="duo"><span class="num">03</span><b>Duo</b><span class="d">Invite un ami connecté ou tape son Riot ID.</span></li>
       <li data-quest="search"><span class="num">04</span><b>Recherche</b><span class="d">Chrono en direct et attente estimée dans l'en-tête.</span></li>
       <li data-quest="accept"><span class="num">05</span><b>Accepter</b><span class="d">Une popup au premier plan, même si tu es sur une autre fenêtre.</span></li>
-      <li data-quest="champ"><span class="num">06</span><b>Champion</b><span class="d">Le client s'ouvre tout seul pour la sélection des champions.</span></li>
+      <li data-quest="champ"><span class="num">06</span><b>Champion</b><span class="d">Champion, sorts et runes se choisissent dans le widget.</span></li>
     </ol>
   </div>
 </section>
@@ -502,7 +502,7 @@
     <div class="block-head">
       <span class="eyebrow">Fonctions</span>
       <h2 id="fonctions-title">Tout ce qu'il faut pour lancer une partie classée</h2>
-      <p>Le widget couvre tout ce qui se passe avant la sélection des champions. Pour la suite, le vrai client prend le relais.</p>
+      <p>Du lobby jusqu'au lancement de la partie, tout se fait dans Ward. Le vrai client reste disponible d'un clic pour le reste (boutique, profil…).</p>
     </div>
     <div class="features">
       <article class="feature lead">
@@ -542,6 +542,12 @@
         <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
         <h3>Tous tes modes de jeu</h3>
         <p>Un clic sur le nom de la file pour passer en Flex, en ARAM ou en Arena. Le widget s'agrandit pour tout ton groupe, cache les rôles quand il n'y en a pas, et en Arena tu changes d'équipe d'un clic.</p>
+      </article>
+      <article class="feature lead">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3"/><circle cx="12" cy="12" r="2.5"/></svg></span>
+        <h3>La sélection des champions, dans le widget</h3>
+        <p>Ward s'agrandit pour la sélection : recherche, filtre par rôle et favoris en tête, survol et verrouillage, bannissements, sorts d'invocateur. En ARAM, relance et banc. Les demandes d'échange des alliés s'acceptent d'un clic.</p>
+        <p>Et les runes : choisis une page, applique en un clic les runes recommandées par Riot pour ton champion et ton poste (sorts compris), ou édite ta page arbre par arbre.</p>
       </article>
     </div>
   </div>
@@ -711,9 +717,62 @@
     { id: 400, label: 'Normale', group: 'kSummonersRift', positions: true, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
     { id: 450, label: 'ARAM', group: 'kARAM', positions: false, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
     { id: 2400, label: 'ARAM Mayhem', group: 'kARAM', positions: false, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
-    { id: 1740, label: 'Arena Bravoure', group: 'kAlternativeLeagueGameModes', positions: false, arena: true, teamSize: 3, ranked: false, maxParty: 18, premadeSizes: [], disabled: null }
+    { id: 1740, label: 'Arena Bravoure', group: 'kAlternativeLeagueGameModes', positions: false, arena: true, teamSize: 3, ranked: false, maxParty: 18, premadeSizes: [], disabled: null },
+    { id: 3140, label: 'Entraînement', group: 'kPractice', positions: false, arena: false, custom: true, teamSize: null, ranked: false, maxParty: 1, premadeSizes: [], disabled: null }
   ];
   const CHAMP_MS = 30000;
+
+  // Sélection des champions de la démo : vrais identifiants, icônes dessinées.
+  const DEMO_CHAMPS = [
+    [103, 'Ahri', 'MIDDLE', 330], [64, 'Lee Sin', 'JUNGLE', 20], [222, 'Jinx', 'BOTTOM', 290], [412, 'Thresh', 'UTILITY', 150],
+    [122, 'Darius', 'TOP', 0], [61, 'Orianna', 'MIDDLE', 45], [145, "Kai'Sa", 'BOTTOM', 270], [89, 'Leona', 'UTILITY', 40],
+    [234, 'Viego', 'JUNGLE', 170], [86, 'Garen', 'TOP', 220], [99, 'Lux', 'UTILITY', 55], [81, 'Ezreal', 'BOTTOM', 200],
+    [157, 'Yasuo', 'MIDDLE', 210], [254, 'Vi', 'JUNGLE', 350], [266, 'Aatrox', 'TOP', 355], [267, 'Nami', 'UTILITY', 185]
+  ].map(([id, name, position, hue]) => ({ id, name, position, hue }));
+  const DEMO_SPELLS = [[4, 'Flash', 45], [14, 'Embrasement', 15], [12, 'Téléportation', 280], [11, 'Châtiment', 30],
+    [7, 'Soins', 120], [21, 'Barrière', 50], [3, 'Fatigue', 200], [6, 'Fantôme', 190]]
+    .map(([id, name, hue]) => ({ id, name, hue, iconPath: `/lol-game-data/assets/demo/spells/${id}.png` }));
+  const DEMO_STYLES = [
+    { id: 8100, name: 'Domination', hue: 355,
+      keystones: [[8112, 'Électrocution'], [8128, 'Moisson noire'], [9923, 'Pluie de lames']],
+      rows: [[[8126, 'Coup bas'], [8139, 'Goût du sang'], [8143, 'Impact soudain']], [[8137, 'Sentinelle aveugle'], [8140, 'Poro fantôme'], [8141, 'Collection de globes']], [[8135, 'Chasseur de trésors'], [8105, 'Chasseur implacable'], [8106, 'Chasseur ultime']]] },
+    { id: 8000, name: 'Précision', hue: 45,
+      keystones: [[8005, 'Attaque soutenue'], [8008, 'Tempo mortel'], [8021, 'Frappe rapide'], [8010, 'Conquérant']],
+      rows: [[[9101, 'Surplus de soins'], [9111, 'Triomphe'], [8009, 'Présence d’esprit']], [[9104, 'Légende : Alacrité'], [9105, 'Légende : Hâte'], [9103, 'Légende : Lignée']], [[8014, 'Coup de grâce'], [8017, 'Abattage'], [8299, 'Dernier rempart']]] },
+    { id: 8200, name: 'Sorcellerie', hue: 240,
+      keystones: [[8214, 'Invocation d’Aery'], [8229, 'Comète arcanique'], [8230, 'Rush phasique']],
+      rows: [[[8224, 'Orbe annulateur'], [8226, 'Bande de mana'], [8275, 'Cape nimbus']], [[8210, 'Transcendance'], [8234, 'Célérité'], [8233, 'Concentration absolue']], [[8237, 'Brûlure'], [8232, 'Marche sur l’eau'], [8236, 'Tempête menaçante']]] }
+  ];
+  const DEMO_SHARDS = [[[5008, 'Force adaptative'], [5005, 'Vitesse d’attaque'], [5007, 'Accélération de compétence']],
+    [[5008, 'Force adaptative'], [5010, 'Vitesse de déplacement'], [5001, 'PV croissants']], [[5011, 'PV'], [5013, 'Ténacité'], [5001, 'PV croissants']]];
+  const RUNE_DEMO = (() => {
+    const perks = {};
+    const add = ([id, name], hue) => { perks[id] = { id, name, hue, iconPath: `/lol-game-data/assets/demo/perks/${id}.png`, description: name }; return id; };
+    const styles = DEMO_STYLES.map(style => ({
+      id: style.id, name: style.name, iconPath: `/lol-game-data/assets/demo/styles/${style.id}.png`,
+      allowedSubStyles: DEMO_STYLES.filter(other => other.id !== style.id).map(other => other.id),
+      keystones: style.keystones.map(perk => add(perk, style.hue)), rows: style.rows.map(row => row.map(perk => add(perk, style.hue))),
+      shards: DEMO_SHARDS.map(row => row.map(perk => add(perk, 45)))
+    }));
+    return { styles, perks };
+  })();
+  const DEMO_RECOS = [
+    { keystoneId: 8112, primaryStyleId: 8100, subStyleId: 8200, perks: [8112, 8139, 8140, 8106, 8226, 8210, 5008, 5008, 5001] },
+    { keystoneId: 8010, primaryStyleId: 8000, subStyleId: 8100, perks: [8010, 9111, 9104, 8299, 8139, 8135, 5005, 5008, 5011] }
+  ];
+  const RECO_SPELLS = { TOP: [12, 4], JUNGLE: [11, 4], MIDDLE: [14, 4], BOTTOM: [7, 4], UTILITY: [14, 4] };
+  // Icônes dessinées (SVG) pour les chemins d'images du client.
+  const svgData = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  const tile = (hue, letter) => svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue},55%,42%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360},60%,12%)"/></linearGradient></defs><rect width="64" height="64" fill="url(#t)"/><text x="32" y="43" font-family="Georgia,serif" font-size="30" fill="#f0e6d2" text-anchor="middle">${letter}</text></svg>`);
+  const orb = (hue, letter) => svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><radialGradient id="o" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="hsl(${hue},75%,62%)"/><stop offset="1" stop-color="hsl(${hue},60%,16%)"/></radialGradient></defs><circle cx="32" cy="32" r="30" fill="url(#o)"/><text x="32" y="42" font-family="Georgia,serif" font-size="26" fill="#fff" text-anchor="middle">${letter}</text></svg>`);
+  function demoAsset(path) {
+    let match;
+    if ((match = /champion-icons\/(\d+)\.png$/.exec(path))) { const c = DEMO_CHAMPS.find(item => item.id === Number(match[1])); return c ? tile(c.hue, c.name[0]) : null; }
+    if ((match = /demo\/spells\/(\d+)\.png$/.exec(path))) { const spell = DEMO_SPELLS.find(item => item.id === Number(match[1])); return spell ? orb(spell.hue, spell.name[0]) : null; }
+    if ((match = /demo\/styles\/(\d+)\.png$/.exec(path))) { const style = DEMO_STYLES.find(item => item.id === Number(match[1])); return style ? orb(style.hue, style.name[0]) : null; }
+    if ((match = /demo\/perks\/(\d+)\.png$/.exec(path))) { const perk = RUNE_DEMO.perks[Number(match[1])]; return perk ? orb(perk.hue, perk.name.replace(/^Légende : /, '')[0]) : null; }
+    return null;
+  }
 
   function avatar(id) {
     const hues = [42, 200, 280, 160, 330, 15, 120, 250, 190, 300];
@@ -732,10 +791,14 @@
     const s = { connected: false, starting: true, phase: 'None', searchStart: 0, roles: null, partner: null,
       ready: null, clientOpening: false, champDeadline: 0, champion: null, gameStart: 0, extraId: 90, t: {},
       invites: [], isLeader: true, invited: false, connectedAt: 0,
-      party: [], queueId: 420, subteam: { subteamIndex: 1, intraSubteamPosition: 1 } };
+      party: [], queueId: 420, subteam: { subteamIndex: 1, intraSubteamPosition: 1 }, cs: null, nextPageId: 3,
+      runePages: [
+        { id: 1, name: 'Ma page', current: true, editable: true, valid: true, primaryStyleId: 8000, subStyleId: 8100, selectedPerkIds: [8010, 9111, 9104, 8299, 8139, 8135, 5005, 5008, 5011] },
+        { id: 2, name: 'Page Riot', current: false, editable: false, valid: true, primaryStyleId: 8100, subStyleId: 8200, selectedPerkIds: [8112, 8126, 8140, 8106, 8226, 8210, 5008, 5008, 5001] }
+      ] };
     const queue = () => {
       const base = DEMO_QUEUES.find(item => item.id === s.queueId) || DEMO_QUEUES[0];
-      return { ...base, layout: base.arena ? 'arena' : base.maxParty > 2 ? 'party' : 'duo', teams: base.arena ? base.maxParty / base.teamSize : null, teamSize: base.arena ? base.teamSize : null };
+      return { ...base, layout: base.arena ? 'arena' : base.custom || base.maxParty <= 2 ? 'duo' : 'party', teams: base.arena ? base.maxParty / base.teamSize : null, teamSize: base.arena ? base.teamSize : null };
     };
     function arenaSeat() {
       const taken = new Set([`${s.subteam.subteamIndex}:${s.subteam.intraSubteamPosition}`, ...s.party.map(m => `${m.subteamIndex}:${m.intraSubteamPosition}`)]);
@@ -822,18 +885,81 @@
         ui.notice('Tu n\'as pas accepté à temps : retour au lobby. Relance la recherche.', true);
       }, READY_MS);
     }
+    // Sélection des champions : tout se passe dans le widget (le client ne s'ouvre plus).
+    function pickFor(position) {
+      const free = DEMO_CHAMPS.filter(c => !s.cs.used.has(c.id));
+      const preferred = free.filter(c => c.position === position);
+      const champion = (preferred.length ? preferred : free)[Math.floor(Math.random() * (preferred.length || free.length))];
+      s.cs.used.add(champion.id);
+      return champion.id;
+    }
     function toChampSelect() {
       s.ready = null; pushReady(); ui.hideReady();
-      setPhase('ChampSelect');
+      const q = queue();
+      const aram = !q.positions && !q.arena && !q.custom;
+      const positions = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'UTILITY'];
+      const myPosition = q.positions ? (ROLES.includes(s.roles?.firstPreference) && s.roles.firstPreference !== 'FILL' ? s.roles.firstPreference : 'MIDDLE') : '';
+      const others = positions.filter(position => position !== myPosition);
+      const size = q.custom ? 1 : q.arena ? q.teamSize : 5;
+      const allies = [{ cellId: 0, name: 'Toi', isLocal: true, position: myPosition }];
+      s.party.slice(0, size - 1).forEach((member, i) => allies.push({ cellId: i + 1, name: member.displayName, position: q.positions ? others[i] : '' }));
+      while (allies.length < size) allies.push({ cellId: allies.length, name: `Invocateur ${allies.length + 1}`, position: q.positions ? others[allies.length - 1] : '' });
+      allies.forEach(player => Object.assign(player, { championId: 0, hoverId: 0, locked: false }));
+      const enemies = q.arena || aram || q.custom ? [] : Array.from({ length: 5 }, (_, i) => ({ cellId: 5 + i, position: '', championId: 0, hoverId: 0, locked: false }));
+      const total = aram ? 20000 : CHAMP_MS;
+      s.cs = { allies, enemies, used: new Set(), aram, bench: [], rerolls: 1, spells: [4, myPosition === 'JUNGLE' ? 11 : 14], total, deadline: Date.now() + total };
       s.champion = null;
-      s.champDeadline = Date.now() + CHAMP_MS;
-      s.clientOpening = true;
-      later(() => { s.clientOpening = false; ui.showClient(); }, 900);
+      setPhase('ChampSelect');
+      if (aram) {
+        allies.forEach(player => { player.championId = pickFor(); player.locked = true; });
+        s.cs.bench = [pickFor(), pickFor()];
+        s.t.champ = later(finishChampSelect, total);
+        return;
+      }
+      // Les autres joueurs survolent puis verrouillent au fil des secondes.
+      for (const player of [...allies.filter(p => !p.isLocal), ...enemies]) {
+        later(() => { if (s.phase === 'ChampSelect' && !player.locked && player.cellId < 5) player.hoverId = pickFor(player.position); }, 1500 + Math.random() * 4000);
+        player.lockAt = later(() => lockBot(player), 5000 + Math.random() * 14000);
+      }
       s.t.champ = later(() => {
         if (s.phase !== 'ChampSelect') return;
-        setPhase('Lobby'); ui.hideClient();
+        s.cs = null; setPhase('Lobby');
         ui.notice('La sélection a expiré avant que tu verrouilles un champion. Retour au lobby.', true);
-      }, CHAMP_MS);
+      }, total);
+    }
+    function lockBot(player) {
+      if (s.phase !== 'ChampSelect' || player.locked) return;
+      player.championId = player.hoverId || pickFor(player.position);
+      player.locked = true;
+      maybeFinish();
+    }
+    function maybeFinish() {
+      if (s.cs && [...s.cs.allies, ...s.cs.enemies].every(player => player.locked)) finishChampSelect();
+    }
+    function finishChampSelect() {
+      if (s.phase !== 'ChampSelect' || s.cs.finishing) return;
+      s.cs.finishing = true;
+      cancel(s.t.champ);
+      const me = s.cs.allies[0];
+      s.champion = DEMO_CHAMPS.find(c => c.id === me.championId)?.name || '';
+      later(() => {
+        setPhase('GameStart'); ui.showClient();
+        later(() => { setPhase('InProgress'); s.gameStart = Date.now(); s.t.game = later(endGame, 60000); }, 2500);
+      }, 1500);
+    }
+    function csStatus() {
+      const cs = s.cs, me = cs.allies[0];
+      const player = p => ({ cellId: p.cellId, name: p.name || null, position: p.position, championId: p.championId, hoverId: p.locked ? 0 : p.hoverId,
+        locked: p.locked, acting: !p.locked && !cs.aram, isLocal: Boolean(p.isLocal),
+        spell1Id: p.isLocal ? cs.spells[0] : 4, spell2Id: p.isLocal ? cs.spells[1] : ({ JUNGLE: 11, TOP: 12, BOTTOM: 7 }[p.position] || 14) });
+      return {
+        queueId: s.queueId, isCustom: false, phase: 'BAN_PICK', timeLeftMs: Math.max(0, cs.deadline - Date.now()), totalMs: cs.total, infinite: false,
+        sampledAt: Date.now(), localCellId: 0, myTeam: cs.allies.map(player), theirTeam: cs.enemies.map(player),
+        bans: { mine: [], theirs: [], count: 0 },
+        action: cs.aram || me.locked ? null : { id: 100, type: 'pick', inProgress: true, championId: me.hoverId },
+        locked: me.locked, position: me.position, spell1Id: cs.spells[0], spell2Id: cs.spells[1],
+        allowReroll: cs.aram, rerollsRemaining: cs.aram ? cs.rerolls : 0, benchEnabled: cs.aram, bench: [...cs.bench], swaps: []
+      };
     }
     function endGame() {
       if (!['InProgress', 'GameStart'].includes(s.phase)) return;
@@ -855,9 +981,86 @@
           phase: s.phase, searching, sampledAt: Date.now(),
           timeInQueue: searching ? (Date.now() - s.searchStart) / 1000 : null,
           estimatedQueueTime: searching ? 95 : null,
-          ready: readySnapshot(), clientUi: { opening: s.clientOpening, error: '' } };
+          ready: readySnapshot(), clientUi: { opening: s.clientOpening, error: '' },
+          champSelect: s.phase === 'ChampSelect' && s.cs ? csStatus() : null };
       },
       async getProfileIcon(id) { return avatar(id); },
+      async getAsset(path) { return demoAsset(String(path)); },
+      async getChampSelectData() {
+        await delay(250);
+        return { champions: DEMO_CHAMPS.map(c => ({ id: c.id, name: c.name, alias: c.name, positions: [c.position], favorites: c.id === 103 ? ['MIDDLE'] : [] })),
+          pickable: DEMO_CHAMPS.map(c => c.id), bannable: [], spells: DEMO_SPELLS.map(({ id, name, iconPath }) => ({ id, name, iconPath })) };
+      },
+      async champHover(championId) {
+        const me = s.cs?.allies[0];
+        if (s.phase !== 'ChampSelect' || !me || me.locked || s.cs.aram) throw new Error('Ce n’est pas à toi de choisir.');
+        if ([...s.cs.allies, ...s.cs.enemies].some(p => p.locked && p.championId === championId)) throw new Error('Ce champion n’est pas disponible.');
+        await delay(80);
+        me.hoverId = championId;
+      },
+      async champLock() {
+        const me = s.cs?.allies[0];
+        if (s.phase !== 'ChampSelect' || !me || me.locked) throw new Error('Attends ton tour pour verrouiller.');
+        if (!me.hoverId) throw new Error('Choisis un champion.');
+        if ([...s.cs.allies, ...s.cs.enemies].some(p => p.locked && p.championId === me.hoverId)) throw new Error('Ce champion vient d’être pris.');
+        await delay(200);
+        me.championId = me.hoverId; me.locked = true; s.cs.used.add(me.championId);
+        ui.quest('champ');
+        // Les retardataires se dépêchent pour ne pas faire attendre la démo.
+        for (const player of [...s.cs.allies, ...s.cs.enemies]) if (!player.locked) { cancel(player.lockAt); later(() => lockBot(player), 600 + Math.random() * 1800); }
+        maybeFinish();
+        return { type: 'pick', championId: me.championId };
+      },
+      async setSpells(spell1Id, spell2Id) {
+        if (!s.cs) throw new Error('La sélection des champions est terminée.');
+        if (spell1Id === spell2Id) throw new Error('Choisis deux sorts différents.');
+        await delay(120);
+        s.cs.spells = [spell1Id, spell2Id];
+      },
+      async reroll() {
+        if (!s.cs?.aram || s.cs.rerolls < 1) throw new Error('Plus de relance disponible.');
+        await delay(250);
+        s.cs.rerolls--;
+        s.cs.allies[0].championId = pickFor();
+      },
+      async benchSwap(championId) {
+        const me = s.cs?.allies[0];
+        if (!s.cs?.aram || !s.cs.bench.includes(championId)) throw new Error('Ce champion n’est plus sur le banc.');
+        await delay(200);
+        s.cs.bench = s.cs.bench.map(id => (id === championId ? me.championId : id));
+        me.championId = championId;
+      },
+      async answerSwap() { throw new Error('Cette demande d’échange n’est plus valable.'); },
+      async getRunes() {
+        await delay(200);
+        const me = s.cs?.allies[0];
+        const championId = me?.championId || me?.hoverId || 0;
+        const position = String(me?.position || '').toLowerCase() || 'none';
+        return { ...RUNE_DEMO, context: { championId, position, mapId: 11 }, canAdd: s.runePages.length < 4,
+          pages: s.runePages.map(page => ({ ...page, selectedPerkIds: [...page.selectedPerkIds] })),
+          recommendations: championId ? DEMO_RECOS.map(reco => ({ ...reco, spells: RECO_SPELLS[me.position] || [14, 4] })) : [] };
+      },
+      async selectRunePage(id) {
+        if (!s.runePages.some(page => page.id === id)) throw new Error('Page introuvable.');
+        await delay(120);
+        s.runePages.forEach(page => { page.current = page.id === id; });
+      },
+      async saveRunePage(page, target) {
+        if (!Array.isArray(page?.selectedPerkIds) || page.selectedPerkIds.length !== 9 || page.selectedPerkIds.some(id => !(id > 0))) throw new Error('Page de runes incomplète.');
+        await delay(250);
+        const clean = { name: String(page.name || '').trim().slice(0, 25) || 'Ward', primaryStyleId: page.primaryStyleId, subStyleId: page.subStyleId, selectedPerkIds: [...page.selectedPerkIds] };
+        if (target === 'new') {
+          if (s.runePages.length >= 4) throw new Error('Plus de place pour une nouvelle page : modifie une page existante.');
+          s.runePages.push({ id: s.nextPageId++, current: false, editable: true, valid: true, ...clean });
+          target = s.runePages.at(-1).id;
+        } else {
+          const existing = s.runePages.find(item => item.id === target);
+          if (!existing?.editable) throw new Error('Cette page ne peut pas être modifiée : choisis une de tes pages.');
+          Object.assign(existing, clean);
+        }
+        s.runePages.forEach(item => { item.current = item.id === target; });
+        return target;
+      },
       async getRoles() { return s.roles ? { ...s.roles } : null; },
       async saveRoles(value) {
         const first = value?.firstPreference;
@@ -944,6 +1147,13 @@
       async startSearch() {
         if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
         if (!s.roles && queue().positions) throw new Error('Choisis tes positions avant de lancer.');
+        if (queue().custom) {
+          // Outil d'entraînement : pas de recherche, sélection des champions directement.
+          if (s.phase === 'None') setPhase('Lobby');
+          await delay(700);
+          toChampSelect();
+          return { custom: true };
+        }
         const reason = blockedReason();
         if (reason) throw new Error(reason);
         await delay(260);
@@ -989,13 +1199,6 @@
       get champion() { return s.champion; },
       champLeft: () => Math.max(0, s.champDeadline - Date.now()),
       gameSeconds: () => Math.floor((Date.now() - s.gameStart) / 1000 * 30),
-      lock(name) {
-        if (s.phase !== 'ChampSelect' || s.champion) return;
-        s.champion = name;
-        cancel(s.t.champ);
-        ui.quest('champ');
-        later(() => { setPhase('GameStart'); later(() => { setPhase('InProgress'); s.gameStart = Date.now(); s.t.game = later(endGame, 60000); }, 2500); }, 1500);
-      },
       endGame,
       destroy() { alive = false; timers.forEach(clearTimeout); timers.clear(); }
     };
@@ -1093,9 +1296,6 @@
     el.innerHTML = '<div class="client-bar"><b>Client League</b><small>version démo</small><button type="button" aria-label="Fermer le client">×</button></div><div class="client-body"></div>';
     el.querySelector('.client-bar button').addEventListener('click', () => { el.hidden = true; tbClient.classList.remove('open'); });
     el.querySelector('.client-body').addEventListener('click', event => {
-      const champ = event.target.closest('.champ');
-      if (champ && !backend.champion) { picked = champ.dataset.name; clientKey = ''; renderClient(); return; }
-      if (event.target.closest('[data-lock]') && picked) { backend.lock(picked); clientKey = ''; renderClient(); return; }
       if (event.target.closest('[data-end]')) backend.endGame();
     });
     desk.insertBefore(el, desk.querySelector('.taskbar'));
@@ -1111,10 +1311,7 @@
     if (key !== clientKey) {
       clientKey = key;
       if (phase === 'ChampSelect') {
-        const locked = backend.champion;
-        body.innerHTML = `<div class="cs-head"><div><h3>Sélection des champions</h3><p>Classé Solo/Duo · ${locked ? 'en attente des autres joueurs…' : 'choisis ton champion puis verrouille-le.'}</p></div><span class="cs-timer" data-timer>30</span></div>
-          <div class="champs">${CHAMPS.map(([name, hue]) => `<button type="button" class="champ" data-name="${name}" aria-pressed="${name === (locked || picked)}" ${locked ? 'disabled' : ''}><i style="background:linear-gradient(135deg,hsl(${hue},55%,40%),hsl(${(hue + 40) % 360},60%,12%))">${name[0]}</i>${name}</button>`).join('')}</div>
-          <div class="client-actions">${locked ? `<p>Verrouillé : <b style="color:var(--gold)">${locked}</b></p>` : `<button type="button" class="btn btn-gold" data-lock ${picked ? '' : 'disabled'}>Verrouiller</button>`}</div>`;
+        body.innerHTML = '<div class="game"><h3>Sélection des champions</h3><p>Dans Ward, la sélection se fait directement dans le widget : champion, sorts et runes.</p></div>';
       } else if (phase === 'GameStart') {
         body.innerHTML = `<div class="game"><h3>Chargement de la partie</h3><p>${backend.champion || ''} · Faille de l'invocateur</p></div>`;
       } else if (phase === 'InProgress') {
@@ -1151,7 +1348,7 @@
     if (!backend.isLeader && backend.phase === 'Lobby') return { text: backend.roles ? 'Tu es dans le lobby de Lumen : c’est elle qui lance la recherche.' : 'Tu es dans le lobby de Lumen : choisis tes rôles, elle lancera la recherche ensuite.' };
     if (phase === 'ReadyCheck') return { text: backend.ready?.response === 'Accepted' ? 'Accepté ! Les autres joueurs arrivent…' : 'Partie trouvée : accepte dans la popup ou dans le widget.' };
     if (phase === 'Matchmaking') return { text: 'Recherche en cours… Tu peux déplacer le widget pendant ce temps.' };
-    if (phase === 'ChampSelect') return { text: backend.champion ? 'Champion verrouillé. La partie va commencer.' : 'Le client s’est ouvert tout seul : choisis un champion et verrouille-le.' };
+    if (phase === 'ChampSelect') return { text: backend.champion ? 'Tout le monde a verrouillé : la partie va commencer.' : 'Sélection des champions dans le widget : choisis ton champion, règle sorts et runes, puis verrouille.' };
     if (phase === 'GameStart') return { text: 'Chargement de la partie…' };
     if (phase === 'InProgress') return { text: 'Partie en cours. Termine-la depuis la fenêtre du client quand tu veux.' };
     if (phase === 'EndOfGame') return { text: 'Fin de partie…' };

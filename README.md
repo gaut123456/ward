@@ -4,9 +4,11 @@ Widget de bureau pour lancer une partie League of Legends sans ouvrir le client.
 
 Files : Solo/Duo, Flex, Normale, ARAM, ARAM Mayhem et l'Arena du moment (avec changement d'équipe). Les règles de chaque file (taille de groupe, rôles, niveau requis, motifs de blocage) sont lues dans le client via `/lol-game-queues/v1/queues` et le lobby (voir `electron/queues.cjs`) ; le widget s'agrandit selon la file (300 × 230 en Solo/Duo, 440 px de large en groupe ou en Arena). Swiftplay et Clash ne sont pas proposés : ils se préparent dans le client.
 
+Sélection des champions dans le widget (`electron/champselect.cjs`, `renderer/champselect.js`) : le widget passe en 520 × 460, affiche alliés, ennemis, bannissements et chrono, permet de survoler, verrouiller ou bannir, de changer de sorts, de gérer l'ARAM (relance, banc) et les demandes d'échange. Runes (`electron/runes.cjs`, `renderer/runes.js`) : choix de page, runes recommandées par le client (sorts compris, Flash gardé sur sa touche) et éditeur complet ; une page n'est modifiée que si elle est modifiable, sinon une nouvelle page est créée s'il reste de la place. Le client League ne s'ouvre plus automatiquement à la sélection (bouton ↗ pour l'afficher).
+
 Petit widget Windows de 240 × 180 px (252 × 192 avec les marges transparentes), sans barre de titre. Les autres fenêtres peuvent le recouvrir. Déplace-le en tirant la zone « SOLO / DUO ».
 
-- démarre automatiquement League en mode `--headless` si le client n'est pas déjà ouvert ;
+- démarre automatiquement League par le Riot Client s'il n'est pas déjà ouvert, puis ferme la fenêtre du client (voir « Vanguard » plus bas) ; `npm run dev` affiche les étapes horodatées (`[Ward] demarrage - …`) ;
 - affiche la photo de profil du joueur connecté ;
 - le bouton ↗ en haut à droite affiche le client League normal à tout moment une fois connecté, sans fermer la session headless, annuler la recherche ni recréer le lobby ;
 - ouvre les amis connectés et la saisie `Pseudo#TAG` avec le bouton « + » ;
@@ -73,3 +75,30 @@ Pour publier une version :
 cp out/Ward-X.Y.Z-portable.exe out/Ward-portable.exe
 gh release create vX.Y.Z out/Ward-X.Y.Z-portable.exe out/Ward-portable.exe --title "Ward X.Y.Z"
 ```
+
+## Tester avec le vrai client (`scripts/lobby-lab.cjs`)
+
+Banc d'essai pour les tests en conditions réelles. Il refuse d'agir pendant une recherche, une partie ou si d'autres joueurs sont dans le lobby, et ne verrouille jamais de champion.
+
+```sh
+node scripts/lobby-lab.cjs state              # état actuel (lecture seule)
+node scripts/lobby-lab.cjs queues             # files et parties perso disponibles
+node scripts/lobby-lab.cjs lobby 1740         # lobby d'une file (ici l'Arena du moment)
+node scripts/lobby-lab.cjs champ-select       # Outil d'entraînement (3140) jusqu'à la sélection des champions
+node scripts/lobby-lab.cjs cleanup            # annule la sélection perso et supprime le lobby
+```
+
+À savoir (client de septembre 2026) :
+
+- partie perso : `POST /lol-lobby/v2/lobby { queueId, isCustom: true, customGameLobby: { lobbyName, configuration: {} } }` ; il faut **les deux** (sans `queueId` : `500 INVALID_LOBBY`, sans `customGameLobby` : `400 INVALID_REQUEST`) ;
+- après une sélection perso annulée, `start-champ-select` répond `{ success: false }` pendant environ 15 s ;
+- après une sélection perso annulée puis le lobby supprimé, le client reste « en recherche » sans lobby : `DELETE /lol-matchmaking/v1/search` l'efface (fait par `cleanup`) ;
+- un démarrage peut passer directement en jeu : il faut alors fermer le jeu d'entraînement ; si le client redémarre pendant la partie, il s'y reconnecte tout seul ;
+- en sélection des champions : `PATCH /lol-champ-select/v1/session/actions/{id} { championId }` survole sans verrouiller, `PATCH …/session/my-selection { spell1Id, spell2Id }` change les sorts ;
+- un Ward lancé en parallèle (`npm start`) ouvre le client à l'écran dès la sélection des champions, comme en partie normale.
+
+## Vanguard
+
+Ward ne touche jamais à Vanguard. League est toujours lancé **par le Riot Client** (`POST /product-launcher/v1/products/league_of_legends/patchlines/live`, secours `--launch-product=league_of_legends --launch-patchline=live`), le chemin prévu par Riot, qui gère Vanguard. Si Ward a lancé League, il ferme l'interface du client par la commande officielle (`POST /riotclient/kill-ux`) quand elle s'ouvre sans avoir été demandée, puis retire le splash (logo League) que `LeagueClient.exe` laisse affiché (`DELETE /riotclient/splash`) ; le bouton ↗ suspend cette fermeture jusqu'à ce que le client soit refermé.
+
+À ne jamais faire (essayé pendant le développement, a déclenché VAN 2266 puis « Vanguard Security Violation 290 ») : lancer `LeagueClient.exe` directement (`--headless`), démarrer ou arrêter soi-même les services `vgk`/`vgc`, fermer de force `League of Legends.exe`.

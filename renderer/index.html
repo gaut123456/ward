@@ -74,7 +74,81 @@
 
     <div id="arena-grid" class="arena-grid" aria-label="Autres équipes Arena" hidden></div>
 
+    <section id="champ-select" class="champ-select" aria-label="Sélection des champions" hidden>
+      <div class="cs-timer" aria-hidden="true"><span id="cs-timer-fill"></span></div>
+      <div id="cs-body" class="cs-body">
+        <div class="cs-side allies">
+          <div id="cs-allies" class="cs-team"></div>
+          <div id="cs-bans-mine" class="cs-bans"></div>
+        </div>
+        <div class="cs-picker">
+          <div id="cs-filters" class="cs-filters">
+            <div id="cs-roles" class="cs-roles" role="group" aria-label="Filtrer par rôle"></div>
+            <input id="cs-search" placeholder="Rechercher" aria-label="Rechercher un champion" maxlength="30" autocomplete="off" />
+          </div>
+          <div id="cs-grid" class="cs-grid" role="group" aria-label="Champions"></div>
+          <div id="cs-aram" class="cs-aram" hidden>
+            <div class="cs-aram-main">
+              <span id="cs-aram-portrait" class="cs-aram-portrait"></span>
+              <div class="cs-aram-text"><span class="cs-title">Ton champion</span><b id="cs-aram-name">—</b><button id="cs-reroll" class="cs-reroll">Relancer</button></div>
+            </div>
+            <span class="cs-title">Banc · clique pour échanger</span>
+            <div id="cs-bench" class="cs-bench"></div>
+          </div>
+        </div>
+        <div id="cs-enemy-side" class="cs-side enemies">
+          <div id="cs-enemies" class="cs-team"></div>
+          <div id="cs-bans-theirs" class="cs-bans"></div>
+        </div>
+      </div>
+      <div id="cs-swap" class="cs-swap" role="alert" hidden>
+        <span id="cs-swap-text"></span>
+        <button id="cs-swap-decline" class="invite-decline" aria-label="Refuser l'échange" title="Refuser"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+        <button id="cs-swap-accept" class="invite-accept" aria-label="Accepter l'échange" title="Accepter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+      </div>
+      <div class="cs-footer">
+        <div id="cs-pick" class="cs-pick">
+          <span id="cs-pick-portrait" class="cs-pick-portrait"></span>
+          <span class="cs-pick-text"><b id="cs-pick-name">Aucun champion</b><small id="cs-pick-sub"></small></span>
+        </div>
+        <button id="cs-spell1" class="cs-spell" aria-label="Changer le sort 1"></button>
+        <button id="cs-spell2" class="cs-spell" aria-label="Changer le sort 2"></button>
+        <button id="cs-runes" class="cs-runes" aria-label="Runes"><span>Runes</span></button>
+        <button id="cs-action" class="cs-action" disabled>Choisis ton champion</button>
+      </div>
+    </section>
+
     <button id="play" class="primary play" disabled>Lancement de League…</button>
+
+    <section id="runes-panel" class="panel runes-panel" role="dialog" aria-labelledby="runes-title" hidden>
+      <div class="panel-header">
+        <div class="panel-title"><h2 id="runes-title">Runes</h2><span id="runes-sub" class="panel-sub"></span></div>
+        <div class="rune-page-picker">
+          <button id="rune-page-button" class="rune-page-button" aria-haspopup="listbox" aria-expanded="false"><span id="rune-page-label">Pages</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button>
+          <div id="rune-pages" class="rune-pages" role="listbox" aria-label="Pages de runes" hidden></div>
+        </div>
+        <button id="close-runes" aria-label="Fermer les runes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+      </div>
+      <div id="rune-recos" class="rune-recos" role="group" aria-label="Runes recommandées"></div>
+      <div class="rune-editor">
+        <div id="rune-primary-col" class="rune-col"><div id="rune-primary-styles" class="rune-styles" role="group" aria-label="Arbre principal"></div><div id="rune-primary" class="rune-tree"></div></div>
+        <div id="rune-secondary-col" class="rune-col"><div id="rune-secondary-styles" class="rune-styles" role="group" aria-label="Arbre secondaire"></div><div id="rune-secondary" class="rune-tree"></div><div id="rune-shards" class="rune-tree shards"></div></div>
+      </div>
+      <div id="rune-info" class="rune-info" aria-live="polite"></div>
+      <div class="rune-footer">
+        <input id="rune-name" maxlength="25" aria-label="Nom de la page" autocomplete="off" />
+        <span id="rune-hint" class="rune-hint"></span>
+        <button id="rune-save" class="rune-save" disabled>Enregistrer</button>
+      </div>
+    </section>
+
+    <section id="spells-panel" class="panel spells-panel" role="dialog" aria-labelledby="spells-title" hidden>
+      <div class="panel-header">
+        <div class="panel-title"><h2 id="spells-title">Sort 1</h2><span class="panel-sub">Sorts autorisés dans ce mode</span></div>
+        <button id="close-spells" aria-label="Fermer le choix des sorts"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+      </div>
+      <div id="spell-options" class="spell-options" role="group" aria-labelledby="spells-title"></div>
+    </section>
 
     <section id="queue-panel" class="panel queue-panel" role="dialog" aria-labelledby="queue-title" hidden>
       <div class="panel-header">
@@ -105,5 +179,7 @@
     </section>
   </main>
   <script src="app.js"></script>
+  <script src="champselect.js"></script>
+  <script src="runes.js"></script>
 </body>
 </html>

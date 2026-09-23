@@ -6,10 +6,28 @@ const { validateRoles, applyRoles } = require('./roles.cjs');
 const { queueState, readySnapshot, createClientHandoff } = require('./gameflow.cjs');
 const updater = require('./updater.cjs');
 const queues = require('./queues.cjs');
+const clientUi = require('./client-ui.cjs');
+const { closeHeadlessLeague } = require('./shutdown.cjs');
+const champSelect = require('./champselect.cjs');
+const runes = require('./runes.cjs');
+// Interface du client : si Ward a lancé League, il la ferme par la commande officielle du client
+// (kill-ux) quand elle s'ouvre sans avoir été demandée ; le bouton ↗ suspend cette fermeture.
+// Le splash de LeagueClient.exe (logo League) reste affiché après kill-ux : on le retire aussi
+// (DELETE /riotclient/splash), après chaque fermeture et pendant les 2 minutes qui suivent le lancement.
+let launchedByWard = false, userWantsUx = false, uxChecks = 0, launchedAt = 0;
+const hideSplash = () => lcu.call('DELETE', '/riotclient/splash').catch(() => {});
+async function closeUnrequestedUx() {
+  if (!launchedByWard || userWantsUx) return;
+  if (Date.now() - launchedAt < 120000) hideSplash();
+  if (!await lcu.uxRunning()) return;
+  await lcu.call('POST', '/riotclient/kill-ux').then(() => console.log('[Ward] interface du client fermee')).catch(() => {});
+  hideSplash();
+}
 const handoff = createClientHandoff();
 let readyState = readySnapshot(null), quitting = false;
 let mainWindow, readyWindow, poller, launchTask;
 let startupMessage = 'Démarrage de League…';
+let lastWatchedPhase = null;
 let starting = false, dismissedReady = false, readyActive = false;
 const iconCache = new Map();
 const inviterCache = new Map();
@@ -63,12 +81,12 @@ function queueInfo(catalog, lobby) {
   const config = lobby?.gameConfig;
   const id = config?.queueId ?? savedQueueId();
   const known = catalog.find(queue => queue.id === id);
-  const base = known || (config ? { id, label: queues.label({ id, gameMode: config.gameMode }), positions: Boolean(config.showPositionSelector),
+  const base = known || (config ? { id, label: queues.label({ id, gameMode: config.gameMode }), positions: Boolean(config.showPositionSelector), custom: Boolean(config.isCustom),
     arena: queues.isArena(config), maxParty: config.maxLobbySize || 5, premadeSizes: config.allowablePremadeSizes || [] }
     : { id: DEFAULT_QUEUE, label: 'Solo / Duo', positions: true, arena: false, maxParty: 2, premadeSizes: [1, 2] });
   const maxParty = config?.maxLobbySize || base.maxParty;
   const teamSize = base.arena ? queues.arenaTeamSize(id, lobby?.members) : null;
-  return { ...base, maxParty, layout: base.arena ? 'arena' : maxParty > 2 ? 'party' : 'duo',
+  return { ...base, maxParty, layout: base.arena ? 'arena' : base.custom || maxParty <= 2 ? 'duo' : 'party',
     teams: base.arena ? queues.arenaTeams(maxParty, teamSize) : null, teamSize };
 }
 
@@ -86,8 +104,11 @@ async function startLeague() {
   if (preview) return;
   if (launchTask) return launchTask;
   starting = true;
-  launchTask = lcu.launch(message => { startupMessage = message; })
-    .then(() => { startupMessage = ''; })
+  launchTask = lcu.launch(message => { startupMessage = message; }, text => console.log(`[Ward] demarrage - ${text}`))
+    .then(result => {
+      startupMessage = '';
+      if (result?.launched) { launchedByWard = true; launchedAt = Date.now(); closeUnrequestedUx(); }
+    })
     .catch(error => { startupMessage = error.message; })
     .finally(() => { starting = false; launchTask = null; });
   return launchTask;
@@ -144,6 +165,12 @@ async function watchReady() {
         lcu.call('GET', '/lol-gameflow/v1/gameflow-phase'),
         lcu.call('GET', '/lol-matchmaking/v1/ready-check').catch(() => null)
       ]);
+      lastWatchedPhase = phase;
+      // Toutes les ~3 s : ferme l'interface réapparue sans demande ; après ↗ puis fermeture, reprend.
+      if (launchedByWard && ++uxChecks % 4 === 0) {
+        if (userWantsUx) { if (!await lcu.uxRunning()) userWantsUx = false; }
+        else await closeUnrequestedUx();
+      }
       readyState = readySnapshot(phase === 'ReadyCheck' ? ready : null, Date.now(), readyState);
       const active = readyState.active;
       if (!active) { dismissedReady = false; closeReady(); }
@@ -153,12 +180,18 @@ async function watchReady() {
       } else closeReady();
       readyActive = active;
       if (readyWindow && !readyWindow.isDestroyed()) readyWindow.webContents.send('ready-check', readyState);
-      await handoff.observe(phase);
     } catch { readyActive = false; readyState = readySnapshot(null); closeReady(); }
   }
   if (!quitting) poller = setTimeout(watchReady, 750);
 }
 
+// Partie perso (Outil d'entraînement) : il faut le queueId ET customGameLobby (sinon INVALID_LOBBY / INVALID_REQUEST).
+async function createLobby(queueId) {
+  const queue = (await queueCatalog().catch(() => [])).find(item => item.id === queueId);
+  return lcu.call('POST', '/lol-lobby/v2/lobby', queue?.custom
+    ? { queueId, isCustom: true, customGameLobby: { lobbyName: 'Ward', configuration: {} } }
+    : { queueId });
+}
 // Garde le lobby existant (sa file est celle du chef) ; sinon crée celui de la file choisie.
 async function ensureLobby() {
   const { phase, searching } = await queueState();
@@ -166,7 +199,7 @@ async function ensureLobby() {
   const lobby = await currentLobby();
   if (lobby) return lobby;
   const queueId = savedQueueId();
-  try { return await lcu.call('POST', '/lol-lobby/v2/lobby', { queueId }); }
+  try { return await createLobby(queueId); }
   catch (error) {
     if (queueId === DEFAULT_QUEUE) throw error;
     saveQueueId(DEFAULT_QUEUE);
@@ -212,7 +245,9 @@ async function readStatus() {
     const catalog = await queueCatalog(summoner.summonerLevel).catch(() => []);
     const lobbyQueue = queueInfo(catalog, lobby);
     const blocked = lobby && isLeader ? queues.blockReason(lobby, lobbyQueue) : null;
+    const session = queue.phase === 'ChampSelect' ? await lcu.call('GET', '/lol-champ-select/v1/session').catch(() => null) : null;
     return { connected: true, summoner, duoPartner: members.length ? duoPartner : null, members, canKick, isLeader,
+      champSelect: champSelect.normalizeSession(session),
       queueId: lobby?.gameConfig?.queueId ?? null, queue: lobbyQueue, blocked,
       localSubteam: lobby?.localMember ? { subteamIndex: lobby.localMember.subteamIndex, intraSubteamPosition: lobby.localMember.intraSubteamPosition } : null,
       invitations, ...queue, ready: readyState, clientUi: { ...handoff.state } };
@@ -287,6 +322,7 @@ ipcMain.handle('profile:icon', async (_event, id) => {
 ipcMain.handle('league:launch', startLeague);
 ipcMain.handle('league:open-client', async () => {
   if (preview) return;
+  userWantsUx = true;
   await handoff.open({ manual: true });
 });
 ipcMain.handle('ready:state', () => readyState);
@@ -373,7 +409,7 @@ ipcMain.handle('queue:select', async (_event, value) => {
   if (lobby?.localMember?.isLeader === false) throw new Error('Seul le chef du lobby peut changer de file.');
   if ((lobby?.members?.length || 1) > queue.maxParty) throw new Error(`Trop de joueurs pour ${queue.label} (${queue.maxParty} maximum).`);
   saveQueueId(id);
-  if (lobby && lobby.gameConfig?.queueId !== id) await lcu.call('POST', '/lol-lobby/v2/lobby', { queueId: id });
+  if (lobby && lobby.gameConfig?.queueId !== id) await createLobby(id);
   return queue;
 });
 ipcMain.handle('arena:team', async (_event, subteamIndex, position) => {
@@ -387,13 +423,168 @@ ipcMain.handle('arena:team', async (_event, subteamIndex, position) => {
 });
 // Taille du widget selon la file : il s'agrandit vers la gauche pour rester collé au bord droit.
 ipcMain.handle('widget:size', (_event, width, height) => {
-  if (!mainWindow || ![300, 440].includes(width) || !Number.isInteger(height) || height < 200 || height > 480) return;
+  if (!mainWindow || ![300, 440, 520, 640].includes(width) || !Number.isInteger(height) || height < 200 || height > 480) return;
   const bounds = mainWindow.getBounds();
   if (bounds.width === width && bounds.height === height) return;
   const area = screen.getDisplayMatching(bounds).workArea;
   const x = Math.max(area.x, Math.min(bounds.x + bounds.width - width, area.x + area.width - width));
   const y = Math.max(area.y, Math.min(bounds.y, area.y + area.height - height));
   mainWindow.setBounds({ x, y, width, height });
+});
+// ---- Sélection des champions ----
+const assetCache = new Map();
+let staticData = null;
+async function champSelectStatic() {
+  if (!staticData) {
+    const [summary, spells] = await Promise.all([
+      lcu.call('GET', '/lol-game-data/assets/v1/champion-summary.json'),
+      lcu.call('GET', '/lol-game-data/assets/v1/summoner-spells.json')
+    ]);
+    staticData = { summary: summary.filter(champion => champion.id > 0), spells };
+  }
+  return staticData;
+}
+async function currentGameMode() {
+  const session = await lcu.call('GET', '/lol-gameflow/v1/session').catch(() => null);
+  return session?.gameData?.queue?.gameMode || (await currentLobby().catch(() => null))?.gameConfig?.gameMode || 'CLASSIC';
+}
+async function allowedSpells() {
+  const [{ spells }, gameMode] = await Promise.all([champSelectStatic(), currentGameMode()]);
+  return spells.filter(spell => spell.id > 0 && spell.name && (spell.gameModes || []).includes(gameMode))
+    .map(spell => ({ id: spell.id, name: spell.name, iconPath: spell.iconPath }));
+}
+async function champSession() {
+  if (await lcu.call('GET', '/lol-gameflow/v1/gameflow-phase') !== 'ChampSelect') throw new Error('La sélection des champions est terminée.');
+  return lcu.call('GET', '/lol-champ-select/v1/session');
+}
+ipcMain.handle('cs:data', async () => {
+  const [{ summary }, pickable, bannable, positions, grid, spells] = await Promise.all([
+    champSelectStatic(),
+    lcu.call('GET', '/lol-champ-select/v1/pickable-champion-ids').catch(() => []),
+    lcu.call('GET', '/lol-champ-select/v1/bannable-champion-ids').catch(() => []),
+    lcu.call('GET', '/lol-perks/v1/recommended-champion-positions').catch(() => ({})),
+    lcu.call('GET', '/lol-champ-select/v1/all-grid-champions').catch(() => []),
+    allowedSpells()
+  ]);
+  const favorites = new Map((Array.isArray(grid) ? grid : []).map(item => [item.id, (item.positionsFavorited || []).map(p => String(p).toUpperCase())]));
+  return {
+    champions: summary.map(champion => ({ id: champion.id, name: champion.name, alias: champion.alias,
+      positions: champSelect.championPositions(positions, champion.id), favorites: favorites.get(champion.id) || [] }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr')),
+    pickable, bannable, spells
+  };
+});
+// Images du jeu (icônes de champions, sorts, runes), limitées aux données du client.
+ipcMain.handle('asset:image', async (_event, assetPath) => {
+  if (typeof assetPath !== 'string' || !/^\/lol-game-data\/assets\/[\w\-./%]+\.(png|jpg|jpeg|webp)$/i.test(assetPath) || assetPath.includes('..')) return null;
+  if (!assetCache.has(assetPath)) {
+    const bytes = await lcu.call('GET', assetPath, undefined, true).catch(() => null);
+    if (!bytes) return null;
+    if (assetCache.size >= 600) assetCache.delete(assetCache.keys().next().value);
+    const type = /\.png$/i.test(assetPath) ? 'png' : /\.webp$/i.test(assetPath) ? 'webp' : 'jpeg';
+    assetCache.set(assetPath, `data:image/${type};base64,${bytes.toString('base64')}`);
+  }
+  return assetCache.get(assetPath);
+});
+ipcMain.handle('cs:hover', async (_event, championId) => {
+  const session = await champSession();
+  const [pickable, bannable] = await Promise.all([
+    lcu.call('GET', '/lol-champ-select/v1/pickable-champion-ids').catch(() => []),
+    lcu.call('GET', '/lol-champ-select/v1/bannable-champion-ids').catch(() => [])
+  ]);
+  const action = champSelect.hoverTarget(session, championId, { pickable, bannable });
+  await lcu.call('PATCH', `/lol-champ-select/v1/session/actions/${action.id}`, { championId });
+});
+// Verrouiller / bannir : « POST …/complete » est accepté sans effet en partie perso (constaté en Outil
+// d'entraînement) ; la mise à jour { championId, completed: true } marche partout. On relit pour confirmer.
+ipcMain.handle('cs:lock', async () => {
+  const action = champSelect.lockTarget(await champSession());
+  await lcu.call('PATCH', `/lol-champ-select/v1/session/actions/${action.id}`, { championId: action.championId, completed: true });
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const session = await lcu.call('GET', '/lol-champ-select/v1/session').catch(() => null);
+    if (!session || session.actions.flat().find(item => item.id === action.id)?.completed) return { type: action.type, championId: action.championId };
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+  throw new Error('League n’a pas confirmé le verrouillage. Réessaie.');
+});
+ipcMain.handle('cs:swap', async (_event, kind, id, accept) => {
+  const route = champSelect.swapTarget(await champSession(), kind, id);
+  await lcu.call('POST', `${route}/${accept ? 'accept' : 'decline'}`);
+});
+ipcMain.handle('cs:reroll', async () => {
+  champSelect.rerollAllowed(await champSession());
+  await lcu.call('POST', '/lol-champ-select/v1/session/my-selection/reroll');
+});
+ipcMain.handle('cs:bench', async (_event, championId) => {
+  await lcu.call('POST', champSelect.benchTarget(await champSession(), championId));
+});
+ipcMain.handle('cs:spells', async (_event, spell1Id, spell2Id) => {
+  await champSession();
+  const allowed = (await allowedSpells()).map(spell => spell.id);
+  await lcu.call('PATCH', '/lol-champ-select/v1/session/my-selection', champSelect.validateSpells(spell1Id, spell2Id, allowed));
+});
+// ---- Runes ----
+let runeStatic = null;
+async function runeData() {
+  if (!runeStatic) {
+    const [styles, perks] = await Promise.all([lcu.call('GET', '/lol-perks/v1/styles'), lcu.call('GET', '/lol-perks/v1/perks')]);
+    runeStatic = runes.describeStyles(styles, perks);
+  }
+  return runeStatic;
+}
+// Champion, poste et carte pour les recommandations du client.
+async function recommendationContext() {
+  const cs = champSelect.normalizeSession(await lcu.call('GET', '/lol-champ-select/v1/session').catch(() => null));
+  const me = cs?.myTeam.find(player => player.isLocal);
+  const championId = me?.championId || me?.hoverId || cs?.action?.championId || 0;
+  const gameflow = await lcu.call('GET', '/lol-gameflow/v1/session').catch(() => null);
+  const mapId = gameflow?.gameData?.queue?.mapId || 11;
+  let position = (cs?.position || '').toLowerCase();
+  if (!position && mapId === 11 && championId) {
+    const positions = await lcu.call('GET', '/lol-perks/v1/recommended-champion-positions').catch(() => ({}));
+    position = String(positions?.[championId]?.recommendedPositions?.[0] || '').toLowerCase();
+  }
+  return { championId, position: position || 'none', mapId };
+}
+function describePage(page) {
+  return { id: page.id, name: page.name, current: Boolean(page.current), editable: Boolean(page.isEditable), valid: Boolean(page.isValid),
+    primaryStyleId: page.primaryStyleId, subStyleId: page.subStyleId, selectedPerkIds: page.selectedPerkIds || [] };
+}
+ipcMain.handle('runes:data', async () => {
+  const [data, pages, inventory, context] = await Promise.all([
+    runeData(), lcu.call('GET', '/lol-perks/v1/pages'), lcu.call('GET', '/lol-perks/v1/inventory').catch(() => ({})), recommendationContext()
+  ]);
+  const recommended = context.championId
+    ? await lcu.call('GET', `/lol-perks/v1/recommended-pages/champion/${context.championId}/position/${context.position}/map/${context.mapId}`).catch(() => [])
+    : [];
+  return {
+    ...data, context, canAdd: Boolean(inventory.canAddCustomPage),
+    pages: (Array.isArray(pages) ? pages : []).filter(page => !page.isTemporary).map(describePage),
+    recommendations: (Array.isArray(recommended) ? recommended : []).map(item => ({
+      keystoneId: item.keystone?.id, primaryStyleId: item.primaryPerkStyleId, subStyleId: item.secondaryPerkStyleId,
+      perks: (item.perks || []).map(perk => perk.id), spells: item.summonerSpellIds || [] }))
+  };
+});
+ipcMain.handle('runes:select', async (_event, id) => {
+  const pages = await lcu.call('GET', '/lol-perks/v1/pages');
+  if (!pages.some(page => page.id === id)) throw new Error('Page introuvable.');
+  await lcu.call('PUT', '/lol-perks/v1/currentpage', id);
+});
+// Enregistre dans une page modifiable existante, ou dans une nouvelle page s'il reste de la place.
+ipcMain.handle('runes:save', async (_event, page, target) => {
+  const clean = runes.validatePage(page, (await runeData()).styles);
+  if (target === 'new') {
+    const inventory = await lcu.call('GET', '/lol-perks/v1/inventory');
+    if (!inventory.canAddCustomPage) throw new Error('Plus de place pour une nouvelle page : modifie une page existante.');
+    const created = await lcu.call('POST', '/lol-perks/v1/pages', { ...clean, current: true });
+    return created?.id;
+  }
+  const existing = (await lcu.call('GET', '/lol-perks/v1/pages')).find(item => item.id === target);
+  if (!existing) throw new Error('Page introuvable.');
+  if (!existing.isEditable) throw new Error('Cette page ne peut pas être modifiée : choisis une de tes pages.');
+  await lcu.call('PUT', `/lol-perks/v1/pages/${existing.id}`, { ...existing, ...clean, current: true });
+  if (!existing.current) await lcu.call('PUT', '/lol-perks/v1/currentpage', existing.id);
+  return existing.id;
 });
 function invitationId(value) {
   if (typeof value !== 'string' || !/^[\w-]{1,80}$/.test(value)) throw new Error('Invitation invalide.');
@@ -411,6 +602,14 @@ ipcMain.handle('invitation:decline', async (_event, value) => {
 });
 ipcMain.handle('lobby:start-search', async () => {
   const lobby = await ensureLobby();
+  if (lobby.gameConfig?.isCustom) {
+    // Après une sélection perso annulée, le client refuse pendant ~15 s : on réessaie.
+    for (let attempt = 0; attempt < 14; attempt++) {
+      if ((await lcu.call('POST', '/lol-lobby/v1/lobby/custom/start-champ-select'))?.success) return { custom: true };
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+    throw new Error('League refuse de démarrer la partie pour le moment. Réessaie dans quelques secondes.');
+  }
   if (lobby.gameConfig?.showPositionSelector !== false) {
     const preferences = savedRoles() || lobbyRoles(lobby);
     if (!preferences) throw new Error('Choisis tes rôles avant de lancer la recherche.');
@@ -435,7 +634,24 @@ ipcMain.handle('ready:accept', async () => {
   readyWindow?.webContents.send('ready-check', readyState);
 });
 ipcMain.handle('window:hide-ready', () => { dismissedReady = true; closeReady(); });
-ipcMain.handle('widget:close', () => app.quit());
+// ✕ : ferme Ward, et League s'il tourne en arrière-plan (jamais un client affiché ;
+// confirmation avant de quitter une recherche ou une partie). Les mises à jour ne passent pas par ici.
+let closing = false;
+ipcMain.handle('widget:close', async () => {
+  if (closing) return;
+  closing = true;
+  mainWindow?.hide();
+  closeReady();
+  if (!preview) {
+    const outcome = await closeHeadlessLeague({
+      call: lcu.call, queueState, inspect: () => clientUi.inspectUx(),
+      confirm: async detail => (await dialog.showMessageBox({ type: 'warning', title: 'Fermer Ward', message: 'Fermer aussi League ?', detail,
+        buttons: ['Laisser League ouvert', 'Fermer League aussi'], defaultId: 0, cancelId: 0, noLink: true })).response === 1
+    }).catch(error => `erreur : ${error.message}`);
+    console.log(`Fermeture de Ward · League : ${outcome}`);
+  }
+  app.quit();
+});
 
 if (!app.requestSingleInstanceLock()) app.quit();
 else {

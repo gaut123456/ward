@@ -25,12 +25,13 @@ for (const name of ['top', 'jungle', 'middle', 'bottom', 'utility', 'fill', 'uns
 let widgetHtml = between(read('renderer/index.html'), '<body class="widget-body">', '<script src="app.js">', 'renderer/index.html');
 widgetHtml = widgetHtml.split('src="assets/roles/unselected.png"').join(`src="${icons.unselected}"`);
 const readyHtml = between(read('renderer/ready.html'), '<body class="ready-body">', '<script src="ready.js">', 'renderer/ready.html');
+widgetHtml = widgetHtml.split('<script src="champselect.js"></script>').join('');
 
 let css = read('renderer/styles.css');
 css = swap(css, ':root {', ':host {', 'renderer/styles.css');
 css = css.split('100vh').join('100%');
 
-let app = read('renderer/app.js');
+let app = ['renderer/app.js', 'renderer/champselect.js', 'renderer/runes.js'].map(read).join('\n');
 app = swap(app, 'const $ = id => document.getElementById(id);', 'const $ = id => ROOT.getElementById(id);', 'renderer/app.js');
 app = swap(app, "document.querySelector('.widget')", "ROOT.querySelector('.widget')", 'renderer/app.js');
 app = app.replace(/`assets\/roles\/\$\{(.+?)\}\.png`/g, 'ROLE_ICON($1)');

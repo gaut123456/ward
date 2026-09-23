@@ -62,10 +62,11 @@ function render() {
   renderInvite();
   $('connection-dot').className = `connection-dot ${state.connected ? 'online' : state.starting ? 'starting' : 'offline'}`;
   const phaseNotes = { ReadyCheck: accepted ? 'Accepté · les autres joueurs arrivent' : 'Une place t’attend dans la faille',
-    ChampSelect: state.clientUi?.error || (state.clientUi?.opening ? 'Ouverture du client League…' : 'Sélection des champions · dans League'),
+    ChampSelect: state.champSelect ? champSelectNote(state.champSelect) : state.clientUi?.error || (state.clientUi?.opening ? 'Ouverture du client League…' : 'Sélection des champions · dans League'),
     Reconnect: state.clientUi?.error || 'Rejoins ta partie depuis le client', GameStart: 'La faille se prépare', InProgress: 'Bonne partie !',
     EndOfGame: 'Retour au salon…', WaitingForStats: 'Récupération des résultats…', PreEndOfGame: 'Récupération des résultats…' };
-  if (((inGame || searching) && !$('feedback').classList.contains('error')) || blocked || blockedShown || Date.now() > noticeUntil) {
+  // En sélection des champions, les confirmations temporaires (runes, sorts…) restent visibles 8 s.
+  if ((((inGame && state.phase !== 'ChampSelect') || searching) && !$('feedback').classList.contains('error')) || blocked || blockedShown || Date.now() > noticeUntil) {
     blockedShown = Boolean(blocked);
     const estimate = state.estimatedQueueTime > 0 ? `Attente estimée · ${formatTime(state.estimatedQueueTime)}` : 'Recherche de partie…';
     const update = state.update || {};
@@ -271,9 +272,24 @@ function renderArena(queue) {
   }
   return chips ? Math.ceil(chips / 3) : 0;
 }
+function applySize(width, height) {
+  const size = `${width}x${Math.min(480, height)}`;
+  if (size !== lastSize && window.league.setWidgetSize) {
+    lastSize = size;
+    window.league.setWidgetSize(width, Math.min(480, height)).catch(() => { lastSize = ''; });
+  }
+}
 function renderLayout() {
   const queue = currentQueue(), layout = queue.layout || 'duo';
   const widget = document.querySelector('.widget');
+  const cs = state.connected && state.phase === 'ChampSelect' ? state.champSelect : null;
+  $('champ-select').hidden = !cs;
+  if (cs) {
+    widget.dataset.layout = 'champselect';
+    renderChampSelect(cs);
+    applySize(640, 480);
+    return;
+  }
   widget.dataset.layout = layout;
   widget.dataset.positions = queue.positions === false ? 'off' : 'on';
   $('queue-label').textContent = queue.label || 'Solo / Duo';
@@ -288,13 +304,10 @@ function renderLayout() {
     const rows = renderArena(queue);
     if (rows) height += 28 + rows * 30 + (rows - 1) * 6;
   } else $('arena-grid').hidden = true;
-  const size = `${width}x${Math.min(480, height)}`;
-  if (size !== lastSize && window.league.setWidgetSize) {
-    lastSize = size;
-    window.league.setWidgetSize(width, Math.min(480, height)).catch(() => { lastSize = ''; });
-  }
+  applySize(width, height);
 }
 const MODE_ICONS = {
+  kPractice: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
   kSummonersRift: '<path d="M5 19 19 5"/><path d="M5 9V5h4M15 19h4v-4"/><path d="M12 8.5 15.5 12 12 15.5 8.5 12z"/>',
   kARAM: '<path d="M3 15h18"/><path d="M5 15a7 7 0 0 1 14 0"/><path d="M8 15v4M16 15v4M12 8v7"/>',
   arena: '<circle cx="12" cy="12" r="8"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/>',
@@ -311,12 +324,12 @@ function queueTile(queue, selected) {
   // Titre court (« Arena ») et variante en sous-titre (« Bravoure · trios ») pour tenir dans la tuile.
   const [title, ...variant] = queue.arena ? queue.label.split(' ') : [queue.label];
   const teams = { 2: 'duos', 3: 'trios' }[queue.teamSize] || `équipes de ${queue.teamSize || 2}`;
-  const players = queue.arena ? teams : queue.maxParty > 2 ? `1 à ${queue.maxParty}` : '1 ou 2';
+  const players = queue.custom ? 'seul · sans file d’attente' : queue.arena ? teams : queue.maxParty > 2 ? `1 à ${queue.maxParty}` : '1 ou 2';
   const detail = el('small');
   if (queue.disabled) detail.textContent = queue.disabled;
   else {
     if (queue.ranked) detail.append(el('span', 'ranked', 'Classée'), ' · ');
-    detail.append([...(variant.length ? [variant.join(' ')] : []), players, ...(!queue.ranked && !queue.positions && !queue.arena ? ['aléatoire'] : [])].join(' · '));
+    detail.append([...(variant.length ? [variant.join(' ')] : []), players, ...(!queue.ranked && !queue.positions && !queue.arena && !queue.custom ? ['aléatoire'] : [])].join(' · '));
   }
   text.append(el('b', '', title), detail);
   tile.append(icon, text);
@@ -392,11 +405,16 @@ function renderTimer() {
   const timer = $('queue-timer');
   const searching = isSearching();
   const ready = state.connected && state.phase === 'ReadyCheck' && state.ready?.active && state.ready.deadline !== null && state.ready?.response !== 'Accepted';
-  timer.hidden = !searching && !ready;
-  timer.classList.toggle('countdown', Boolean(ready));
+  const csLeft = state.connected && state.phase === 'ChampSelect' && state.champSelect ? champSelectSecondsLeft(state.champSelect) : null;
+  timer.hidden = !searching && !ready && csLeft === null;
+  timer.classList.toggle('countdown', Boolean(ready) || (csLeft !== null && csLeft <= 10));
   if (searching) {
     timer.textContent = queueStartedAt === null ? '—:——' : formatTime((Date.now() - queueStartedAt) / 1000);
     timer.title = 'Temps écoulé en recherche';
+    timer.setAttribute('aria-label', timer.title);
+  } else if (csLeft !== null) {
+    timer.textContent = `${csLeft} s`;
+    timer.title = 'Temps restant dans cette phase';
     timer.setAttribute('aria-label', timer.title);
   } else if (ready) {
     timer.textContent = `${Math.max(0, Math.ceil((state.ready.deadline - Date.now()) / 1000))} s`;
@@ -465,7 +483,8 @@ $('play').addEventListener('click', () => action(async () => {
       rolePreferences = await window.league.getRoles();
       if (!rolePreferences) { await openRoles(); feedback('Choisis tes deux rôles'); return; }
     }
-    await window.league.startSearch();
+    const started = await window.league.startSearch();
+    if (started?.custom) { feedback('Sélection des champions…'); return; }
     queueStartedAt = Date.now();
     queueTransition = { searching: true, expires: Date.now() + 8000 };
     feedback('Recherche en cours · clic pour annuler');
@@ -477,6 +496,8 @@ async function setPanel(panel) {
   rolesExpanded = panel === 'roles';
   queuesExpanded = panel === 'queues';
   $('queue-panel').hidden = !queuesExpanded;
+  $('spells-panel').hidden = panel !== 'spells';
+  $('runes-panel').hidden = panel !== 'runes';
   $('invitations').hidden = !expanded;
   $('roles-panel').hidden = !rolesExpanded;
   $('add-friend').setAttribute('aria-expanded', String(expanded));
@@ -583,9 +604,9 @@ function filterFriends() {
 $('refresh-friends').addEventListener('click', loadFriends);
 $('close-friends').addEventListener('click', () => setPanel(null));
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && (expanded || rolesExpanded || queuesExpanded)) setPanel(null);
+  if (event.key === 'Escape' && (expanded || rolesExpanded || queuesExpanded || !$('spells-panel').hidden || !$('runes-panel').hidden)) setPanel(null);
 });
 $('close-widget').addEventListener('click', () => window.league.closeWidget());
 setInterval(renderTimer, 200);
-async function poll() { await refresh(); setTimeout(poll, 1000); }
+async function poll() { await refresh(); setTimeout(poll, state.phase === 'ChampSelect' ? 500 : 1000); }
 poll();

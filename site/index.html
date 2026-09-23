@@ -402,7 +402,7 @@
       <h1>La file classée, <em>sans ouvrir le client.</em></h1>
     </div>
     <div>
-      <p class="lede">Un widget de 300 pixels posé sur ton bureau. Tu choisis tes rôles, tu invites ton duo, tu lances la recherche et tu acceptes la partie. League tourne en arrière-plan et ne s'affiche qu'à la sélection des champions.</p>
+      <p class="lede">Un widget de 300 pixels posé sur ton bureau. Tu choisis tes rôles, tu invites ton duo, tu lances la recherche et tu acceptes la partie. League tourne en arrière-plan du début à la fin : même la sélection des champions, les sorts et les runes se font dans Ward.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
@@ -492,7 +492,7 @@
       <li data-quest="duo"><span class="num">03</span><b>Duo</b><span class="d">Invite un ami connecté ou tape son Riot ID.</span></li>
       <li data-quest="search"><span class="num">04</span><b>Recherche</b><span class="d">Chrono en direct et attente estimée dans l'en-tête.</span></li>
       <li data-quest="accept"><span class="num">05</span><b>Accepter</b><span class="d">Une popup au premier plan, même si tu es sur une autre fenêtre.</span></li>
-      <li data-quest="champ"><span class="num">06</span><b>Champion</b><span class="d">Le client s'ouvre tout seul pour la sélection des champions.</span></li>
+      <li data-quest="champ"><span class="num">06</span><b>Champion</b><span class="d">Champion, sorts et runes se choisissent dans le widget.</span></li>
     </ol>
   </div>
 </section>
@@ -502,7 +502,7 @@
     <div class="block-head">
       <span class="eyebrow">Fonctions</span>
       <h2 id="fonctions-title">Tout ce qu'il faut pour lancer une partie classée</h2>
-      <p>Le widget couvre tout ce qui se passe avant la sélection des champions. Pour la suite, le vrai client prend le relais.</p>
+      <p>Du lobby jusqu'au lancement de la partie, tout se fait dans Ward. Le vrai client reste disponible d'un clic pour le reste (boutique, profil…).</p>
     </div>
     <div class="features">
       <article class="feature lead">
@@ -542,6 +542,12 @@
         <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
         <h3>Tous tes modes de jeu</h3>
         <p>Un clic sur le nom de la file pour passer en Flex, en ARAM ou en Arena. Le widget s'agrandit pour tout ton groupe, cache les rôles quand il n'y en a pas, et en Arena tu changes d'équipe d'un clic.</p>
+      </article>
+      <article class="feature lead">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3"/><circle cx="12" cy="12" r="2.5"/></svg></span>
+        <h3>La sélection des champions, dans le widget</h3>
+        <p>Ward s'agrandit pour la sélection : recherche, filtre par rôle et favoris en tête, survol et verrouillage, bannissements, sorts d'invocateur. En ARAM, relance et banc. Les demandes d'échange des alliés s'acceptent d'un clic.</p>
+        <p>Et les runes : choisis une page, applique en un clic les runes recommandées par Riot pour ton champion et ton poste (sorts compris), ou édite ta page arbre par arbre.</p>
       </article>
     </div>
   </div>
@@ -672,9 +678,9 @@
   // Code réel du widget (renderer/), injecté par scripts/build-site.cjs.
   // ---------------------------------------------------------------------------
   const ICONS = {"top":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACDUlEQVR4Ae3SxZVWQRhF0WrLhXxwDYExQ9zd3aX/7hx4U7KCb4a9ixZW7LPWnZfspg+TJEmSJEmSJEmSJEnSm42Db//YbLO2BsjcbKO22mYCxNZrK20mQOxlwgGIPU84ALGnCQcg9jDhAMQe1JbbTIDYvdpSmwkQu5NwAGK3Eg5A7EbCAYhd6Ynj0J4t2wAZZ5c649hemwAZYxda1RsHIGPsXGccO2oTIGPsTGccO2sTIGPsVGccu2oTIGPs+O/AAci/uSOdcexOOIYE0vQ9OPZkHICE4AAEjr0ZBSAhOACBY3/GAEgIDkDgOPD9OACBAxB9PwpAAAFEgAACCCCAAAIIIIAAAggggAACCCCAACJA8n7/A/cdIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIID8tgABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEED+jwABBBBAAAEEEEAAAQQQQAABBBBAjiIBSNpxHABJO4kCIGlnMEgBch6BFCAXm0KAXGoKAXKlttRmEiDX4UgBchOOFCC34UgBch+OFCAPeuKoC2+rva5N9u8DeVhbhmNugDyqrXTGMdkYQJ7BkQbICzjSAHkFRxogG3CkAbJZW4UjDZA1OADJwQEIHID8SRzbfSQgcAACByBwAAIHIOMmSZIkSZIkSZIkSZKkd8dKK/Dyg9OUAAAAAElFTkSuQmCC","jungle":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAAI2UlEQVR4Ae3dY5QsyRYF4Ghf2xzbtm3btm3btm3btu2Zq3ls3bqra7q69ts/LmrydVadSFfm2Wt9fyMjcp1CRkRmGo1Go9FoNBqNRqPRaDQajUaj0Wg0Gk128t4Dh4zL8NjnMBWjBbIeDczguEfQpqZitEB60kUZHPed1NOIokVyEa2VofHuQZcacbRA5qafqHcGxjqeWmleYxUtkhfokpSPsYZeoReNdbRANqMCLZviMR5CoC2MdbRA6ukP+pIaUzi+eWkaTaR64ylaJCcR6LSUjauO3iPQqcZztEBGUp46aIEUjetEAnXSKOMrWiT3E+gtqknBeBajPIEeMr6jBbIqYbp9UzAJ+DVhujWNxn9KTmozjaricVxOmO7b4L4RtUAOIkz3YJWOYR0qEqY71AQWLZB+1E6YbuMq6/9gmkyYLkcDTKDRIrmOMN0f1LeK+v4AocRtJvBogSxBKHFFlfR7B4LDiiaUaJF8SJiuQMskvL+j6D+EEl+b0KIFsi+hxGdUn+CFuGcIDoeb0KIF0pfaCSWOTGhf9yY4dNBgE2q0SG4klGin0Qnr4+zURnC4x4QeLZClCQ4PJOyn5UVCiYhnTrVIPiM4rJuQvu1O6MZvVGsiiRbIEQSHH6gp5n4Nd161lDjLRBrdBlAgOByXhJVnF/OYyKN7VpGUP6w87iYEFx+ayKMFsjOhG3fHtFY0geDiCBNLdE4kR3Ao0soR9+USgosuGmM0sRTJ3W5f6VQbUR8Wpk6CizeNJrYC2YDgYo+I5jzeIOjPSzILpJGaCd2YTL1DPv42hHL0jv1k3PQMF6eGeNwe9BuhjC9MFiL4DV4lxuNvTXDRTiNCvXWhvHNjPC8r0AJJKZKN6DlaPYZj96e/CC5uDOGYQ6iVUMEqMZyPBehh2ihp3yQrUgu9QEtHfOzXCC4KtGDAx7uUUEELNUR4DnrTRfRvWjGpPzcr0VQq0sM0V0THPY5QxqMBP66hg1DBExGe93XpF5pKKyX9P8lqlCNQni6ifiEfc3FCGUVaOsj9KAJHRXCu+9BtBMrRatXyx3UTKjguObcN+WboZkIZzwe0EegvgsBSIZ/jhehbAhVpyzQsyb9Ic4Z0vKcIFazq8xg3EATaqS7Ec7ubY5nhpGq9BL6P4JCjQ6g24GMdS6jgTR/tj6U8QeCNEGduLyCUuJ9qqnlB7Qe3k0jjAjzW6gSBdTy2fyFB6OIQzmVTNx+4H6hvtU+kLUsFQjeaacsAl9y77D/dorYHUBtBaPug53qcl/KpejwXB3IeoYyrqSGA43xHEFjZst2jCBYWDrg43iM4nJ+m6fg+9DuhjDdpeBD/eQSes2izln4hCBWoKajz5lIcf1CftK3ZbEGoYAIt4uMYpxKElhS2uSHBwg8BrlS/TOjGlmld2HtdOEW9ht/ld4GH7S+fRZ4O6Fzd7tL+62le+V2FIJCnLT20vwhBqIvmFrR5M8HCtSEvHayS9u0BzxMEOmlrD1cbsHCD+E4+ueMD+CkuCmaDU1sgq1n+4dvGsv1WgtA0GiJo8yOC0E4+zs2c1EJwsVqmnvMhlKc1rB94J3e8oM19CCFPxDVWOC+fZGkX2i4ECy20sLDtlwgWfqd6weWm9JtpaY/n5GJCGXtk7aVBzQQLf9BQ6fPALG0uaPcagsCcHpcJigQXrdQra3tZryVYepXqKrR7PcHSs4L+LkUQGOThw/IjoYybsrjZeSWCBxeIp/XlumisoM9fCNrq72MZIluXtoIp7EkES0VaS7zbXO5kQZ8PFbTTy/K57Z2EMiaVLufrz4zMBOovmmSS+4VqBA/EzRPcWI7/DfnEWzYLZF2CR9eIV17l1vD5J/hNi7FvRRBYN8sF0kQ5ggcFWrKbNvcneHSXoM+bElxsJBx3A/0gnMhrMlnO9Buu4NH7VBNggbRTT0FRN7v87NXZP+9VvtE6qwVyDMGHrUV7U+U2E/T5FoLD5RbfHr8SBI4xRgtkGYIP31Cd/E9qID8za0v/v7i8RBlCy2iB8BNFOYIPO5e0dxbBh1ZqEtyH8w/nbZbCN3n+ZLGQ2Gg0ZTYSyX0iWtOQ28TyEv3REDY0vW40glsK5Fab3tatBJ9us9yKeIBwnG8ShC40M6MFsh3Bp8emt/UMwacpgkmzXtRBoHnE9w/LbWc0f3sLNXwq0Ej6gBCAhYW74340TAhbF+czmr+ty0wl+HSk4BJS6nDhu/fPF97bMo0gNFWf6y7Z1mfvM8oRAvCMcIvgouJ3x8h9ZP4vWiB3ERJkaoA3QL1lPRejESzTx2/VAMY1FxUJFk4yGsHqZvxOCGBcp/pcPtCUPDEHCfNIoC8/klvIaLrd9l8gJMjkAH5eICS4+VuL5GdCwozwMZ6jCZZ+MfLoS4ISYB0f43mHIKd7QOTv50+OozyOZZD8J1P3oNo/iC45rg/kURRyRxuN/MH8CfCaEUSw9iK1lXGNFsgShISZ4HEsEwgeLG5cowUykJAwnVRnOY65CR4NNGWjRXI4dRESZLTlGPYgeHCaEUf/i3QQEmJpy/7fosURzfPM/ktIgLUt+/6jFkd0b0/6nRCzbSz6PCLa4tAiGUWfEWK0j0V/N46nOPQt2y8SYrK/RV/P1OKIb7X3dkIMDrfo5zNaHPEVSQ2dTYjYcRZ9nKzFEX+h7Bfx3pEDLfqW0+JIRpFsTLkE/gf5Q4sjWS8r+ichZHvYP8hXiyMpRTIX/UgI0ab2u+K0OJJUJMPofUJIVrToy+9aHMkskt70FiEE81n0o1mLI7lF0p++IASsp0Uf2rU4kl0kY2hCXLc+aHFUzx/XoK5u3japjV4C5wg+3WA0qX6Sc973LGqqo0WyIxV9XeKmPlokR/jYsNzLZCJaJOcSLL1rNJnaKnAHwcLZJlPRIqmjxwlCK5nMRYukF71HqOAf+qTBDN/BJ5iSv9lodEpe3/RULlokC7pMyU/QnxeNY0q+/NWLRve35gnUSeOMRuMyJX+/0WjKvHN3ORNBNBqNRqPRaDQajUaj0Wg0Go1Go9FoNJr/AcgzlDnhu8p6AAAAAElFTkSuQmCC","middle":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACBUlEQVR4Ae3dwTFtQRSF4fOUmUREAwCACEwBiEcQTEUFE3jYDXTdVbe+v2olsM83Pj28TpIkSZIkSZIkSZIkSTrcmL55nu0Nv+j2av/icfd/uRwgthOAIxSIbQfgACR0WwE4AAndZgAOQEK3EYADkNCt5eMABA5A4rYaigOQgC3n4wAEDkCidv24pVAcgATgWMjHAQgcgMThmA/FAUgAjtkgHIAMyQXgAKRbcAACByBwAAJHv10CMpLgAAQOQOAABI7+AQIHIHAAAgcgcPQPEDgAgQMQOACBo3+AwAEIHIDAUXybCUDK4HjcISBVcBw17wsIHIDUwQHIB8FxXN0XEDhO2vcFBA5APgiO0x/cFxA4ACmCAxA4zqp7AgLH+Q/uCwgcgBTBAQgcFx/dDhA4/rVxjD+QPTiat52qbzf+QHbgqAJkG44qQLbgqAJkE44qQDbgqAJkDQ5A4Ph2gKzCUQXIMhyADHC0A+T3b7zBUd92chyA1M94weHvCXA0A+SzN97gAGQWDkC6BAcgcAACByBwANI/OACBAxA4AIEDkP7BAQgcgMABCByA9AkOQOAABA5A4BhpgMDRI0DgAAQOQODoECCx/wTbLQ4dMEDgAAQOQOAIGCBwAAIHIHAAAgcgcAQMEDgAgQMQOACBo8MAgQMQOABJxgGIJEmSJEmSJEmSJEmS9ABV/259BSpn/AAAAABJRU5ErkJggg==","bottom":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACYElEQVR4Ae3aRZYUMBSG0XR1117YAu7uLotgzAx3d3eXIROkYcquigSXPLS87nfOv4G8O0z6NkmSJEmSJEmSJEmSJGnHtilvuzbbCEg02zAAHACBAxA4/iNA4AAEDkDgAASOd0+2NwGJBsdE3lNAaoNjPO9JXguQ2uB4VHAAUhsc9wsMQGqD425BAUhtcNz8EQcgZXA08m7UcAACx1je9QJhaIEk/Q+OqxEMQOC4FKEABI4LEQhA4DgbYQAEjlMRBEAAORkhAASO4xEAQOA4Eh0fEDgORYcHBI795cCjDuRlUg3Hno8HBuR50o84doUHB0T1QwMiQAABBBBAAAEEEEAAAQQQQADp/SdqQAABBBBAAAGk4wECCCCAAAIIIIAAAggggADyDBBAfrXHgAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAgggIxMggADyH7uRBMgvdj1pxIEAAggggAACCCCAAAIIIIAAAggggADyKm9aEiABjhlJgAQ4ZiZVAuR13uykSoBM5s1JAiTAMTcJkADH/CRAAhwLkwAJcCxp8+PtzmvZ4AN5k7e0zTj2DuKBAKnjWNZmHPsH9ECAVHCsaDOOg8NxLEAKjlVtxnF4OA4FSMGxps04jg3HkQApONa1EcZY3snhORIgG9qM4/QQHQiQNuM466iARDjOOyggEY6LjglIhOOqQwJSw9HIu+6IgNRwjOfdcEBAIhy3HA+QCMcdhwMkwnHf0QCJcDxyMEBqOCbynjgWIDUczbynDgWIJEmSJEmSJEmSJEmS+qP3NNsmpc39RZcAAAAASUVORK5CYII=","utility":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAAE/klEQVR4AezBgQAAAACAoP2pF6kCAAAAAACA2Tlr6KiCMArjce2wJi4d3sZ1+4PT4LDpsZcKd3eokwr3CnfXTRfpcNflFhNc3s3Ovpnd979zPiQhw87MPbP3W3NzXWgJZoNnIGyIHbILdgdkJQgb5DMYITthZziGgrcgbJgzoLfsiH0B2QnCljBOdsSucBSBjxYFpAOkys7YE5BWELaMJbIzdoRjBPhiYUDegXzZIfMBOQ7ClnJQdsh8QDZbHJDNskPmA9IPnLIwHKdAP9khO0KSAUIWhSMEMmVn7ApJHnhmQTieSTm1NyTl4JPBcHwCFbITdodkpsGAzJIdELMRY4mDgPT1yGzEWMRsxFjEbMRYxGzEWDy+xGzEWMRsxFjEbHjEWMRsxFjEbMRY3C9YE9XyzeMYMBstxoIxnBha50+gqfuG14AnvgkJbzazfBaOp6Dm1wkUgNs+C8lm1lh8EI7boOBvE0kGe+I9JITZKGPxTTj2gGQ3k5oCXvskJMpseGOJo3C8BlPYyZWCGz4JiTIb3ljiIBw3QWlPJ5kAlseI5Tg6zEZR4YNwfFJ7m6BDhceAez4IyUwwywfhuAfG6H68JEFN/m28hsQHtvIWOCAhmouQD45ISGIuHEdAvpcLUgvuWh8SCcddUGvyGdKJIGR/SHwXjhCYBPra8vbHyRZqcZsHc2+zbM431F70s/XJv0rQAt5ZsFjrPJjvOks+aqIFVMbaJw7OAscMmk+DB/OsN2gkx9QaZ8f6SwqSQR2YD1pVceqKcnDegCQP5pYE3kQ5CF1qzVrBArWWyfLiHpSsSLTOxfgDgfOfAjrQxTiHI7idk3q2OhKO4gifMAy6+D8au23nH3YScDFOMMInykpkx8m7JA2PseSRiur87esuxsnV8FgFcZchAdnjhd7i3+3/9XETRfgH9nuku3tl55ne4YHe4t91uhiry0PdnSwJ0N87eL1VBZUYbyCjuwb6iPQOVm+JguqGAKO7BvqI9A6Cw1F4DsVxOeYhYkwtfUR6B0+QK6guUEWV1l3pIx70Dp48tqASRZXWXfN9RHoHr7eqoJIM5HVX+ogNvYPXW1VQSQKGnt3dK71DH/X6CypdVOuiMK/J0jv06y1fUPmiyuuu/j4ivYPXW76gMkWV1139fUR6B0+QLqg8A1ndlT7CB2QE2A5eal68PLqg8gS81l3FS7VmI/zUQ9LANHBFr94SBZWn2eMXM18F00Ga3x8PGQ62gZca9FZnQSWKKq+7clrwQUnt4alSr6Gg6i6qdXJaGDhVCL0lCirFQF535bQwc6rwetuoISABXnfltDB5qgS1FVT9RTUop4X5UyVXW0HVX1RzY+u0kGB1aQhIVxwujVx8QeWLqv2XXPoLKl9U7b/kIgsqT/PX9u7YioAoiqLoK0hR09kUoRRoB6KfAFwP7LPWpMBwd/ZL31cDUAdUBaigCqhxqApQQRVQQRVQQVV5oIIqoIIqoIKqwkAFVUAFVUDthKoAFVQBFVQBFVQB9cXXsgSooAqooAqooKpWoIIqoIIqoIIqoIKqRkc0pm8AUAXUKFQFqKAKqKAKqKAKqKCqBqCCKqCCKqCCqhtkyh81cvORHVN9RW6SxThypOXaHp+zvi7n4c0NN8d8fK6SyTEpJsekmByTEsjkmBSTszYpgUyOSTlmckzKHZmcjUk5l8kxKZIkSZIkSZIkSWppD3zS30GHlwYQAAAAAElFTkSuQmCC","fill":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAAQlBMVEUAAADIqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm4Gp40KAAAAFXRSTlMAf4D3CN4h1UsqtLNM1Csi3YGyTX6Q7ueIAAACIUlEQVR4Xu3ay4pCQQxF0VR8lOVV+5n//9WGHhRcG7c0xINI9lSRg1kDFe1FqqqqqqqqqqpxbsP+3WjnYbm1iLixBVZERLPczhHxdwuv+K1baiNmcwuvmI30y8ziYNhh9eSWf5nZbmvQ9n01pOdfZsYCv2PdyL/MbLO3m+03sc4trx5XLXazz7iqJ19m3YGkwm1SLzO9stSZ514GvILU3NscY4Zep9R1x4QJ8PILSF21ebO0PAK8otSID8truwvwClIn66xOAV5RanzZTOOVpQq9slSdV5Yq9MpSdV5Zqs4rSxV6Zak6ryxV6JWl6ryyVJ1Xlir0ylKVXkmq1CtJlXoFqVqvIFXqFaRKvYJUrVeQqvPKUnVeWarGK0sV5SKpLR5cE+7gmnAH14Q7uCbcwTXhDq7xDmENdzzHEg9pbs+xxA1y5Q7MhTs4F+7gXL+Dl+h36Je46ANLs2f5qLg3TUtwsZikQ9ztZC/5BYulcq6Uyl51UrmjVCp71Uvd7cCrUurpJPTKv/wvaq9L3g+++VL99sm0UrfwkFQqvVlKqcxHKJVnKqXy4ZRSmbJUKnlVSmVEQqk8VimVvSqlslehVPaqlMqUJFKlXjtJve+1W1YOBMFrPpJBUu97vVhanaUyqG55+bP8sXawVPZ6scQ6SWWv3TJrJJW9+qP+oN/9YpxdvMdsWGodVuCWbrk1WIFb3HIbsAK3DHuNqqqqqqqqquoH3/Bt2cjPZ58AAAAASUVORK5CYII=","unselected":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII="};
-  const WIDGET_HTML = "\n  <main class=\"widget\" data-phase=\"Disconnected\">\n    <header class=\"header drag-handle\">\n      <span id=\"queue-badge\" class=\"queue-badge\"><button id=\"queue-button\" class=\"queue-button\" aria-label=\"Changer de file\" title=\"Changer de file\" aria-haspopup=\"dialog\" aria-controls=\"queue-panel\" aria-expanded=\"false\" disabled><i class=\"badge-gem\" aria-hidden=\"true\"><\/i><span id=\"queue-label\" class=\"badge-label\">Solo / Duo<\/span><svg class=\"chevron\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\"/><\/svg><\/button><span id=\"feedback\" class=\"feedback\" role=\"status\" title=\"\">Connexion…<\/span><\/span>\n      <time id=\"queue-timer\" class=\"queue-timer\" aria-label=\"Temps de recherche\" role=\"timer\" hidden>0:00<\/time>\n      <div class=\"header-actions\">\n        <button id=\"open-client\" aria-label=\"Ouvrir le client League\" title=\"Ouvrir le client League\" disabled>\n          <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M14 4h6v6M20 4l-8 8M10 5H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4\"/><\/svg>\n        <\/button>\n        <button id=\"close-widget\" aria-label=\"Fermer\" title=\"Fermer\">\n          <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg>\n        <\/button>\n      <\/div>\n    <\/header>\n\n    <div id=\"invite-toast\" class=\"invite-toast drag-handle\" role=\"alert\" hidden>\n      <span class=\"invite-avatar\"><img id=\"invite-avatar\" alt=\"\" hidden /><\/span>\n      <span class=\"invite-text\"><b id=\"invite-name\"><\/b> t’invite · <span id=\"invite-queue\" class=\"invite-queue\"><\/span><\/span>\n      <span id=\"invite-more\" class=\"invite-more\" hidden><\/span>\n      <button id=\"invite-decline\" class=\"invite-decline\" aria-label=\"Refuser l'invitation\" title=\"Refuser\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <button id=\"invite-accept\" class=\"invite-accept\" aria-label=\"Rejoindre le lobby\" title=\"Rejoindre\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/><\/svg><\/button>\n    <\/div>\n\n    <div id=\"players\" class=\"players\">\n      <div class=\"profile player\" id=\"profile\" title=\"Connexion à League…\">\n        <div class=\"portrait-frame\">\n          <div class=\"portrait\">\n            <img id=\"avatar\" alt=\"Photo de profil\" hidden />\n            <svg id=\"avatar-fallback\" viewBox=\"0 0 48 48\" aria-hidden=\"true\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M9 44v-4a15 15 0 0 1 30 0v4\"/><\/svg>\n          <\/div>\n          <i id=\"connection-dot\" class=\"connection-dot\"><\/i>\n          <span id=\"level\" class=\"level\" hidden><\/span>\n        <\/div>\n        <strong id=\"summoner-name\" class=\"player-name\">—<\/strong>\n        <div class=\"role-slots\" aria-label=\"Mes rôles\">\n          <button id=\"primary-role\" class=\"role-slot\" aria-label=\"Choisir le rôle principal\" title=\"Rôle principal\" aria-expanded=\"false\" aria-controls=\"roles-panel\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"\" /><\/button>\n          <button id=\"secondary-role\" class=\"role-slot secondary-slot\" aria-label=\"Choisir le rôle secondaire\" title=\"Rôle secondaire\" aria-expanded=\"false\" aria-controls=\"roles-panel\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"\" /><\/button>\n        <\/div>\n      <\/div>\n\n      <div class=\"link\" aria-hidden=\"true\"><i><\/i><\/div>\n\n      <div class=\"duo-slot player\" id=\"duo-slot\" title=\"Duo partenaire\">\n        <div class=\"portrait-frame\">\n          <div class=\"portrait\" id=\"duo-portrait\" hidden>\n            <img id=\"duo-avatar\" alt=\"Photo de profil du partenaire\" hidden />\n            <svg id=\"duo-avatar-fallback\" viewBox=\"0 0 48 48\" aria-hidden=\"true\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M9 44v-4a15 15 0 0 1 30 0v4\"/><\/svg>\n          <\/div>\n          <button id=\"add-friend\" class=\"add-friend\" aria-label=\"Inviter un ami\" aria-expanded=\"false\" title=\"Inviter un ami\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 6v12M6 12h12\"/><\/svg><\/button>\n          <button id=\"kick-friend\" class=\"kick-friend\" aria-label=\"Exclure le partenaire du lobby\" title=\"Exclure le partenaire du lobby\" hidden>\n            <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 8l8 8M16 8l-8 8\"/><\/svg>\n          <\/button>\n          <span id=\"duo-level\" class=\"level\" hidden><\/span>\n        <\/div>\n        <strong id=\"duo-name\" class=\"player-name\" hidden><\/strong>\n        <span id=\"invite-label\" class=\"invite-label\">Inviter<\/span>\n        <div id=\"duo-roles\" class=\"role-slots\" role=\"group\" aria-label=\"Rôles du partenaire\" hidden>\n          <div id=\"duo-primary-role\" class=\"role-slot\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"Principal : non sélectionné\" /><\/div>\n          <div id=\"duo-secondary-role\" class=\"role-slot secondary-slot\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"Secondaire : non sélectionné\" /><\/div>\n        <\/div>\n      <\/div>\n\n      <div id=\"party-slots\" class=\"party-slots\" hidden><\/div>\n    <\/div>\n\n    <div id=\"arena-grid\" class=\"arena-grid\" aria-label=\"Autres équipes Arena\" hidden><\/div>\n\n    <button id=\"play\" class=\"primary play\" disabled>Lancement de League…<\/button>\n\n    <section id=\"queue-panel\" class=\"panel queue-panel\" role=\"dialog\" aria-labelledby=\"queue-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"queue-title\">Mode de jeu<\/h2><span class=\"panel-sub\">Modes ouverts dans ton client<\/span><\/div>\n        <button id=\"close-queues\" aria-label=\"Fermer le choix de la file\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <\/div>\n      <div id=\"queue-options\" class=\"queue-options\" role=\"group\" aria-labelledby=\"queue-title\"><p class=\"empty-list\">Chargement…<\/p><\/div>\n    <\/section>\n\n    <section id=\"roles-panel\" class=\"panel roles-panel\" role=\"dialog\" aria-labelledby=\"role-picker-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"role-picker-title\">Rôle principal<\/h2><span id=\"role-step\" class=\"panel-sub\">Étape 1 sur 2<\/span><\/div>\n        <button id=\"close-roles\" aria-label=\"Fermer le choix des rôles\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <\/div>\n      <div id=\"role-options\" class=\"role-options\" role=\"group\" aria-labelledby=\"role-picker-title\"><\/div>\n    <\/section>\n\n    <section id=\"invitations\" class=\"panel friends-panel\" role=\"dialog\" aria-labelledby=\"friends-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"friends-title\">Inviter un ami<\/h2><span id=\"friends-count\" class=\"panel-sub\">Amis connectés<\/span><\/div>\n        <div class=\"panel-actions\">\n          <button id=\"refresh-friends\" title=\"Actualiser\" aria-label=\"Actualiser les amis\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M19 12a7 7 0 1 1-2.05-4.95M19 4v4h-4\"/><\/svg><\/button>\n          <button id=\"close-friends\" title=\"Fermer\" aria-label=\"Fermer les invitations\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n        <\/div>\n      <\/div>\n      <form id=\"invite-form\"><input id=\"friend-name\" placeholder=\"Pseudo#TAG\" aria-label=\"Pseudo ou Riot ID\" maxlength=\"100\" required /><button id=\"invite\" type=\"submit\" aria-label=\"Envoyer l'invitation\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h13M13 6l6 6-6 6\"/><\/svg><\/button><\/form>\n      <div id=\"friend-list\" class=\"friend-list\" tabindex=\"0\" aria-label=\"Amis connectés\"><p class=\"empty-list\">Chargement…<\/p><\/div>\n    <\/section>\n  <\/main>\n  ";
+  const WIDGET_HTML = "\n  <main class=\"widget\" data-phase=\"Disconnected\">\n    <header class=\"header drag-handle\">\n      <span id=\"queue-badge\" class=\"queue-badge\"><button id=\"queue-button\" class=\"queue-button\" aria-label=\"Changer de file\" title=\"Changer de file\" aria-haspopup=\"dialog\" aria-controls=\"queue-panel\" aria-expanded=\"false\" disabled><i class=\"badge-gem\" aria-hidden=\"true\"><\/i><span id=\"queue-label\" class=\"badge-label\">Solo / Duo<\/span><svg class=\"chevron\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\"/><\/svg><\/button><span id=\"feedback\" class=\"feedback\" role=\"status\" title=\"\">Connexion…<\/span><\/span>\n      <time id=\"queue-timer\" class=\"queue-timer\" aria-label=\"Temps de recherche\" role=\"timer\" hidden>0:00<\/time>\n      <div class=\"header-actions\">\n        <button id=\"open-client\" aria-label=\"Ouvrir le client League\" title=\"Ouvrir le client League\" disabled>\n          <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M14 4h6v6M20 4l-8 8M10 5H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4\"/><\/svg>\n        <\/button>\n        <button id=\"close-widget\" aria-label=\"Fermer\" title=\"Fermer\">\n          <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg>\n        <\/button>\n      <\/div>\n    <\/header>\n\n    <div id=\"invite-toast\" class=\"invite-toast drag-handle\" role=\"alert\" hidden>\n      <span class=\"invite-avatar\"><img id=\"invite-avatar\" alt=\"\" hidden /><\/span>\n      <span class=\"invite-text\"><b id=\"invite-name\"><\/b> t’invite · <span id=\"invite-queue\" class=\"invite-queue\"><\/span><\/span>\n      <span id=\"invite-more\" class=\"invite-more\" hidden><\/span>\n      <button id=\"invite-decline\" class=\"invite-decline\" aria-label=\"Refuser l'invitation\" title=\"Refuser\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <button id=\"invite-accept\" class=\"invite-accept\" aria-label=\"Rejoindre le lobby\" title=\"Rejoindre\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/><\/svg><\/button>\n    <\/div>\n\n    <div id=\"players\" class=\"players\">\n      <div class=\"profile player\" id=\"profile\" title=\"Connexion à League…\">\n        <div class=\"portrait-frame\">\n          <div class=\"portrait\">\n            <img id=\"avatar\" alt=\"Photo de profil\" hidden />\n            <svg id=\"avatar-fallback\" viewBox=\"0 0 48 48\" aria-hidden=\"true\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M9 44v-4a15 15 0 0 1 30 0v4\"/><\/svg>\n          <\/div>\n          <i id=\"connection-dot\" class=\"connection-dot\"><\/i>\n          <span id=\"level\" class=\"level\" hidden><\/span>\n        <\/div>\n        <strong id=\"summoner-name\" class=\"player-name\">—<\/strong>\n        <div class=\"role-slots\" aria-label=\"Mes rôles\">\n          <button id=\"primary-role\" class=\"role-slot\" aria-label=\"Choisir le rôle principal\" title=\"Rôle principal\" aria-expanded=\"false\" aria-controls=\"roles-panel\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"\" /><\/button>\n          <button id=\"secondary-role\" class=\"role-slot secondary-slot\" aria-label=\"Choisir le rôle secondaire\" title=\"Rôle secondaire\" aria-expanded=\"false\" aria-controls=\"roles-panel\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"\" /><\/button>\n        <\/div>\n      <\/div>\n\n      <div class=\"link\" aria-hidden=\"true\"><i><\/i><\/div>\n\n      <div class=\"duo-slot player\" id=\"duo-slot\" title=\"Duo partenaire\">\n        <div class=\"portrait-frame\">\n          <div class=\"portrait\" id=\"duo-portrait\" hidden>\n            <img id=\"duo-avatar\" alt=\"Photo de profil du partenaire\" hidden />\n            <svg id=\"duo-avatar-fallback\" viewBox=\"0 0 48 48\" aria-hidden=\"true\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M9 44v-4a15 15 0 0 1 30 0v4\"/><\/svg>\n          <\/div>\n          <button id=\"add-friend\" class=\"add-friend\" aria-label=\"Inviter un ami\" aria-expanded=\"false\" title=\"Inviter un ami\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 6v12M6 12h12\"/><\/svg><\/button>\n          <button id=\"kick-friend\" class=\"kick-friend\" aria-label=\"Exclure le partenaire du lobby\" title=\"Exclure le partenaire du lobby\" hidden>\n            <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 8l8 8M16 8l-8 8\"/><\/svg>\n          <\/button>\n          <span id=\"duo-level\" class=\"level\" hidden><\/span>\n        <\/div>\n        <strong id=\"duo-name\" class=\"player-name\" hidden><\/strong>\n        <span id=\"invite-label\" class=\"invite-label\">Inviter<\/span>\n        <div id=\"duo-roles\" class=\"role-slots\" role=\"group\" aria-label=\"Rôles du partenaire\" hidden>\n          <div id=\"duo-primary-role\" class=\"role-slot\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"Principal : non sélectionné\" /><\/div>\n          <div id=\"duo-secondary-role\" class=\"role-slot secondary-slot\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"Secondaire : non sélectionné\" /><\/div>\n        <\/div>\n      <\/div>\n\n      <div id=\"party-slots\" class=\"party-slots\" hidden><\/div>\n    <\/div>\n\n    <div id=\"arena-grid\" class=\"arena-grid\" aria-label=\"Autres équipes Arena\" hidden><\/div>\n\n    <section id=\"champ-select\" class=\"champ-select\" aria-label=\"Sélection des champions\" hidden>\n      <div class=\"cs-timer\" aria-hidden=\"true\"><span id=\"cs-timer-fill\"><\/span><\/div>\n      <div id=\"cs-body\" class=\"cs-body\">\n        <div class=\"cs-side allies\">\n          <div id=\"cs-allies\" class=\"cs-team\"><\/div>\n          <div id=\"cs-bans-mine\" class=\"cs-bans\"><\/div>\n        <\/div>\n        <div class=\"cs-picker\">\n          <div id=\"cs-filters\" class=\"cs-filters\">\n            <div id=\"cs-roles\" class=\"cs-roles\" role=\"group\" aria-label=\"Filtrer par rôle\"><\/div>\n            <input id=\"cs-search\" placeholder=\"Rechercher\" aria-label=\"Rechercher un champion\" maxlength=\"30\" autocomplete=\"off\" />\n          <\/div>\n          <div id=\"cs-grid\" class=\"cs-grid\" role=\"group\" aria-label=\"Champions\"><\/div>\n          <div id=\"cs-aram\" class=\"cs-aram\" hidden>\n            <div class=\"cs-aram-main\">\n              <span id=\"cs-aram-portrait\" class=\"cs-aram-portrait\"><\/span>\n              <div class=\"cs-aram-text\"><span class=\"cs-title\">Ton champion<\/span><b id=\"cs-aram-name\">—<\/b><button id=\"cs-reroll\" class=\"cs-reroll\">Relancer<\/button><\/div>\n            <\/div>\n            <span class=\"cs-title\">Banc · clique pour échanger<\/span>\n            <div id=\"cs-bench\" class=\"cs-bench\"><\/div>\n          <\/div>\n        <\/div>\n        <div id=\"cs-enemy-side\" class=\"cs-side enemies\">\n          <div id=\"cs-enemies\" class=\"cs-team\"><\/div>\n          <div id=\"cs-bans-theirs\" class=\"cs-bans\"><\/div>\n        <\/div>\n      <\/div>\n      <div id=\"cs-swap\" class=\"cs-swap\" role=\"alert\" hidden>\n        <span id=\"cs-swap-text\"><\/span>\n        <button id=\"cs-swap-decline\" class=\"invite-decline\" aria-label=\"Refuser l'échange\" title=\"Refuser\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n        <button id=\"cs-swap-accept\" class=\"invite-accept\" aria-label=\"Accepter l'échange\" title=\"Accepter\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/><\/svg><\/button>\n      <\/div>\n      <div class=\"cs-footer\">\n        <div id=\"cs-pick\" class=\"cs-pick\">\n          <span id=\"cs-pick-portrait\" class=\"cs-pick-portrait\"><\/span>\n          <span class=\"cs-pick-text\"><b id=\"cs-pick-name\">Aucun champion<\/b><small id=\"cs-pick-sub\"><\/small><\/span>\n        <\/div>\n        <button id=\"cs-spell1\" class=\"cs-spell\" aria-label=\"Changer le sort 1\"><\/button>\n        <button id=\"cs-spell2\" class=\"cs-spell\" aria-label=\"Changer le sort 2\"><\/button>\n        <button id=\"cs-runes\" class=\"cs-runes\" aria-label=\"Runes\"><span>Runes<\/span><\/button>\n        <button id=\"cs-action\" class=\"cs-action\" disabled>Choisis ton champion<\/button>\n      <\/div>\n    <\/section>\n\n    <button id=\"play\" class=\"primary play\" disabled>Lancement de League…<\/button>\n\n    <section id=\"runes-panel\" class=\"panel runes-panel\" role=\"dialog\" aria-labelledby=\"runes-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"runes-title\">Runes<\/h2><span id=\"runes-sub\" class=\"panel-sub\"><\/span><\/div>\n        <div class=\"rune-page-picker\">\n          <button id=\"rune-page-button\" class=\"rune-page-button\" aria-haspopup=\"listbox\" aria-expanded=\"false\"><span id=\"rune-page-label\">Pages<\/span><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 10l5 5 5-5\"/><\/svg><\/button>\n          <div id=\"rune-pages\" class=\"rune-pages\" role=\"listbox\" aria-label=\"Pages de runes\" hidden><\/div>\n        <\/div>\n        <button id=\"close-runes\" aria-label=\"Fermer les runes\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <\/div>\n      <div id=\"rune-recos\" class=\"rune-recos\" role=\"group\" aria-label=\"Runes recommandées\"><\/div>\n      <div class=\"rune-editor\">\n        <div id=\"rune-primary-col\" class=\"rune-col\"><div id=\"rune-primary-styles\" class=\"rune-styles\" role=\"group\" aria-label=\"Arbre principal\"><\/div><div id=\"rune-primary\" class=\"rune-tree\"><\/div><\/div>\n        <div id=\"rune-secondary-col\" class=\"rune-col\"><div id=\"rune-secondary-styles\" class=\"rune-styles\" role=\"group\" aria-label=\"Arbre secondaire\"><\/div><div id=\"rune-secondary\" class=\"rune-tree\"><\/div><div id=\"rune-shards\" class=\"rune-tree shards\"><\/div><\/div>\n      <\/div>\n      <div id=\"rune-info\" class=\"rune-info\" aria-live=\"polite\"><\/div>\n      <div class=\"rune-footer\">\n        <input id=\"rune-name\" maxlength=\"25\" aria-label=\"Nom de la page\" autocomplete=\"off\" />\n        <span id=\"rune-hint\" class=\"rune-hint\"><\/span>\n        <button id=\"rune-save\" class=\"rune-save\" disabled>Enregistrer<\/button>\n      <\/div>\n    <\/section>\n\n    <section id=\"spells-panel\" class=\"panel spells-panel\" role=\"dialog\" aria-labelledby=\"spells-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"spells-title\">Sort 1<\/h2><span class=\"panel-sub\">Sorts autorisés dans ce mode<\/span><\/div>\n        <button id=\"close-spells\" aria-label=\"Fermer le choix des sorts\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <\/div>\n      <div id=\"spell-options\" class=\"spell-options\" role=\"group\" aria-labelledby=\"spells-title\"><\/div>\n    <\/section>\n\n    <section id=\"queue-panel\" class=\"panel queue-panel\" role=\"dialog\" aria-labelledby=\"queue-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"queue-title\">Mode de jeu<\/h2><span class=\"panel-sub\">Modes ouverts dans ton client<\/span><\/div>\n        <button id=\"close-queues\" aria-label=\"Fermer le choix de la file\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <\/div>\n      <div id=\"queue-options\" class=\"queue-options\" role=\"group\" aria-labelledby=\"queue-title\"><p class=\"empty-list\">Chargement…<\/p><\/div>\n    <\/section>\n\n    <section id=\"roles-panel\" class=\"panel roles-panel\" role=\"dialog\" aria-labelledby=\"role-picker-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"role-picker-title\">Rôle principal<\/h2><span id=\"role-step\" class=\"panel-sub\">Étape 1 sur 2<\/span><\/div>\n        <button id=\"close-roles\" aria-label=\"Fermer le choix des rôles\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <\/div>\n      <div id=\"role-options\" class=\"role-options\" role=\"group\" aria-labelledby=\"role-picker-title\"><\/div>\n    <\/section>\n\n    <section id=\"invitations\" class=\"panel friends-panel\" role=\"dialog\" aria-labelledby=\"friends-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"friends-title\">Inviter un ami<\/h2><span id=\"friends-count\" class=\"panel-sub\">Amis connectés<\/span><\/div>\n        <div class=\"panel-actions\">\n          <button id=\"refresh-friends\" title=\"Actualiser\" aria-label=\"Actualiser les amis\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M19 12a7 7 0 1 1-2.05-4.95M19 4v4h-4\"/><\/svg><\/button>\n          <button id=\"close-friends\" title=\"Fermer\" aria-label=\"Fermer les invitations\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n        <\/div>\n      <\/div>\n      <form id=\"invite-form\"><input id=\"friend-name\" placeholder=\"Pseudo#TAG\" aria-label=\"Pseudo ou Riot ID\" maxlength=\"100\" required /><button id=\"invite\" type=\"submit\" aria-label=\"Envoyer l'invitation\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h13M13 6l6 6-6 6\"/><\/svg><\/button><\/form>\n      <div id=\"friend-list\" class=\"friend-list\" tabindex=\"0\" aria-label=\"Amis connectés\"><p class=\"empty-list\">Chargement…<\/p><\/div>\n    <\/section>\n  <\/main>\n  ";
   const READY_HTML = "\n  <main class=\"ready-popup\">\n    <header class=\"drag-handle\"><span>PARTIE TROUVÉE<\/span><button id=\"close\" aria-label=\"Masquer la notification\" title=\"Masquer\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button><\/header>\n    <div class=\"ready-content\">\n      <div id=\"ready-clock\" class=\"ready-clock\" aria-label=\"Temps restant estimé pour accepter\">\n        <svg viewBox=\"0 0 64 64\" aria-hidden=\"true\"><circle class=\"clock-track\" cx=\"32\" cy=\"32\" r=\"28\"/><circle id=\"clock-progress\" cx=\"32\" cy=\"32\" r=\"28\" pathLength=\"100\"/><\/svg>\n        <strong id=\"countdown\" aria-label=\"Compte à rebours\">—<\/strong>\n      <\/div>\n      <div class=\"ready-copy\"><h1 id=\"ready-title\">À toi de jouer.<\/h1><p id=\"ready-subtitle\">La faille t'attend.<\/p><\/div>\n    <\/div>\n    <button id=\"accept\" class=\"accept\" disabled>Accepter<\/button>\n    <p id=\"ready-feedback\" class=\"feedback\" role=\"status\">Synchronisation avec League…<\/p>\n  <\/main>\n  ";
-  const WIDGET_CSS = "/* ===== TOKENS — palette Hextech ===== */\n:host {\n  color-scheme: dark;\n  font-family: \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif;\n  font-size: 12px;\n  line-height: 1.35;\n  color: var(--gold-1);\n  font-synthesis: none;\n  -webkit-font-smoothing: antialiased;\n\n  --font-display: \"Constantia\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif;\n\n  --void: #010a13;\n  --abyss: #0a1428;\n  --deep: #091a26;\n  --slate: #1e2328;\n  --slate-2: #1e282d;\n\n  --gold-1: #f0e6d2;\n  --gold-2: #c8aa6e;\n  --gold-3: #c89b3c;\n  --gold-4: #785a28;\n  --gold-5: #463714;\n  --gold-glow: rgba(200, 170, 110, 0.18);\n\n  --blue-1: #cdfafa;\n  --blue-2: #0ac8b9;\n  --blue-3: #0397ab;\n  --blue-4: #005a82;\n  --blue-glow: rgba(10, 200, 185, 0.22);\n\n  --grey-1: #a09b8c;\n  --grey-2: #5b5a56;\n  --grey-3: #3c3c41;\n\n  --red: #e84057;\n  --red-glow: rgba(232, 64, 87, 0.2);\n\n  --line: rgba(200, 170, 110, 0.16);\n  --line-strong: rgba(200, 170, 110, 0.38);\n\n  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);\n  --fast: 0.14s var(--ease);\n  --normal: 0.24s var(--ease);\n}\n\n/* ===== BASE ===== */\n* { box-sizing: border-box; }\n[hidden] { display: none !important; }\nbody { margin: 0; user-select: none; cursor: default; }\ninput { user-select: text; }\nimg { -webkit-user-drag: none; }\nbutton, input { font: inherit; color: inherit; border: 0; background: none; }\nbutton { cursor: pointer; padding: 0; }\nbutton:disabled { cursor: default; }\nbutton:focus-visible, input:focus-visible { outline: 1px solid var(--blue-2); outline-offset: 2px; }\nsvg { display: block; }\n\n/* Icônes trait (header, panneaux, formulaire) */\n.header-actions svg, .panel-header svg, form button svg, .kick-friend svg, .ready-popup header svg {\n  width: 14px; height: 14px;\n  fill: none; stroke: currentColor; stroke-width: 1.7;\n  stroke-linecap: round; stroke-linejoin: round;\n}\n\n/* ===== CADRE DU WIDGET ===== */\n.widget-body, .ready-body {\n  height: 100%;\n  padding: 6px;\n  overflow: hidden;\n  background: transparent;\n}\n\n.widget {\n  --accent: var(--gold-2);\n  --accent-soft: var(--gold-glow);\n  height: 100%;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  padding: 0 12px 12px;\n  overflow: hidden;\n  border: 1px solid var(--gold-5);\n  border-radius: 6px;\n  background:\n    radial-gradient(120% 70% at 50% -10%, rgba(10, 200, 185, 0.09), transparent 60%),\n    linear-gradient(180deg, var(--abyss) 0%, var(--void) 78%);\n  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);\n  transition: border-color var(--normal), box-shadow var(--normal);\n}\n\n/* Ornement doré en haut */\n.widget::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 96px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--accent), transparent);\n  pointer-events: none;\n  transition: background var(--normal);\n}\n\n.widget[data-phase=\"Matchmaking\"] { --accent: var(--blue-2); --accent-soft: var(--blue-glow); border-color: var(--blue-4); }\n.widget[data-phase=\"ReadyCheck\"] { --accent: var(--gold-1); border-color: var(--gold-3); box-shadow: 0 0 0 1px var(--gold-4), 0 0 18px var(--gold-glow), 0 10px 24px rgba(0, 0, 0, 0.55); }\n.widget[data-phase=\"ChampSelect\"], .widget[data-phase=\"Reconnect\"] { --accent: var(--blue-2); border-color: var(--blue-3); }\n.widget[data-phase=\"Disconnected\"] { --accent: var(--red); border-color: #4a1c24; }\n.widget[data-phase=\"InProgress\"] .players { opacity: 0.7; }\n\n/* ===== HEADER ===== */\n.header {\n  position: relative;\n  height: 32px;\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n\n/* Barre de recherche animée sous le header */\n.header::after {\n  content: \"\";\n  position: absolute;\n  left: -12px; right: -12px; bottom: 0;\n  height: 1px;\n  background: var(--line);\n}\n.widget[data-phase=\"Matchmaking\"] .header::after {\n  background: linear-gradient(90deg, transparent 0%, var(--blue-2) 50%, transparent 100%) no-repeat, var(--line);\n  background-size: 40% 100%, 100% 100%;\n  animation: scan 1.8s linear infinite;\n}\n@keyframes scan { from { background-position: -80% 0, 0 0; } to { background-position: 180% 0, 0 0; } }\n\n.drag-handle button { -webkit-app-region: no-drag; }\n\n.queue-badge {\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  font-family: var(--font-display);\n  font-size: 9.5px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  color: var(--gold-2);\n  transition: color var(--fast);\n}\n\n.badge-gem {\n  width: 7px; height: 7px;\n  transform: rotate(45deg);\n  border: 1px solid currentColor;\n  background: transparent;\n  transition: background var(--fast), box-shadow var(--fast);\n}\n\n.queue-badge.active { color: var(--blue-1); }\n.queue-badge.active .badge-gem { background: var(--blue-2); border-color: var(--blue-2); box-shadow: 0 0 8px var(--blue-2); animation: pulse 1.4s ease-in-out infinite; }\n.queue-badge.warning { color: var(--gold-1); }\n.queue-badge.warning .badge-gem { background: var(--gold-2); border-color: var(--gold-2); box-shadow: 0 0 8px var(--gold-2); }\n.widget[data-phase=\"Disconnected\"] .queue-badge { color: var(--grey-1); }\n\n.queue-timer {\n  margin-left: auto;\n  font-size: 12px;\n  font-weight: 600;\n  font-variant-numeric: tabular-nums;\n  letter-spacing: 0.4px;\n  color: var(--blue-1);\n  text-shadow: 0 0 10px var(--blue-glow);\n}\n.queue-timer.countdown { color: var(--gold-1); text-shadow: 0 0 10px var(--gold-glow); }\n\n.header-actions {\n  display: flex;\n  gap: 2px;\n  margin-left: auto;\n  margin-right: -4px;\n  -webkit-app-region: no-drag;\n}\n.queue-timer:not([hidden]) + .header-actions { margin-left: 4px; }\n\n.header-actions button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: color var(--fast), background var(--fast);\n}\n.header-actions button:hover:not(:disabled) { color: var(--gold-1); background: rgba(200, 170, 110, 0.08); }\n.header-actions button:disabled { color: var(--grey-3); }\n#close-widget:hover { color: var(--red) !important; background: var(--red-glow) !important; }\n\n@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }\n\n/* ===== CHOIX DU MODE DE JEU ===== */\n.queue-button {\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  flex-shrink: 0;\n  height: 24px;\n  margin-left: -5px;\n  padding: 0 5px;\n  border-radius: 3px;\n  font: inherit;\n  letter-spacing: inherit;\n  text-transform: inherit;\n  color: inherit;\n  -webkit-app-region: no-drag;\n  transition: background var(--fast), color var(--fast);\n}\n.queue-button:hover:not(:disabled), .queue-button[aria-expanded=\"true\"] { background: rgba(200, 170, 110, 0.1); color: var(--gold-1); }\n.queue-button:disabled { cursor: default; }\n.queue-button .chevron { width: 10px; height: 10px; margin-left: -3px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }\n.queue-button:disabled .chevron { display: none; }\n\n.queue-options {\n  flex: 1;\n  min-height: 0;\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  grid-auto-rows: 48px;\n  gap: 6px;\n  align-content: start;\n  margin: 0 -6px;\n  padding: 0 2px 0 6px;\n  overflow-y: auto;\n  scrollbar-gutter: stable;\n}\n.queue-options::-webkit-scrollbar { width: 4px; }\n.queue-options::-webkit-scrollbar-thumb { background: var(--gold-5); border-radius: 2px; }\n.queue-options .empty-list { grid-column: 1 / -1; }\n.queue-option {\n  position: relative;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 9px;\n  padding: 0 8px;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: linear-gradient(180deg, rgba(30, 35, 40, 0.5), rgba(1, 10, 19, 0.75));\n  text-align: left;\n  transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);\n}\n.mode-icon {\n  flex-shrink: 0;\n  width: 28px; height: 28px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-5);\n  border-radius: 50%;\n  background: radial-gradient(circle at 50% 35%, rgba(200, 170, 110, 0.14), rgba(1, 10, 19, 0.6));\n  color: var(--gold-3);\n  transition: var(--fast);\n}\n.mode-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n.mode-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }\n.mode-text b {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-family: var(--font-display);\n  font-size: 12px;\n  font-weight: 700;\n  color: var(--gold-1);\n}\n.mode-text small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; color: var(--grey-1); }\n.mode-text small .ranked { color: var(--gold-2); }\n.queue-option:hover:not(:disabled) { border-color: var(--gold-4); background: linear-gradient(180deg, rgba(200, 170, 110, 0.1), rgba(1, 10, 19, 0.75)); }\n.queue-option:hover:not(:disabled) .mode-icon { border-color: var(--gold-3); color: var(--gold-1); }\n.queue-option[aria-pressed=\"true\"] {\n  border-color: var(--gold-2);\n  background: linear-gradient(180deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.04));\n  box-shadow: inset 0 0 12px var(--gold-glow);\n}\n.queue-option[aria-pressed=\"true\"] .mode-icon { border-color: var(--gold-2); background: var(--gold-2); color: var(--void); }\n.queue-option.locked { opacity: 0.5; }\n.queue-option.locked small { color: var(--red); }\n\n/* ===== DISPOSITIONS : GROUPE ET ARENA ===== */\n.widget[data-positions=\"off\"] .role-slots { display: none; }\n.party-slots { display: contents; }\n.widget[data-layout=\"party\"] .players { justify-content: space-between; }\n.widget[data-layout=\"party\"] .player { width: 80px; }\n.widget[data-layout=\"party\"] .link, .widget[data-layout=\"arena\"] .link { display: none; }\n.widget[data-layout=\"arena\"] .players { justify-content: center; gap: 22px; }\n.widget[data-layout=\"arena\"] .player { width: 88px; }\n.party-member .portrait { background: radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box, linear-gradient(160deg, var(--gold-1) 0%, var(--gold-2) 35%, var(--gold-4) 100%) border-box; }\n.party-member img, .chip-seat img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }\n.party-member .portrait svg { fill: var(--grey-2); }\n.slot-empty { position: absolute; inset: 7px; border: 1px dashed var(--grey-3); border-radius: 50%; }\n\n/* Autres équipes Arena : pastilles cliquables */\n.arena-grid {\n  flex-shrink: 0;\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px;\n  margin: -4px -12px 10px;\n  padding: 6px 12px 0;\n  border-top: 1px solid var(--line);\n}\n.strip-title {\n  width: 100%;\n  font-family: var(--font-display);\n  font-size: 7.5px;\n  font-weight: 700;\n  letter-spacing: 1.6px;\n  text-transform: uppercase;\n  color: var(--grey-2);\n}\n.team-chip {\n  height: 30px;\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  padding: 0 9px 0 4px;\n  border: 1px solid var(--line);\n  border-radius: 15px;\n  background: rgba(1, 10, 19, 0.6);\n  transition: var(--fast);\n}\n.chip-number {\n  width: 20px; height: 20px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  color: var(--gold-2);\n}\n.chip-seats { display: flex; gap: 3px; }\n.chip-seat {\n  width: 18px; height: 18px;\n  overflow: hidden;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: radial-gradient(circle at 50% 30%, #16283a, var(--void));\n}\n.chip-seat svg { width: 100%; height: 100%; padding: 3px 3px 1px; fill: var(--grey-2); }\n.chip-seat.open { border: 1px dashed var(--grey-3); background: none; }\n.chip-label { font-size: 9.5px; color: var(--grey-1); }\n.team-chip.new .chip-number { border-style: dashed; color: var(--grey-1); }\n.team-chip:hover:not(:disabled) { border-color: var(--blue-3); background: rgba(10, 200, 185, 0.08); box-shadow: 0 0 10px var(--blue-glow); }\n.team-chip:hover:not(:disabled) .chip-seat.open { border-color: var(--blue-2); background: rgba(10, 200, 185, 0.18); }\n.team-chip:hover:not(:disabled) .chip-label { color: var(--blue-1); }\n.team-chip:disabled { opacity: 0.5; }\n\n/* ===== INVITATION REÇUE ===== */\n.invite-toast {\n  position: absolute;\n  top: 0; left: 0; right: 0;\n  z-index: 4;\n  height: 32px;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 0 7px 0 12px;\n  border-bottom: 1px solid var(--gold-4);\n  background:\n    linear-gradient(90deg, rgba(200, 170, 110, 0.16), rgba(200, 170, 110, 0) 70%),\n    var(--abyss);\n  -webkit-app-region: drag;\n  user-select: none;\n  animation: invite-in 0.28s var(--ease);\n}\n.invite-toast::before {\n  content: \"\";\n  position: absolute;\n  left: 0; top: 0; bottom: 0;\n  width: 2px;\n  background: var(--gold-2);\n  box-shadow: 0 0 8px var(--gold-2);\n}\n@keyframes invite-in { from { opacity: 0; transform: translateY(-100%); } to { opacity: 1; transform: none; } }\n.widget.has-invite { border-color: var(--gold-4); }\n\n.invite-avatar {\n  flex-shrink: 0;\n  width: 20px; height: 20px;\n  overflow: hidden;\n  border: 1px solid var(--gold-3);\n  border-radius: 50%;\n  background: radial-gradient(circle at 50% 30%, #16283a, var(--void));\n}\n.invite-avatar img { width: 100%; height: 100%; object-fit: cover; }\n.invite-text {\n  flex: 1;\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-size: 10.5px;\n  color: var(--grey-1);\n}\n.invite-text b { font-weight: 600; color: var(--gold-1); }\n.invite-queue { color: var(--gold-2); }\n.invite-more {\n  flex-shrink: 0;\n  padding: 0 4px;\n  border: 1px solid var(--gold-4);\n  border-radius: 7px;\n  font-size: 8.5px;\n  line-height: 12px;\n  color: var(--gold-2);\n}\n.invite-toast button {\n  flex-shrink: 0;\n  width: 22px; height: 22px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  -webkit-app-region: no-drag;\n  transition: var(--fast);\n}\n.invite-toast svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n.invite-decline { color: var(--grey-1); }\n.invite-decline:hover:not(:disabled) { color: var(--red); background: var(--red-glow); }\n.invite-accept { color: var(--void); background: linear-gradient(180deg, var(--blue-1), var(--blue-2)); }\n.invite-accept:hover:not(:disabled) { box-shadow: 0 0 10px var(--blue-glow); }\n.invite-toast button:disabled { opacity: 0.45; }\n\n/* ===== JOUEURS ===== */\n.players {\n  flex-shrink: 0;\n  flex: 1;\n  min-height: 0;\n  display: flex;\n  justify-content: center;\n  align-items: flex-start;\n  padding-top: 12px;\n  transition: opacity var(--normal);\n}\n\n.player {\n  width: 100px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n\n.portrait-frame {\n  position: relative;\n  width: 58px; height: 58px;\n}\n\n.portrait {\n  position: absolute;\n  inset: 0;\n  display: grid;\n  place-items: center;\n  overflow: hidden;\n  border-radius: 50%;\n  border: 2px solid transparent;\n  background:\n    radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box,\n    linear-gradient(180deg, var(--grey-2), var(--grey-3)) border-box;\n  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);\n  transition: box-shadow var(--normal);\n}\n.portrait.connected, #duo-portrait {\n  background:\n    radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box,\n    linear-gradient(160deg, var(--gold-1) 0%, var(--gold-2) 35%, var(--gold-4) 100%) border-box;\n  box-shadow: 0 0 0 3px rgba(1, 10, 19, 0.9), 0 0 0 4px var(--gold-5), 0 4px 16px rgba(0, 0, 0, 0.55);\n}\n.widget[data-phase=\"Matchmaking\"] .portrait.connected {\n  box-shadow: 0 0 0 3px rgba(1, 10, 19, 0.9), 0 0 0 4px var(--blue-4), 0 0 16px var(--blue-glow);\n}\n\n.portrait img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }\n.portrait svg { width: 100%; height: 100%; padding: 13px 13px 9px; fill: var(--grey-2); }\n\n.connection-dot {\n  position: absolute;\n  top: 1px; right: 1px;\n  width: 11px; height: 11px;\n  border: 2px solid var(--void);\n  border-radius: 50%;\n  background: var(--grey-2);\n  z-index: 2;\n}\n.connection-dot.online { background: var(--blue-2); box-shadow: 0 0 6px var(--blue-2); }\n.connection-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }\n.connection-dot.starting { background: var(--gold-2); animation: pulse 1.2s ease-in-out infinite; }\n\n.level {\n  position: absolute;\n  left: 50%; bottom: -6px;\n  transform: translateX(-50%);\n  z-index: 2;\n  min-width: 26px;\n  height: 14px;\n  padding: 0 5px;\n  border: 1px solid var(--gold-4);\n  border-radius: 7px;\n  background: var(--void);\n  color: var(--gold-1);\n  font-size: 8.5px;\n  font-weight: 600;\n  line-height: 12px;\n  text-align: center;\n  font-variant-numeric: tabular-nums;\n}\n\n.player-name, .invite-label {\n  display: block;\n  max-width: 100%;\n  height: 14px;\n  margin-top: 10px;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  line-height: 14px;\n  text-align: center;\n}\n.player-name { font-size: 11px; font-weight: 600; color: var(--gold-1); }\n.widget[data-phase=\"Disconnected\"] #summoner-name { color: var(--grey-1); font-weight: 400; }\n.invite-label {\n  font-family: var(--font-display);\n  font-size: 8.5px;\n  font-weight: 700;\n  letter-spacing: 2px;\n  text-transform: uppercase;\n  color: var(--grey-2);\n  pointer-events: none;\n}\n\n/* Lien entre les deux joueurs */\n.link {\n  width: 36px; height: 58px;\n  display: grid; place-items: center;\n  position: relative;\n}\n.link::before {\n  content: \"\";\n  position: absolute;\n  left: 2px; right: 2px; top: 50%;\n  height: 1px;\n  background: linear-gradient(90deg, transparent, var(--gold-5), transparent);\n  transition: background var(--normal);\n}\n.link i {\n  width: 7px; height: 7px;\n  transform: rotate(45deg);\n  border: 1px solid var(--gold-4);\n  background: var(--void);\n  z-index: 1;\n  transition: var(--normal);\n}\n.players:has(.has-partner) .link::before { background: linear-gradient(90deg, var(--gold-4), var(--gold-2), var(--gold-4)); }\n.players:has(.has-partner) .link i { background: var(--gold-2); border-color: var(--gold-1); box-shadow: 0 0 8px var(--gold-glow); }\n\n/* Rôles */\n.role-slots {\n  display: flex;\n  gap: 4px;\n  margin-top: 5px;\n}\n.role-slot {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: rgba(1, 10, 19, 0.6);\n  transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);\n}\n.role-slot img { width: 16px; height: 16px; object-fit: contain; pointer-events: none; }\n.secondary-slot img { opacity: 0.6; }\nbutton.role-slot:hover:not(:disabled), .role-slot[aria-expanded=\"true\"] {\n  border-color: var(--gold-2);\n  background: rgba(200, 170, 110, 0.1);\n  box-shadow: 0 0 8px var(--gold-glow);\n}\nbutton.role-slot:disabled { opacity: 0.55; }\n.role-slot.draft { border-style: dashed; border-color: var(--gold-3); }\n\n/* Slot duo */\n.add-friend {\n  position: absolute;\n  inset: 0;\n  display: grid; place-items: center;\n  border-radius: 50%;\n  border: 1px dashed var(--gold-4);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.05), transparent 70%);\n  color: var(--gold-3);\n  -webkit-app-region: no-drag;\n  transition: var(--normal);\n}\n.add-friend svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }\n.add-friend:hover:not(:disabled), .add-friend[aria-expanded=\"true\"] {\n  border-style: solid;\n  border-color: var(--gold-2);\n  color: var(--gold-1);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.16), transparent 75%);\n  box-shadow: 0 0 14px var(--gold-glow);\n}\n.add-friend:disabled { color: var(--grey-3); border-color: var(--grey-3); }\n.duo-slot:has(.add-friend:hover:not(:disabled)) .invite-label,\n.duo-slot:has(.add-friend[aria-expanded=\"true\"]) .invite-label { color: var(--gold-2); }\n\n.kick-friend {\n  position: absolute;\n  top: -3px; right: -5px;\n  z-index: 3;\n  width: 18px; height: 18px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: var(--void);\n  color: var(--grey-1);\n  -webkit-app-region: no-drag;\n  transition: var(--fast);\n}\n.kick-friend svg { width: 10px; height: 10px; stroke-width: 2.2; }\n.kick-friend:hover:not(:disabled) { color: #fff; border-color: var(--red); background: var(--red); }\n.kick-friend:disabled { opacity: 0.4; }\n\n/* ===== BOUTON PRINCIPAL ===== */\n.play {\n  flex-shrink: 0;\n  position: relative;\n  width: 100%;\n  height: 36px;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  font-family: var(--font-display);\n  font-size: 12px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  -webkit-app-region: no-drag;\n  transition: background var(--normal), color var(--normal), box-shadow var(--normal), filter var(--fast);\n}\n\n/* Lobby : bouton hextech bleu */\n.primary {\n  color: var(--blue-1);\n  background:\n    linear-gradient(180deg, rgba(10, 200, 185, 0.16) 0%, rgba(0, 90, 130, 0.22) 100%) padding-box,\n    linear-gradient(var(--deep), var(--deep)) padding-box,\n    linear-gradient(180deg, var(--blue-2), var(--blue-4)) border-box;\n  box-shadow: inset 0 0 12px rgba(10, 200, 185, 0.15), 0 0 12px rgba(10, 200, 185, 0.12);\n  text-shadow: 0 0 8px rgba(10, 200, 185, 0.5);\n}\n.primary:hover:not(:disabled) {\n  color: #fff;\n  box-shadow: inset 0 0 16px rgba(10, 200, 185, 0.3), 0 0 18px rgba(10, 200, 185, 0.28);\n}\n.primary:active:not(:disabled) { filter: brightness(0.9); }\n\n/* Recherche : bouton neutre, rouge au survol */\n.play.searching {\n  color: var(--gold-1);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--gold-4), var(--gold-5)) border-box;\n  box-shadow: none;\n}\n.play.searching:hover:not(:disabled) {\n  color: #fff;\n  background:\n    linear-gradient(180deg, #3a1219, #1c070b) padding-box,\n    linear-gradient(180deg, var(--red), #6e1d29) border-box;\n  box-shadow: 0 0 14px var(--red-glow);\n}\n\n/* Partie trouvée : or plein */\n.play.ready-action {\n  color: var(--void);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box,\n    linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n  animation: ready-pulse 1.6s ease-in-out infinite;\n}\n.play.ready-action:hover:not(:disabled) { filter: brightness(1.08); }\n@keyframes ready-pulse {\n  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 170, 110, 0.5), 0 0 12px var(--gold-glow); }\n  50% { box-shadow: 0 0 0 5px rgba(200, 170, 110, 0), 0 0 20px var(--gold-glow); }\n}\n\n.play:disabled {\n  color: var(--grey-2);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--grey-3), var(--grey-3)) border-box;\n  box-shadow: none;\n  animation: none;\n}\n\n/* ===== STATUT (dans l'en-tête) ===== */\n.queue-badge { min-width: 0; flex: 1; }\n.badge-gem { flex-shrink: 0; }\n.widget .feedback {\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-family: \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif;\n  font-size: 10.5px;\n  font-weight: 500;\n  letter-spacing: 0.1px;\n  text-transform: none;\n  color: var(--gold-1);\n  -webkit-app-region: no-drag;\n}\n.widget .feedback:empty { display: none; }\n.queue-badge:has(.feedback:not(:empty)) .badge-label { display: none; }\n.feedback.error { color: var(--red); }\n.queue-badge:has(.feedback.error) .badge-gem { border-color: var(--red); background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }\n\n/* ===== CALQUES (rôles, invitations) ===== */\n.panel {\n  position: absolute;\n  inset: 0;\n  z-index: 10;\n  display: flex;\n  flex-direction: column;\n  padding: 8px 12px 12px;\n  border-radius: 5px;\n  background:\n    radial-gradient(120% 60% at 50% 0%, rgba(200, 170, 110, 0.1), transparent 60%),\n    linear-gradient(180deg, var(--abyss), var(--void) 85%);\n  animation: sheet-in 0.2s var(--ease);\n}\n.panel::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 96px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--gold-2), transparent);\n}\n@keyframes sheet-in { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }\n\n.panel-header {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 8px;\n  height: 32px;\n  margin-bottom: 8px;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n.panel-header button { -webkit-app-region: no-drag; }\n.panel-title { display: flex; flex-direction: column; min-width: 0; }\n.panel h2 {\n  margin: 0;\n  font-family: var(--font-display);\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  color: var(--gold-1);\n}\n.panel-sub { font-size: 9.5px; color: var(--grey-1); }\n.panel-actions { display: flex; gap: 2px; margin-right: -4px; }\n.panel-header > button { margin-right: -4px; }\n.panel-header button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: var(--fast);\n}\n.panel-header button:hover { color: var(--gold-1); background: rgba(200, 170, 110, 0.08); }\n\n/* Choix des rôles : grille 3 × 2 */\n.role-options {\n  flex: 1;\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  grid-template-rows: repeat(2, 1fr);\n  gap: 6px;\n}\n.role-option {\n  position: relative;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 7px;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: linear-gradient(180deg, rgba(30, 35, 40, 0.55), rgba(1, 10, 19, 0.7));\n  color: var(--grey-1);\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  letter-spacing: 1.2px;\n  text-transform: uppercase;\n  transition: var(--fast);\n}\n.role-option img { width: 30px; height: 30px; object-fit: contain; filter: grayscale(0.5) brightness(0.9); transition: filter var(--fast), transform var(--fast); }\n.role-option:hover:not(:disabled) { border-color: var(--gold-4); color: var(--gold-1); background: linear-gradient(180deg, rgba(200, 170, 110, 0.12), rgba(1, 10, 19, 0.7)); }\n.role-option:hover:not(:disabled) img { filter: none; transform: translateY(-1px) scale(1.06); }\n.role-option[aria-pressed=\"true\"] {\n  border-color: var(--gold-2);\n  color: var(--gold-1);\n  background: linear-gradient(180deg, rgba(200, 170, 110, 0.22), rgba(200, 170, 110, 0.04));\n  box-shadow: inset 0 0 14px var(--gold-glow), 0 0 10px var(--gold-glow);\n}\n.role-option[aria-pressed=\"true\"] img, .role-option[data-rank] img { filter: none; }\n.role-option[data-rank]::after {\n  content: attr(data-rank);\n  position: absolute;\n  top: 4px; right: 4px;\n  width: 14px; height: 14px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: var(--void);\n  color: var(--gold-2);\n  font-family: \"Segoe UI\", system-ui, sans-serif;\n  font-size: 8px;\n  letter-spacing: 0;\n}\n.role-option:disabled { opacity: 0.45; }\n\n/* Invitations */\nform {\n  flex-shrink: 0;\n  display: flex;\n  gap: 6px;\n  margin: 0 0 6px;\n}\ninput {\n  flex: 1;\n  min-width: 0;\n  height: 28px;\n  padding: 0 10px;\n  border: 1px solid var(--grey-3);\n  border-radius: 2px;\n  background: rgba(1, 10, 19, 0.8);\n  color: var(--gold-1);\n  font-size: 11px;\n  transition: border-color var(--fast), box-shadow var(--fast);\n}\ninput::placeholder { color: var(--grey-2); }\ninput:focus-visible { outline: none; border-color: var(--gold-3); box-shadow: 0 0 0 2px var(--gold-glow); }\nform button {\n  flex-shrink: 0;\n  width: 28px; height: 28px;\n  display: grid; place-items: center;\n  border: 1px solid var(--blue-3);\n  border-radius: 2px;\n  background: linear-gradient(180deg, rgba(10, 200, 185, 0.2), rgba(0, 90, 130, 0.25));\n  color: var(--blue-1);\n  transition: var(--fast);\n}\nform button:hover:not(:disabled) { color: #fff; box-shadow: 0 0 12px var(--blue-glow); }\nform button:disabled { border-color: var(--grey-3); background: none; color: var(--grey-2); }\n\n.friend-list {\n  flex: 1;\n  min-height: 0;\n  margin: 0 -8px;\n  padding: 0 4px 0 8px;\n  overflow-y: auto;\n  scrollbar-gutter: stable;\n  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);\n}\n.friend-list::-webkit-scrollbar { width: 4px; }\n.friend-list::-webkit-scrollbar-thumb { background: var(--gold-5); border-radius: 2px; }\n.friend-list::-webkit-scrollbar-thumb:hover { background: var(--gold-4); }\n\n.friend-item {\n  position: relative;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  height: 30px;\n  padding: 0 2px 0 14px;\n  border-radius: 2px;\n  transition: background var(--fast);\n}\n.friend-item:hover { background: rgba(200, 170, 110, 0.06); }\n.friend-item::before {\n  content: \"\";\n  position: absolute;\n  left: 4px; top: 50%;\n  width: 6px; height: 6px;\n  margin-top: -3px;\n  border-radius: 50%;\n  background: var(--blue-2);\n  box-shadow: 0 0 5px var(--blue-2);\n}\n.friend-item.in-game::before { background: var(--gold-3); box-shadow: 0 0 5px var(--gold-3); }\n.friend-item > div { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; }\n.friend-item strong {\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--gold-1);\n  font-size: 11px;\n  font-weight: 600;\n}\n.friend-item small { flex-shrink: 0; margin-left: auto; color: var(--blue-2); font-size: 9px; }\n.friend-item.in-game small { color: var(--gold-3); }\n.friend-item button {\n  flex-shrink: 0;\n  width: 22px; height: 22px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-5);\n  border-radius: 2px;\n  color: var(--gold-2);\n  font-size: 14px;\n  line-height: 1;\n  transition: var(--fast);\n}\n.friend-item button:hover:not(:disabled) { border-color: var(--gold-2); color: var(--gold-1); background: rgba(200, 170, 110, 0.1); }\n.friend-item button:disabled { border-color: var(--blue-4); color: var(--blue-2); }\n\n.empty-list { margin: 0; padding: 22px 0; color: var(--grey-2); font-size: 11px; text-align: center; }\n\n/* ===== POPUP PARTIE TROUVÉE ===== */\n.ready-body { padding: 8px; }\n\n.ready-popup {\n  position: relative;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  padding: 0 16px 10px;\n  overflow: hidden;\n  border: 1px solid var(--gold-3);\n  border-radius: 6px;\n  background:\n    radial-gradient(90% 70% at 50% 0%, rgba(200, 170, 110, 0.14), transparent 65%),\n    linear-gradient(180deg, var(--abyss), var(--void) 80%);\n  box-shadow: 0 0 0 1px var(--gold-5), 0 0 22px var(--gold-glow), 0 10px 28px rgba(0, 0, 0, 0.6);\n}\n.ready-popup::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 120px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--gold-1), transparent);\n}\n\n.ready-popup header {\n  height: 34px;\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n.ready-popup header span {\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  letter-spacing: 2.4px;\n  color: var(--gold-2);\n}\n.ready-popup header button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  margin-right: -6px;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: var(--fast);\n}\n.ready-popup header button:hover { color: var(--gold-1); background: rgba(200, 170, 110, 0.1); }\n\n.ready-content {\n  flex: 1;\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.ready-clock {\n  position: relative;\n  flex-shrink: 0;\n  width: 76px; height: 76px;\n  display: grid; place-items: center;\n  border-radius: 50%;\n  color: var(--gold-2);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.12), transparent 68%);\n}\n.ready-clock::before {\n  content: \"\";\n  position: absolute;\n  inset: 9px;\n  border: 1px solid var(--gold-5);\n  border-radius: 50%;\n}\n.ready-clock svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }\n.ready-clock circle { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: butt; }\n.ready-clock .clock-track { stroke: var(--gold-5); }\n#clock-progress { stroke-dasharray: 100; transition: stroke-dashoffset 0.1s linear, stroke var(--fast); filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.6)); }\n.ready-clock strong {\n  z-index: 1;\n  font-family: var(--font-display);\n  font-size: 26px;\n  font-weight: 700;\n  font-variant-numeric: tabular-nums;\n  color: var(--gold-1);\n}\n.ready-clock.urgent { color: var(--red); }\n.ready-clock.urgent strong { color: var(--red); animation: pulse 0.8s ease-in-out infinite; }\n.ready-clock.accepted { color: var(--blue-2); }\n.ready-clock.accepted strong { color: var(--blue-1); text-shadow: 0 0 10px var(--blue-2); }\n.ready-clock.accepted #clock-progress { filter: drop-shadow(0 0 3px var(--blue-2)); }\n\n.ready-copy { min-width: 0; }\n.ready-copy h1 {\n  margin: 0 0 5px;\n  font-family: var(--font-display);\n  font-size: 19px;\n  font-weight: 700;\n  line-height: 1.15;\n  color: var(--gold-1);\n}\n.ready-copy p { margin: 0; color: var(--grey-1); font-size: 11px; }\n\n.accept {\n  flex-shrink: 0;\n  width: 100%;\n  height: 38px;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  font-family: var(--font-display);\n  font-size: 13px;\n  font-weight: 700;\n  letter-spacing: 2px;\n  text-transform: uppercase;\n  color: var(--void);\n  background:\n    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box,\n    linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n  animation: ready-pulse 1.6s ease-in-out infinite;\n  transition: filter var(--fast);\n}\n.accept:hover:not(:disabled) { filter: brightness(1.08); }\n.accept:disabled {\n  color: var(--grey-2);\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--grey-3), var(--grey-3)) border-box;\n  animation: none;\n}\n.ready-popup:has(.ready-clock.accepted) .accept:disabled {\n  color: var(--blue-1);\n  background:\n    linear-gradient(180deg, rgba(10, 200, 185, 0.12), rgba(0, 90, 130, 0.2)) padding-box,\n    linear-gradient(var(--deep), var(--deep)) padding-box,\n    linear-gradient(180deg, var(--blue-3), var(--blue-4)) border-box;\n  animation: none;\n}\n\n.ready-popup .feedback {\n  flex-shrink: 0;\n  height: 18px;\n  margin: 6px 0 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--grey-1);\n  font-size: 10px;\n  line-height: 18px;\n  text-align: center;\n}\n\n/* ===== MOUVEMENT RÉDUIT ===== */\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { transition: none !important; animation: none !important; }\n}\n";
+  const WIDGET_CSS = "/* ===== TOKENS — palette Hextech ===== */\n:host {\n  color-scheme: dark;\n  font-family: \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif;\n  font-size: 12px;\n  line-height: 1.35;\n  color: var(--gold-1);\n  font-synthesis: none;\n  -webkit-font-smoothing: antialiased;\n\n  --font-display: \"Constantia\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif;\n\n  --void: #010a13;\n  --abyss: #0a1428;\n  --deep: #091a26;\n  --slate: #1e2328;\n  --slate-2: #1e282d;\n\n  --gold-1: #f0e6d2;\n  --gold-2: #c8aa6e;\n  --gold-3: #c89b3c;\n  --gold-4: #785a28;\n  --gold-5: #463714;\n  --gold-glow: rgba(200, 170, 110, 0.18);\n\n  --blue-1: #cdfafa;\n  --blue-2: #0ac8b9;\n  --blue-3: #0397ab;\n  --blue-4: #005a82;\n  --blue-glow: rgba(10, 200, 185, 0.22);\n\n  --grey-1: #a09b8c;\n  --grey-2: #5b5a56;\n  --grey-3: #3c3c41;\n\n  --red: #e84057;\n  --red-glow: rgba(232, 64, 87, 0.2);\n\n  --line: rgba(200, 170, 110, 0.16);\n  --line-strong: rgba(200, 170, 110, 0.38);\n\n  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);\n  --fast: 0.14s var(--ease);\n  --normal: 0.24s var(--ease);\n}\n\n/* ===== BASE ===== */\n* { box-sizing: border-box; }\n[hidden] { display: none !important; }\nbody { margin: 0; user-select: none; cursor: default; }\ninput { user-select: text; }\nimg { -webkit-user-drag: none; }\nbutton, input { font: inherit; color: inherit; border: 0; background: none; }\nbutton { cursor: pointer; padding: 0; }\nbutton:disabled { cursor: default; }\nbutton:focus-visible, input:focus-visible { outline: 1px solid var(--blue-2); outline-offset: 2px; }\nsvg { display: block; }\n\n/* Icônes trait (header, panneaux, formulaire) */\n.header-actions svg, .panel-header svg, form button svg, .kick-friend svg, .ready-popup header svg {\n  width: 14px; height: 14px;\n  fill: none; stroke: currentColor; stroke-width: 1.7;\n  stroke-linecap: round; stroke-linejoin: round;\n}\n\n/* ===== CADRE DU WIDGET ===== */\n.widget-body, .ready-body {\n  height: 100%;\n  padding: 6px;\n  overflow: hidden;\n  background: transparent;\n}\n\n.widget {\n  --accent: var(--gold-2);\n  --accent-soft: var(--gold-glow);\n  height: 100%;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  padding: 0 12px 12px;\n  overflow: hidden;\n  border: 1px solid var(--gold-5);\n  border-radius: 6px;\n  background:\n    radial-gradient(120% 70% at 50% -10%, rgba(10, 200, 185, 0.09), transparent 60%),\n    linear-gradient(180deg, var(--abyss) 0%, var(--void) 78%);\n  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);\n  transition: border-color var(--normal), box-shadow var(--normal);\n}\n\n/* Ornement doré en haut */\n.widget::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 96px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--accent), transparent);\n  pointer-events: none;\n  transition: background var(--normal);\n}\n\n.widget[data-phase=\"Matchmaking\"] { --accent: var(--blue-2); --accent-soft: var(--blue-glow); border-color: var(--blue-4); }\n.widget[data-phase=\"ReadyCheck\"] { --accent: var(--gold-1); border-color: var(--gold-3); box-shadow: 0 0 0 1px var(--gold-4), 0 0 18px var(--gold-glow), 0 10px 24px rgba(0, 0, 0, 0.55); }\n.widget[data-phase=\"ChampSelect\"], .widget[data-phase=\"Reconnect\"] { --accent: var(--blue-2); border-color: var(--blue-3); }\n.widget[data-phase=\"Disconnected\"] { --accent: var(--red); border-color: #4a1c24; }\n.widget[data-phase=\"InProgress\"] .players { opacity: 0.7; }\n\n/* ===== HEADER ===== */\n.header {\n  position: relative;\n  height: 32px;\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n\n/* Barre de recherche animée sous le header */\n.header::after {\n  content: \"\";\n  position: absolute;\n  left: -12px; right: -12px; bottom: 0;\n  height: 1px;\n  background: var(--line);\n}\n.widget[data-phase=\"Matchmaking\"] .header::after {\n  background: linear-gradient(90deg, transparent 0%, var(--blue-2) 50%, transparent 100%) no-repeat, var(--line);\n  background-size: 40% 100%, 100% 100%;\n  animation: scan 1.8s linear infinite;\n}\n@keyframes scan { from { background-position: -80% 0, 0 0; } to { background-position: 180% 0, 0 0; } }\n\n.drag-handle button { -webkit-app-region: no-drag; }\n\n.queue-badge {\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  font-family: var(--font-display);\n  font-size: 9.5px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  color: var(--gold-2);\n  transition: color var(--fast);\n}\n\n.badge-gem {\n  width: 7px; height: 7px;\n  transform: rotate(45deg);\n  border: 1px solid currentColor;\n  background: transparent;\n  transition: background var(--fast), box-shadow var(--fast);\n}\n\n.queue-badge.active { color: var(--blue-1); }\n.queue-badge.active .badge-gem { background: var(--blue-2); border-color: var(--blue-2); box-shadow: 0 0 8px var(--blue-2); animation: pulse 1.4s ease-in-out infinite; }\n.queue-badge.warning { color: var(--gold-1); }\n.queue-badge.warning .badge-gem { background: var(--gold-2); border-color: var(--gold-2); box-shadow: 0 0 8px var(--gold-2); }\n.widget[data-phase=\"Disconnected\"] .queue-badge { color: var(--grey-1); }\n\n.queue-timer {\n  margin-left: auto;\n  font-size: 12px;\n  font-weight: 600;\n  font-variant-numeric: tabular-nums;\n  letter-spacing: 0.4px;\n  color: var(--blue-1);\n  text-shadow: 0 0 10px var(--blue-glow);\n}\n.queue-timer.countdown { color: var(--gold-1); text-shadow: 0 0 10px var(--gold-glow); }\n\n.header-actions {\n  display: flex;\n  gap: 2px;\n  margin-left: auto;\n  margin-right: -4px;\n  -webkit-app-region: no-drag;\n}\n.queue-timer:not([hidden]) + .header-actions { margin-left: 4px; }\n\n.header-actions button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: color var(--fast), background var(--fast);\n}\n.header-actions button:hover:not(:disabled) { color: var(--gold-1); background: rgba(200, 170, 110, 0.08); }\n.header-actions button:disabled { color: var(--grey-3); }\n#close-widget:hover { color: var(--red) !important; background: var(--red-glow) !important; }\n\n@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }\n\n/* ===== CHOIX DU MODE DE JEU ===== */\n.queue-button {\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  flex-shrink: 0;\n  height: 24px;\n  margin-left: -5px;\n  padding: 0 5px;\n  border-radius: 3px;\n  font: inherit;\n  letter-spacing: inherit;\n  text-transform: inherit;\n  color: inherit;\n  -webkit-app-region: no-drag;\n  transition: background var(--fast), color var(--fast);\n}\n.queue-button:hover:not(:disabled), .queue-button[aria-expanded=\"true\"] { background: rgba(200, 170, 110, 0.1); color: var(--gold-1); }\n.queue-button:disabled { cursor: default; }\n.queue-button .chevron { width: 10px; height: 10px; margin-left: -3px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0.7; }\n.queue-button:disabled .chevron { display: none; }\n\n.queue-options {\n  flex: 1;\n  min-height: 0;\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  grid-auto-rows: 48px;\n  gap: 6px;\n  align-content: start;\n  margin: 0 -6px;\n  padding: 0 2px 0 6px;\n  overflow-y: auto;\n  scrollbar-gutter: stable;\n}\n.queue-options::-webkit-scrollbar { width: 4px; }\n.queue-options::-webkit-scrollbar-thumb { background: var(--gold-5); border-radius: 2px; }\n.queue-options .empty-list { grid-column: 1 / -1; }\n.queue-option {\n  position: relative;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 9px;\n  padding: 0 8px;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: linear-gradient(180deg, rgba(30, 35, 40, 0.5), rgba(1, 10, 19, 0.75));\n  text-align: left;\n  transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);\n}\n.mode-icon {\n  flex-shrink: 0;\n  width: 28px; height: 28px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-5);\n  border-radius: 50%;\n  background: radial-gradient(circle at 50% 35%, rgba(200, 170, 110, 0.14), rgba(1, 10, 19, 0.6));\n  color: var(--gold-3);\n  transition: var(--fast);\n}\n.mode-icon svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }\n.mode-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }\n.mode-text b {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-family: var(--font-display);\n  font-size: 12px;\n  font-weight: 700;\n  color: var(--gold-1);\n}\n.mode-text small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; color: var(--grey-1); }\n.mode-text small .ranked { color: var(--gold-2); }\n.queue-option:hover:not(:disabled) { border-color: var(--gold-4); background: linear-gradient(180deg, rgba(200, 170, 110, 0.1), rgba(1, 10, 19, 0.75)); }\n.queue-option:hover:not(:disabled) .mode-icon { border-color: var(--gold-3); color: var(--gold-1); }\n.queue-option[aria-pressed=\"true\"] {\n  border-color: var(--gold-2);\n  background: linear-gradient(180deg, rgba(200, 170, 110, 0.2), rgba(200, 170, 110, 0.04));\n  box-shadow: inset 0 0 12px var(--gold-glow);\n}\n.queue-option[aria-pressed=\"true\"] .mode-icon { border-color: var(--gold-2); background: var(--gold-2); color: var(--void); }\n.queue-option.locked { opacity: 0.5; }\n.queue-option.locked small { color: var(--red); }\n\n/* ===== DISPOSITIONS : GROUPE ET ARENA ===== */\n.widget[data-positions=\"off\"] .role-slots { display: none; }\n.party-slots { display: contents; }\n.widget[data-layout=\"party\"] .players { justify-content: space-between; }\n.widget[data-layout=\"party\"] .player { width: 80px; }\n.widget[data-layout=\"party\"] .link, .widget[data-layout=\"arena\"] .link { display: none; }\n.widget[data-layout=\"arena\"] .players { justify-content: center; gap: 22px; }\n.widget[data-layout=\"arena\"] .player { width: 88px; }\n.party-member .portrait { background: radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box, linear-gradient(160deg, var(--gold-1) 0%, var(--gold-2) 35%, var(--gold-4) 100%) border-box; }\n.party-member img, .chip-seat img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }\n.party-member .portrait svg { fill: var(--grey-2); }\n.slot-empty { position: absolute; inset: 7px; border: 1px dashed var(--grey-3); border-radius: 50%; }\n\n/* Autres équipes Arena : pastilles cliquables */\n.arena-grid {\n  flex-shrink: 0;\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px;\n  margin: -4px -12px 10px;\n  padding: 6px 12px 0;\n  border-top: 1px solid var(--line);\n}\n.strip-title {\n  width: 100%;\n  font-family: var(--font-display);\n  font-size: 7.5px;\n  font-weight: 700;\n  letter-spacing: 1.6px;\n  text-transform: uppercase;\n  color: var(--grey-2);\n}\n.team-chip {\n  height: 30px;\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  padding: 0 9px 0 4px;\n  border: 1px solid var(--line);\n  border-radius: 15px;\n  background: rgba(1, 10, 19, 0.6);\n  transition: var(--fast);\n}\n.chip-number {\n  width: 20px; height: 20px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  color: var(--gold-2);\n}\n.chip-seats { display: flex; gap: 3px; }\n.chip-seat {\n  width: 18px; height: 18px;\n  overflow: hidden;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: radial-gradient(circle at 50% 30%, #16283a, var(--void));\n}\n.chip-seat svg { width: 100%; height: 100%; padding: 3px 3px 1px; fill: var(--grey-2); }\n.chip-seat.open { border: 1px dashed var(--grey-3); background: none; }\n.chip-label { font-size: 9.5px; color: var(--grey-1); }\n.team-chip.new .chip-number { border-style: dashed; color: var(--grey-1); }\n.team-chip:hover:not(:disabled) { border-color: var(--blue-3); background: rgba(10, 200, 185, 0.08); box-shadow: 0 0 10px var(--blue-glow); }\n.team-chip:hover:not(:disabled) .chip-seat.open { border-color: var(--blue-2); background: rgba(10, 200, 185, 0.18); }\n.team-chip:hover:not(:disabled) .chip-label { color: var(--blue-1); }\n.team-chip:disabled { opacity: 0.5; }\n\n/* ===== SÉLECTION DES CHAMPIONS ===== */\n.widget[data-layout=\"champselect\"] #players,\n.widget[data-layout=\"champselect\"] #play,\n.widget[data-layout=\"champselect\"] #arena-grid { display: none !important; }\n.champ-select { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }\n\n/* Barre de temps sur toute la largeur */\n.cs-timer { flex-shrink: 0; height: 3px; overflow: hidden; border-radius: 2px; background: rgba(200, 170, 110, 0.1); }\n.cs-timer span { display: block; height: 100%; width: 100%; margin: 0 auto; background: var(--grey-1); transition: width 0.5s linear, background var(--normal); }\n.cs-timer[data-state=\"mine\"] span { background: linear-gradient(90deg, var(--blue-3), var(--blue-2), var(--blue-3)); box-shadow: 0 0 8px var(--blue-2); }\n.cs-timer[data-state=\"ban\"] span { background: var(--red); box-shadow: 0 0 8px var(--red); }\n.cs-timer.urgent span { background: var(--red); }\n\n.cs-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 148px minmax(0, 1fr) 148px; gap: 12px; }\n.cs-body.solo { grid-template-columns: 148px minmax(0, 1fr); }\n.cs-side { min-height: 0; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }\n.cs-team { display: flex; flex-direction: column; gap: 4px; }\n.cs-title { display: block; font-family: var(--font-display); font-size: 7.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--grey-2); }\n\n/* Joueurs : portrait rond + poste, nom, champion, sorts */\n.cs-player { position: relative; display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 6px; border-radius: 3px; background: linear-gradient(90deg, rgba(1, 10, 19, 0.7), rgba(1, 10, 19, 0.2)); transition: var(--fast); }\n.enemies .cs-player { flex-direction: row-reverse; text-align: right; background: linear-gradient(270deg, rgba(1, 10, 19, 0.7), rgba(1, 10, 19, 0.2)); }\n.cs-player::before { content: \"\"; position: absolute; top: 6px; bottom: 6px; width: 2px; border-radius: 1px; background: transparent; transition: var(--fast); }\n.allies .cs-player::before { left: 0; }\n.enemies .cs-player::before { right: 0; }\n.cs-player.local { background: linear-gradient(90deg, rgba(200, 170, 110, 0.16), rgba(1, 10, 19, 0.2)); }\n.cs-player.local::before { background: var(--gold-2); }\n.cs-player.acting::before { background: var(--blue-2); box-shadow: 0 0 8px var(--blue-2); }\n.enemies .cs-player.acting::before { background: var(--red); box-shadow: 0 0 8px var(--red); }\n.cs-player.acting { background: linear-gradient(90deg, rgba(10, 200, 185, 0.12), rgba(1, 10, 19, 0.2)); }\n.enemies .cs-player.acting { background: linear-gradient(270deg, rgba(232, 64, 87, 0.12), rgba(1, 10, 19, 0.2)); }\n.cs-portrait { flex-shrink: 0; position: relative; width: 38px; height: 38px; border: 1px solid var(--grey-3); border-radius: 50%; background: radial-gradient(circle at 50% 30%, #16283a, var(--void)); }\n.cs-portrait > img:not(.cs-role-badge) { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }\n.cs-player.locked .cs-portrait { border-color: var(--gold-2); box-shadow: 0 0 6px var(--gold-glow); }\n.enemies .cs-player.locked .cs-portrait { border-color: #8a3040; box-shadow: none; }\n.cs-player.acting .cs-portrait { border-color: var(--blue-2); }\n.cs-portrait.hover > img:not(.cs-role-badge) { opacity: 0.45; filter: grayscale(0.5); }\n.cs-role-badge { position: absolute; right: -4px; bottom: -3px; width: 16px; height: 16px; padding: 2px; border: 1px solid var(--gold-5); border-radius: 50%; background: var(--void); }\n.enemies .cs-role-badge { right: auto; left: -4px; }\n.cs-player-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }\n.cs-player-text b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 10.5px; font-weight: 600; color: var(--gold-1); }\n.cs-player-text small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; color: var(--grey-1); }\n.cs-player.acting .cs-player-text small { color: var(--blue-1); }\n.enemies .cs-player.acting .cs-player-text small { color: #f19aa6; }\n.cs-player-spells { flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; }\n.cs-mini-spell { width: 15px; height: 15px; overflow: hidden; border-radius: 2px; background: rgba(1, 10, 19, 0.8); outline: 1px solid var(--gold-5); }\n.cs-mini-spell img { width: 100%; height: 100%; }\n\n/* Bannissements sous chaque équipe */\n.cs-bans { display: flex; gap: 4px; padding: 0 4px; }\n.enemies .cs-bans { justify-content: flex-end; }\n.cs-ban { position: relative; width: 22px; height: 22px; overflow: hidden; border: 1px solid var(--grey-3); border-radius: 50%; background: rgba(1, 10, 19, 0.6); }\n.cs-ban img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); opacity: 0.75; }\n.cs-ban:not(.empty)::after { content: \"\"; position: absolute; left: -2px; right: -2px; top: 50%; height: 1.5px; background: var(--red); transform: rotate(-45deg); }\n.cs-ban.empty { border-style: dashed; }\n\n/* Grille : icônes rondes, nom au survol */\n.cs-picker { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 8px; }\n.cs-filters { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }\n.cs-roles { display: flex; gap: 2px; }\n.cs-role { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; opacity: 0.45; transition: var(--fast); }\n.cs-role img { width: 16px; height: 16px; }\n.cs-role:hover { opacity: 0.85; background: rgba(200, 170, 110, 0.08); }\n.cs-role[aria-pressed=\"true\"] { opacity: 1; background: rgba(200, 170, 110, 0.14); box-shadow: inset 0 0 0 1px var(--gold-4); }\n#cs-search { flex: 1; min-width: 0; height: 26px; }\n.cs-grid {\n  flex: 1;\n  min-height: 0;\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));\n  grid-auto-rows: 50px;\n  gap: 2px;\n  align-content: start;\n  justify-items: center;\n  margin-right: -6px;\n  padding: 2px 4px 2px 0;\n  overflow-y: auto;\n  scrollbar-gutter: stable;\n}\n.cs-grid::-webkit-scrollbar, .cs-bench::-webkit-scrollbar { width: 4px; }\n.cs-grid::-webkit-scrollbar-thumb, .cs-bench::-webkit-scrollbar-thumb { background: var(--gold-5); border-radius: 2px; }\n.cs-grid .empty-list { grid-column: 1 / -1; justify-self: stretch; }\n.cs-champ { position: relative; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; transition: var(--fast); }\n.cs-champ img { width: 42px; height: 42px; border: 1px solid var(--gold-5); border-radius: 50%; object-fit: cover; transition: var(--fast); }\n.cs-champ:hover:not(:disabled) img { border-color: var(--gold-2); transform: scale(1.06); box-shadow: 0 0 8px var(--gold-glow); }\n.cs-champ.favorite::after { content: \"\"; position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; transform: rotate(45deg); border: 1px solid var(--void); background: var(--gold-2); }\n.cs-champ.selected img { border: 2px solid var(--blue-2); box-shadow: 0 0 12px var(--blue-glow); }\n.cs-champ.taken img { filter: grayscale(1); opacity: 0.3; }\n.cs-champ:disabled { cursor: default; }\n\n/* Pied : champion choisi, sorts, runes, bouton */\n.cs-footer { flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }\n.cs-pick { flex: 0 0 168px; min-width: 0; display: flex; align-items: center; gap: 10px; margin-right: 4px; }\n.cs-pick-portrait { flex-shrink: 0; width: 42px; height: 42px; overflow: hidden; border: 1px solid var(--grey-3); border-radius: 50%; background: radial-gradient(circle at 50% 30%, #16283a, var(--void)); transition: var(--fast); }\n.cs-pick-portrait img { width: 100%; height: 100%; object-fit: cover; }\n.cs-pick.locked .cs-pick-portrait { border: 2px solid var(--gold-2); box-shadow: 0 0 12px var(--gold-glow); }\n.cs-pick.ban .cs-pick-portrait { border-color: var(--red); box-shadow: 0 0 10px var(--red-glow); }\n.cs-pick-text { min-width: 0; display: flex; flex-direction: column; }\n.cs-pick-text b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--gold-1); }\n.cs-pick-text small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9.5px; color: var(--grey-1); }\n.cs-pick.ban .cs-pick-text small { color: #f19aa6; }\n.cs-spell { flex-shrink: 0; width: 36px; height: 36px; overflow: hidden; border: 1px solid var(--gold-4); border-radius: 3px; background: rgba(1, 10, 19, 0.7); transition: var(--fast); }\n.cs-spell img { width: 100%; height: 100%; object-fit: cover; }\n.cs-spell:hover:not(:disabled) { border-color: var(--gold-2); box-shadow: 0 0 8px var(--gold-glow); }\n.cs-action {\n  flex: 1;\n  min-width: 0;\n  height: 38px;\n  margin-left: 4px;\n  padding: 0 10px;\n  overflow: hidden;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-family: var(--font-display);\n  font-size: 11.5px;\n  font-weight: 700;\n  letter-spacing: 1.4px;\n  text-transform: uppercase;\n  color: var(--grey-2);\n  background: linear-gradient(180deg, var(--slate), var(--void)) padding-box, linear-gradient(var(--grey-3), var(--grey-3)) border-box;\n  transition: var(--normal);\n}\n.cs-action.ready {\n  color: var(--void);\n  background: linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box, linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n  box-shadow: 0 0 14px var(--gold-glow);\n}\n.cs-action.ready.ban {\n  color: #fff;\n  background: linear-gradient(180deg, #b8323f, #6e1d29) padding-box, linear-gradient(180deg, var(--red), #6e1d29) border-box;\n  box-shadow: 0 0 14px var(--red-glow);\n}\n.cs-action.ready:hover:not(:disabled) { filter: brightness(1.08); }\n\n.spell-options { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); grid-auto-rows: 64px; gap: 6px; align-content: start; overflow-y: auto; }\n.spell-option { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 6px; border: 1px solid transparent; border-radius: 3px; transition: var(--fast); }\n.spell-option img { width: 34px; height: 34px; border: 1px solid var(--gold-5); border-radius: 3px; }\n.spell-option span { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; color: var(--grey-1); }\n.spell-option:hover { border-color: var(--gold-4); background: rgba(200, 170, 110, 0.07); }\n.spell-option[aria-pressed=\"true\"] { border-color: var(--gold-2); background: rgba(200, 170, 110, 0.14); }\n.spell-option[aria-pressed=\"true\"] span { color: var(--gold-1); }\n\n/* ARAM et échanges */\n.cs-aram { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }\n.cs-aram-main { display: flex; align-items: center; gap: 14px; padding: 10px; border: 1px solid var(--gold-4); border-radius: 3px; background: linear-gradient(90deg, rgba(200, 170, 110, 0.12), rgba(1, 10, 19, 0.5)); }\n.cs-aram-portrait { flex-shrink: 0; width: 76px; height: 76px; overflow: hidden; border: 2px solid var(--gold-2); border-radius: 50%; background: radial-gradient(circle at 50% 30%, #16283a, var(--void)); box-shadow: 0 0 14px var(--gold-glow); }\n.cs-aram-portrait img { width: 100%; height: 100%; object-fit: cover; }\n.cs-aram-text { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }\n.cs-aram-text b { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--gold-1); }\n.cs-reroll { height: 26px; padding: 0 12px; border: 1px solid var(--blue-3); border-radius: 13px; background: rgba(10, 200, 185, 0.08); font-size: 10px; font-weight: 600; color: var(--blue-1); transition: var(--fast); }\n.cs-reroll:hover:not(:disabled) { box-shadow: 0 0 10px var(--blue-glow); }\n.cs-reroll:disabled { border-color: var(--grey-3); background: none; color: var(--grey-2); }\n.cs-bench { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); grid-auto-rows: 50px; gap: 2px; justify-items: center; align-content: start; overflow-y: auto; }\n.cs-bench .empty-list { grid-column: 1 / -1; justify-self: stretch; padding: 10px 0; }\n.cs-swap { flex-shrink: 0; position: relative; display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 6px 0 12px; border: 1px solid var(--gold-4); border-radius: 3px; background: linear-gradient(90deg, rgba(200, 170, 110, 0.16), rgba(200, 170, 110, 0) 70%), var(--abyss); animation: sheet-in 0.2s var(--ease); }\n.cs-swap::before { content: \"\"; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--gold-2); box-shadow: 0 0 8px var(--gold-2); }\n.cs-swap span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 10.5px; color: var(--gold-1); }\n.cs-swap button { flex-shrink: 0; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 3px; }\n.cs-swap svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n\n/* ===== RUNES ===== */\n.cs-runes {\n  flex-shrink: 1;\n  min-width: 0;\n  max-width: 140px;\n  height: 36px;\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  padding: 0 10px 0 4px;\n  border: 1px solid var(--gold-4);\n  border-radius: 18px;\n  background: rgba(1, 10, 19, 0.7);\n  font-size: 10.5px;\n  font-weight: 600;\n  color: var(--gold-1);\n  transition: var(--fast);\n}\n.cs-runes img { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; }\n.cs-runes span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }\n.cs-runes:hover { border-color: var(--gold-2); box-shadow: 0 0 8px var(--gold-glow); }\n\n.runes-panel { gap: 8px; }\n.runes-panel .panel-header { margin-bottom: 0; }\n.runes-panel .panel-title { flex: 1; }\n.rune-label { display: block; font-family: var(--font-display); font-size: 7.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--grey-2); }\n\n/* Pages : menu déroulant dans l'en-tête */\n.rune-page-picker { position: relative; -webkit-app-region: no-drag; }\n.panel-header .rune-page-button { width: auto; max-width: 200px; height: 26px; display: flex; align-items: center; gap: 6px; padding: 0 8px 0 12px; border: 1px solid var(--gold-4); border-radius: 13px; background: rgba(1, 10, 19, 0.7); font-size: 10.5px; font-weight: 600; color: var(--gold-1); }\n.rune-page-button span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }\n.panel-header .rune-page-button svg { width: 12px; height: 12px; flex-shrink: 0; transition: transform var(--fast); }\n.rune-page-button[aria-expanded=\"true\"] { border-color: var(--gold-2); }\n.rune-page-button[aria-expanded=\"true\"] svg { transform: rotate(180deg); }\n.rune-pages { position: absolute; top: calc(100% + 4px); right: 0; z-index: 5; width: 200px; max-height: 230px; display: flex; flex-direction: column; padding: 4px; overflow-y: auto; border: 1px solid var(--gold-4); border-radius: 4px; background: linear-gradient(180deg, var(--abyss), var(--void)); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6); animation: sheet-in 0.16s var(--ease); }\n.panel-header .rune-page { width: 100%; height: 28px; flex-shrink: 0; display: block; padding: 0 10px; overflow: hidden; border-radius: 3px; white-space: nowrap; text-overflow: ellipsis; text-align: left; font-size: 10.5px; color: var(--grey-1); }\n.panel-header .rune-page:hover { color: var(--gold-1); background: rgba(200, 170, 110, 0.08); }\n.panel-header .rune-page[aria-pressed=\"true\"] { color: var(--gold-1); background: rgba(200, 170, 110, 0.16); box-shadow: inset 2px 0 0 var(--gold-2); }\n.panel-header .rune-page.locked { color: var(--grey-2); }\n.panel-header .rune-page.new { margin-top: 3px; border-top: 1px solid var(--line); border-radius: 0 0 3px 3px; color: var(--blue-1); }\n\n/* Recommandations : cartes clé de voûte + nom */\n.rune-recos { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }\n.rune-recos .rune-label { flex: 0 0 92px; line-height: 1.5; }\n.rune-recos.empty .rune-label { flex: 1; }\n.rune-reco { --tree: var(--gold-2); --tree-2: var(--gold-4); min-width: 0; flex: 1 1 0; max-width: 200px; height: 42px; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 4px; border: 1px solid color-mix(in srgb, var(--tree) 45%, transparent); border-radius: 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--tree) 18%, transparent), rgba(1, 10, 19, 0.4)); text-align: left; transition: var(--fast); }\n.rune-reco img { flex-shrink: 0; width: 34px; height: 34px; }\n.rune-reco-text { min-width: 0; display: flex; flex-direction: column; }\n.rune-reco-text b { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 10.5px; font-weight: 600; color: var(--gold-1); }\n.rune-reco-text small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9px; color: var(--tree); }\n.rune-reco:hover { border-color: var(--tree); box-shadow: 0 0 12px color-mix(in srgb, var(--tree) 35%, transparent); }\n\n/* Arbres côte à côte, couleur de l'arbre */\n.rune-editor { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }\n.rune-col { --tree: var(--gold-2); min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--tree) 22%, transparent); border-radius: 4px; background: linear-gradient(180deg, color-mix(in srgb, var(--tree) 10%, transparent), rgba(1, 10, 19, 0.35) 60%); transition: border-color var(--normal); }\n.rune-styles { display: flex; gap: 6px; }\n.rune-style { --tree: var(--gold-2); width: 26px; height: 26px; padding: 3px; border: 1px solid var(--line); border-radius: 50%; opacity: 0.4; transition: var(--fast); }\n.rune-style img { width: 100%; height: 100%; }\n.rune-style:hover { opacity: 0.8; }\n.rune-style[aria-pressed=\"true\"] { opacity: 1; border-color: var(--tree); box-shadow: 0 0 8px color-mix(in srgb, var(--tree) 45%, transparent); }\n.rune-tree { display: flex; flex-direction: column; gap: 3px; }\n.rune-tree-name { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 0.6px; color: var(--tree); }\n.rune-row { display: flex; align-items: center; gap: 8px; min-height: 28px; }\n.rune-icons { flex-shrink: 0; display: flex; align-items: center; gap: 5px; }\n.rune-chosen { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9.5px; font-weight: 600; color: var(--gold-1); }\n.rune-chosen.empty { font-weight: 400; color: var(--grey-3); }\n.rune-perk { flex-shrink: 0; width: 26px; height: 26px; overflow: hidden; border: 1px solid transparent; border-radius: 50%; filter: grayscale(1) brightness(0.6); transition: var(--fast); }\n.rune-perk img { width: 100%; height: 100%; }\n.rune-perk.keystone { width: 34px; height: 34px; }\n.rune-row.keystones { min-height: 36px; }\n.rune-perk.shard { width: 18px; height: 18px; }\n.rune-row.shards { min-height: 20px; }\n.rune-row.shards .rune-chosen { font-size: 9px; font-weight: 400; color: var(--grey-1); }\n.rune-perk:hover { filter: grayscale(0.2) brightness(0.95); }\n.rune-perk[aria-pressed=\"true\"] { filter: none; border-color: var(--tree); box-shadow: 0 0 8px color-mix(in srgb, var(--tree) 50%, transparent); }\n.rune-tree.shards { padding-top: 5px; border-top: 1px solid var(--line); }\n\n/* Description de la rune survolée */\n.rune-info { flex-shrink: 0; height: 42px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: 4px; background: rgba(1, 10, 19, 0.55); }\n.rune-info > img { flex-shrink: 0; width: 30px; height: 30px; }\n.rune-info-text { min-width: 0; display: flex; flex-direction: column; gap: 1px; }\n.rune-info-text b { font-size: 10.5px; font-weight: 600; color: var(--gold-1); }\n.rune-info-text p { margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 9.5px; line-height: 1.3; color: var(--grey-1); }\n.rune-info-empty { font-size: 9.5px; color: var(--grey-2); }\n\n.rune-footer { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }\n#rune-name { flex: 0 0 180px; height: 28px; }\n.rune-hint { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 9.5px; color: var(--grey-1); }\n.rune-save {\n  flex-shrink: 0;\n  height: 30px;\n  padding: 0 16px;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  font-family: var(--font-display);\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 1.4px;\n  text-transform: uppercase;\n  color: var(--void);\n  background: linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box, linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n}\n.rune-save:disabled { color: var(--grey-2); background: linear-gradient(180deg, var(--slate), var(--void)) padding-box, linear-gradient(var(--grey-3), var(--grey-3)) border-box; }\n\n/* ===== INVITATION REÇUE ===== */\n.invite-toast {\n  position: absolute;\n  top: 0; left: 0; right: 0;\n  z-index: 4;\n  height: 32px;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 0 7px 0 12px;\n  border-bottom: 1px solid var(--gold-4);\n  background:\n    linear-gradient(90deg, rgba(200, 170, 110, 0.16), rgba(200, 170, 110, 0) 70%),\n    var(--abyss);\n  -webkit-app-region: drag;\n  user-select: none;\n  animation: invite-in 0.28s var(--ease);\n}\n.invite-toast::before {\n  content: \"\";\n  position: absolute;\n  left: 0; top: 0; bottom: 0;\n  width: 2px;\n  background: var(--gold-2);\n  box-shadow: 0 0 8px var(--gold-2);\n}\n/* Animations sans opacité : si Chromium les fige (fenêtre recouverte), le contenu reste visible. */\n@keyframes invite-in { from { transform: translateY(-60%); } to { transform: none; } }\n.widget.has-invite { border-color: var(--gold-4); }\n\n.invite-avatar {\n  flex-shrink: 0;\n  width: 20px; height: 20px;\n  overflow: hidden;\n  border: 1px solid var(--gold-3);\n  border-radius: 50%;\n  background: radial-gradient(circle at 50% 30%, #16283a, var(--void));\n}\n.invite-avatar img { width: 100%; height: 100%; object-fit: cover; }\n.invite-text {\n  flex: 1;\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-size: 10.5px;\n  color: var(--grey-1);\n}\n.invite-text b { font-weight: 600; color: var(--gold-1); }\n.invite-queue { color: var(--gold-2); }\n.invite-more {\n  flex-shrink: 0;\n  padding: 0 4px;\n  border: 1px solid var(--gold-4);\n  border-radius: 7px;\n  font-size: 8.5px;\n  line-height: 12px;\n  color: var(--gold-2);\n}\n.invite-toast button {\n  flex-shrink: 0;\n  width: 22px; height: 22px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  -webkit-app-region: no-drag;\n  transition: var(--fast);\n}\n.invite-toast svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }\n.invite-decline { color: var(--grey-1); }\n.invite-decline:hover:not(:disabled) { color: var(--red); background: var(--red-glow); }\n.invite-accept { color: var(--void); background: linear-gradient(180deg, var(--blue-1), var(--blue-2)); }\n.invite-accept:hover:not(:disabled) { box-shadow: 0 0 10px var(--blue-glow); }\n.invite-toast button:disabled { opacity: 0.45; }\n\n/* ===== JOUEURS ===== */\n.players {\n  flex-shrink: 0;\n  flex: 1;\n  min-height: 0;\n  display: flex;\n  justify-content: center;\n  align-items: flex-start;\n  padding-top: 12px;\n  transition: opacity var(--normal);\n}\n\n.player {\n  width: 100px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n\n.portrait-frame {\n  position: relative;\n  width: 58px; height: 58px;\n}\n\n.portrait {\n  position: absolute;\n  inset: 0;\n  display: grid;\n  place-items: center;\n  overflow: hidden;\n  border-radius: 50%;\n  border: 2px solid transparent;\n  background:\n    radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box,\n    linear-gradient(180deg, var(--grey-2), var(--grey-3)) border-box;\n  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);\n  transition: box-shadow var(--normal);\n}\n.portrait.connected, #duo-portrait {\n  background:\n    radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box,\n    linear-gradient(160deg, var(--gold-1) 0%, var(--gold-2) 35%, var(--gold-4) 100%) border-box;\n  box-shadow: 0 0 0 3px rgba(1, 10, 19, 0.9), 0 0 0 4px var(--gold-5), 0 4px 16px rgba(0, 0, 0, 0.55);\n}\n.widget[data-phase=\"Matchmaking\"] .portrait.connected {\n  box-shadow: 0 0 0 3px rgba(1, 10, 19, 0.9), 0 0 0 4px var(--blue-4), 0 0 16px var(--blue-glow);\n}\n\n.portrait img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }\n.portrait svg { width: 100%; height: 100%; padding: 13px 13px 9px; fill: var(--grey-2); }\n\n.connection-dot {\n  position: absolute;\n  top: 1px; right: 1px;\n  width: 11px; height: 11px;\n  border: 2px solid var(--void);\n  border-radius: 50%;\n  background: var(--grey-2);\n  z-index: 2;\n}\n.connection-dot.online { background: var(--blue-2); box-shadow: 0 0 6px var(--blue-2); }\n.connection-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }\n.connection-dot.starting { background: var(--gold-2); animation: pulse 1.2s ease-in-out infinite; }\n\n.level {\n  position: absolute;\n  left: 50%; bottom: -6px;\n  transform: translateX(-50%);\n  z-index: 2;\n  min-width: 26px;\n  height: 14px;\n  padding: 0 5px;\n  border: 1px solid var(--gold-4);\n  border-radius: 7px;\n  background: var(--void);\n  color: var(--gold-1);\n  font-size: 8.5px;\n  font-weight: 600;\n  line-height: 12px;\n  text-align: center;\n  font-variant-numeric: tabular-nums;\n}\n\n.player-name, .invite-label {\n  display: block;\n  max-width: 100%;\n  height: 14px;\n  margin-top: 10px;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  line-height: 14px;\n  text-align: center;\n}\n.player-name { font-size: 11px; font-weight: 600; color: var(--gold-1); }\n.widget[data-phase=\"Disconnected\"] #summoner-name { color: var(--grey-1); font-weight: 400; }\n.invite-label {\n  font-family: var(--font-display);\n  font-size: 8.5px;\n  font-weight: 700;\n  letter-spacing: 2px;\n  text-transform: uppercase;\n  color: var(--grey-2);\n  pointer-events: none;\n}\n\n/* Lien entre les deux joueurs */\n.link {\n  width: 36px; height: 58px;\n  display: grid; place-items: center;\n  position: relative;\n}\n.link::before {\n  content: \"\";\n  position: absolute;\n  left: 2px; right: 2px; top: 50%;\n  height: 1px;\n  background: linear-gradient(90deg, transparent, var(--gold-5), transparent);\n  transition: background var(--normal);\n}\n.link i {\n  width: 7px; height: 7px;\n  transform: rotate(45deg);\n  border: 1px solid var(--gold-4);\n  background: var(--void);\n  z-index: 1;\n  transition: var(--normal);\n}\n.players:has(.has-partner) .link::before { background: linear-gradient(90deg, var(--gold-4), var(--gold-2), var(--gold-4)); }\n.players:has(.has-partner) .link i { background: var(--gold-2); border-color: var(--gold-1); box-shadow: 0 0 8px var(--gold-glow); }\n\n/* Rôles */\n.role-slots {\n  display: flex;\n  gap: 4px;\n  margin-top: 5px;\n}\n.role-slot {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: rgba(1, 10, 19, 0.6);\n  transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);\n}\n.role-slot img { width: 16px; height: 16px; object-fit: contain; pointer-events: none; }\n.secondary-slot img { opacity: 0.6; }\nbutton.role-slot:hover:not(:disabled), .role-slot[aria-expanded=\"true\"] {\n  border-color: var(--gold-2);\n  background: rgba(200, 170, 110, 0.1);\n  box-shadow: 0 0 8px var(--gold-glow);\n}\nbutton.role-slot:disabled { opacity: 0.55; }\n.role-slot.draft { border-style: dashed; border-color: var(--gold-3); }\n\n/* Slot duo */\n.add-friend {\n  position: absolute;\n  inset: 0;\n  display: grid; place-items: center;\n  border-radius: 50%;\n  border: 1px dashed var(--gold-4);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.05), transparent 70%);\n  color: var(--gold-3);\n  -webkit-app-region: no-drag;\n  transition: var(--normal);\n}\n.add-friend svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }\n.add-friend:hover:not(:disabled), .add-friend[aria-expanded=\"true\"] {\n  border-style: solid;\n  border-color: var(--gold-2);\n  color: var(--gold-1);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.16), transparent 75%);\n  box-shadow: 0 0 14px var(--gold-glow);\n}\n.add-friend:disabled { color: var(--grey-3); border-color: var(--grey-3); }\n.duo-slot:has(.add-friend:hover:not(:disabled)) .invite-label,\n.duo-slot:has(.add-friend[aria-expanded=\"true\"]) .invite-label { color: var(--gold-2); }\n\n.kick-friend {\n  position: absolute;\n  top: -3px; right: -5px;\n  z-index: 3;\n  width: 18px; height: 18px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: var(--void);\n  color: var(--grey-1);\n  -webkit-app-region: no-drag;\n  transition: var(--fast);\n}\n.kick-friend svg { width: 10px; height: 10px; stroke-width: 2.2; }\n.kick-friend:hover:not(:disabled) { color: #fff; border-color: var(--red); background: var(--red); }\n.kick-friend:disabled { opacity: 0.4; }\n\n/* ===== BOUTON PRINCIPAL ===== */\n.play {\n  flex-shrink: 0;\n  position: relative;\n  width: 100%;\n  height: 36px;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  font-family: var(--font-display);\n  font-size: 12px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  -webkit-app-region: no-drag;\n  transition: background var(--normal), color var(--normal), box-shadow var(--normal), filter var(--fast);\n}\n\n/* Lobby : bouton hextech bleu */\n.primary {\n  color: var(--blue-1);\n  background:\n    linear-gradient(180deg, rgba(10, 200, 185, 0.16) 0%, rgba(0, 90, 130, 0.22) 100%) padding-box,\n    linear-gradient(var(--deep), var(--deep)) padding-box,\n    linear-gradient(180deg, var(--blue-2), var(--blue-4)) border-box;\n  box-shadow: inset 0 0 12px rgba(10, 200, 185, 0.15), 0 0 12px rgba(10, 200, 185, 0.12);\n  text-shadow: 0 0 8px rgba(10, 200, 185, 0.5);\n}\n.primary:hover:not(:disabled) {\n  color: #fff;\n  box-shadow: inset 0 0 16px rgba(10, 200, 185, 0.3), 0 0 18px rgba(10, 200, 185, 0.28);\n}\n.primary:active:not(:disabled) { filter: brightness(0.9); }\n\n/* Recherche : bouton neutre, rouge au survol */\n.play.searching {\n  color: var(--gold-1);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--gold-4), var(--gold-5)) border-box;\n  box-shadow: none;\n}\n.play.searching:hover:not(:disabled) {\n  color: #fff;\n  background:\n    linear-gradient(180deg, #3a1219, #1c070b) padding-box,\n    linear-gradient(180deg, var(--red), #6e1d29) border-box;\n  box-shadow: 0 0 14px var(--red-glow);\n}\n\n/* Partie trouvée : or plein */\n.play.ready-action {\n  color: var(--void);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box,\n    linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n  animation: ready-pulse 1.6s ease-in-out infinite;\n}\n.play.ready-action:hover:not(:disabled) { filter: brightness(1.08); }\n@keyframes ready-pulse {\n  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 170, 110, 0.5), 0 0 12px var(--gold-glow); }\n  50% { box-shadow: 0 0 0 5px rgba(200, 170, 110, 0), 0 0 20px var(--gold-glow); }\n}\n\n.play:disabled {\n  color: var(--grey-2);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--grey-3), var(--grey-3)) border-box;\n  box-shadow: none;\n  animation: none;\n}\n\n/* ===== STATUT (dans l'en-tête) ===== */\n.queue-badge { min-width: 0; flex: 1; }\n.badge-gem { flex-shrink: 0; }\n.widget .feedback {\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-family: \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif;\n  font-size: 10.5px;\n  font-weight: 500;\n  letter-spacing: 0.1px;\n  text-transform: none;\n  color: var(--gold-1);\n  -webkit-app-region: no-drag;\n}\n.widget .feedback:empty { display: none; }\n.queue-badge:has(.feedback:not(:empty)) .badge-label { display: none; }\n.feedback.error { color: var(--red); }\n.queue-badge:has(.feedback.error) .badge-gem { border-color: var(--red); background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }\n\n/* ===== CALQUES (rôles, invitations) ===== */\n.panel {\n  position: absolute;\n  inset: 0;\n  z-index: 10;\n  display: flex;\n  flex-direction: column;\n  padding: 8px 12px 12px;\n  border-radius: 5px;\n  background:\n    radial-gradient(120% 60% at 50% 0%, rgba(200, 170, 110, 0.1), transparent 60%),\n    linear-gradient(180deg, var(--abyss), var(--void) 85%);\n  animation: sheet-in 0.2s var(--ease);\n}\n.panel::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 96px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--gold-2), transparent);\n}\n@keyframes sheet-in { from { transform: translateY(8px) scale(0.985); } to { transform: none; } }\n\n.panel-header {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 8px;\n  height: 32px;\n  margin-bottom: 8px;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n.panel-header button { -webkit-app-region: no-drag; }\n.panel-title { display: flex; flex-direction: column; min-width: 0; }\n.panel h2 {\n  margin: 0;\n  font-family: var(--font-display);\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  color: var(--gold-1);\n}\n.panel-sub { font-size: 9.5px; color: var(--grey-1); }\n.panel-actions { display: flex; gap: 2px; margin-right: -4px; }\n.panel-header > button { margin-right: -4px; }\n.panel-header button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: var(--fast);\n}\n.panel-header button:hover { color: var(--gold-1); background: rgba(200, 170, 110, 0.08); }\n\n/* Choix des rôles : grille 3 × 2 */\n.role-options {\n  flex: 1;\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  grid-template-rows: repeat(2, 1fr);\n  gap: 6px;\n}\n.role-option {\n  position: relative;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 7px;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: linear-gradient(180deg, rgba(30, 35, 40, 0.55), rgba(1, 10, 19, 0.7));\n  color: var(--grey-1);\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  letter-spacing: 1.2px;\n  text-transform: uppercase;\n  transition: var(--fast);\n}\n.role-option img { width: 30px; height: 30px; object-fit: contain; filter: grayscale(0.5) brightness(0.9); transition: filter var(--fast), transform var(--fast); }\n.role-option:hover:not(:disabled) { border-color: var(--gold-4); color: var(--gold-1); background: linear-gradient(180deg, rgba(200, 170, 110, 0.12), rgba(1, 10, 19, 0.7)); }\n.role-option:hover:not(:disabled) img { filter: none; transform: translateY(-1px) scale(1.06); }\n.role-option[aria-pressed=\"true\"] {\n  border-color: var(--gold-2);\n  color: var(--gold-1);\n  background: linear-gradient(180deg, rgba(200, 170, 110, 0.22), rgba(200, 170, 110, 0.04));\n  box-shadow: inset 0 0 14px var(--gold-glow), 0 0 10px var(--gold-glow);\n}\n.role-option[aria-pressed=\"true\"] img, .role-option[data-rank] img { filter: none; }\n.role-option[data-rank]::after {\n  content: attr(data-rank);\n  position: absolute;\n  top: 4px; right: 4px;\n  width: 14px; height: 14px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: var(--void);\n  color: var(--gold-2);\n  font-family: \"Segoe UI\", system-ui, sans-serif;\n  font-size: 8px;\n  letter-spacing: 0;\n}\n.role-option:disabled { opacity: 0.45; }\n\n/* Invitations */\nform {\n  flex-shrink: 0;\n  display: flex;\n  gap: 6px;\n  margin: 0 0 6px;\n}\ninput {\n  flex: 1;\n  min-width: 0;\n  height: 28px;\n  padding: 0 10px;\n  border: 1px solid var(--grey-3);\n  border-radius: 2px;\n  background: rgba(1, 10, 19, 0.8);\n  color: var(--gold-1);\n  font-size: 11px;\n  transition: border-color var(--fast), box-shadow var(--fast);\n}\ninput::placeholder { color: var(--grey-2); }\ninput:focus-visible { outline: none; border-color: var(--gold-3); box-shadow: 0 0 0 2px var(--gold-glow); }\nform button {\n  flex-shrink: 0;\n  width: 28px; height: 28px;\n  display: grid; place-items: center;\n  border: 1px solid var(--blue-3);\n  border-radius: 2px;\n  background: linear-gradient(180deg, rgba(10, 200, 185, 0.2), rgba(0, 90, 130, 0.25));\n  color: var(--blue-1);\n  transition: var(--fast);\n}\nform button:hover:not(:disabled) { color: #fff; box-shadow: 0 0 12px var(--blue-glow); }\nform button:disabled { border-color: var(--grey-3); background: none; color: var(--grey-2); }\n\n.friend-list {\n  flex: 1;\n  min-height: 0;\n  margin: 0 -8px;\n  padding: 0 4px 0 8px;\n  overflow-y: auto;\n  scrollbar-gutter: stable;\n  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);\n}\n.friend-list::-webkit-scrollbar { width: 4px; }\n.friend-list::-webkit-scrollbar-thumb { background: var(--gold-5); border-radius: 2px; }\n.friend-list::-webkit-scrollbar-thumb:hover { background: var(--gold-4); }\n\n.friend-item {\n  position: relative;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  height: 30px;\n  padding: 0 2px 0 14px;\n  border-radius: 2px;\n  transition: background var(--fast);\n}\n.friend-item:hover { background: rgba(200, 170, 110, 0.06); }\n.friend-item::before {\n  content: \"\";\n  position: absolute;\n  left: 4px; top: 50%;\n  width: 6px; height: 6px;\n  margin-top: -3px;\n  border-radius: 50%;\n  background: var(--blue-2);\n  box-shadow: 0 0 5px var(--blue-2);\n}\n.friend-item.in-game::before { background: var(--gold-3); box-shadow: 0 0 5px var(--gold-3); }\n.friend-item > div { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; }\n.friend-item strong {\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--gold-1);\n  font-size: 11px;\n  font-weight: 600;\n}\n.friend-item small { flex-shrink: 0; margin-left: auto; color: var(--blue-2); font-size: 9px; }\n.friend-item.in-game small { color: var(--gold-3); }\n.friend-item button {\n  flex-shrink: 0;\n  width: 22px; height: 22px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-5);\n  border-radius: 2px;\n  color: var(--gold-2);\n  font-size: 14px;\n  line-height: 1;\n  transition: var(--fast);\n}\n.friend-item button:hover:not(:disabled) { border-color: var(--gold-2); color: var(--gold-1); background: rgba(200, 170, 110, 0.1); }\n.friend-item button:disabled { border-color: var(--blue-4); color: var(--blue-2); }\n\n.empty-list { margin: 0; padding: 22px 0; color: var(--grey-2); font-size: 11px; text-align: center; }\n\n/* ===== POPUP PARTIE TROUVÉE ===== */\n.ready-body { padding: 8px; }\n\n.ready-popup {\n  position: relative;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  padding: 0 16px 10px;\n  overflow: hidden;\n  border: 1px solid var(--gold-3);\n  border-radius: 6px;\n  background:\n    radial-gradient(90% 70% at 50% 0%, rgba(200, 170, 110, 0.14), transparent 65%),\n    linear-gradient(180deg, var(--abyss), var(--void) 80%);\n  box-shadow: 0 0 0 1px var(--gold-5), 0 0 22px var(--gold-glow), 0 10px 28px rgba(0, 0, 0, 0.6);\n}\n.ready-popup::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 120px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--gold-1), transparent);\n}\n\n.ready-popup header {\n  height: 34px;\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n.ready-popup header span {\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  letter-spacing: 2.4px;\n  color: var(--gold-2);\n}\n.ready-popup header button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  margin-right: -6px;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: var(--fast);\n}\n.ready-popup header button:hover { color: var(--gold-1); background: rgba(200, 170, 110, 0.1); }\n\n.ready-content {\n  flex: 1;\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.ready-clock {\n  position: relative;\n  flex-shrink: 0;\n  width: 76px; height: 76px;\n  display: grid; place-items: center;\n  border-radius: 50%;\n  color: var(--gold-2);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.12), transparent 68%);\n}\n.ready-clock::before {\n  content: \"\";\n  position: absolute;\n  inset: 9px;\n  border: 1px solid var(--gold-5);\n  border-radius: 50%;\n}\n.ready-clock svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }\n.ready-clock circle { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: butt; }\n.ready-clock .clock-track { stroke: var(--gold-5); }\n#clock-progress { stroke-dasharray: 100; transition: stroke-dashoffset 0.1s linear, stroke var(--fast); filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.6)); }\n.ready-clock strong {\n  z-index: 1;\n  font-family: var(--font-display);\n  font-size: 26px;\n  font-weight: 700;\n  font-variant-numeric: tabular-nums;\n  color: var(--gold-1);\n}\n.ready-clock.urgent { color: var(--red); }\n.ready-clock.urgent strong { color: var(--red); animation: pulse 0.8s ease-in-out infinite; }\n.ready-clock.accepted { color: var(--blue-2); }\n.ready-clock.accepted strong { color: var(--blue-1); text-shadow: 0 0 10px var(--blue-2); }\n.ready-clock.accepted #clock-progress { filter: drop-shadow(0 0 3px var(--blue-2)); }\n\n.ready-copy { min-width: 0; }\n.ready-copy h1 {\n  margin: 0 0 5px;\n  font-family: var(--font-display);\n  font-size: 19px;\n  font-weight: 700;\n  line-height: 1.15;\n  color: var(--gold-1);\n}\n.ready-copy p { margin: 0; color: var(--grey-1); font-size: 11px; }\n\n.accept {\n  flex-shrink: 0;\n  width: 100%;\n  height: 38px;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  font-family: var(--font-display);\n  font-size: 13px;\n  font-weight: 700;\n  letter-spacing: 2px;\n  text-transform: uppercase;\n  color: var(--void);\n  background:\n    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box,\n    linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n  animation: ready-pulse 1.6s ease-in-out infinite;\n  transition: filter var(--fast);\n}\n.accept:hover:not(:disabled) { filter: brightness(1.08); }\n.accept:disabled {\n  color: var(--grey-2);\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--grey-3), var(--grey-3)) border-box;\n  animation: none;\n}\n.ready-popup:has(.ready-clock.accepted) .accept:disabled {\n  color: var(--blue-1);\n  background:\n    linear-gradient(180deg, rgba(10, 200, 185, 0.12), rgba(0, 90, 130, 0.2)) padding-box,\n    linear-gradient(var(--deep), var(--deep)) padding-box,\n    linear-gradient(180deg, var(--blue-3), var(--blue-4)) border-box;\n  animation: none;\n}\n\n.ready-popup .feedback {\n  flex-shrink: 0;\n  height: 18px;\n  margin: 6px 0 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--grey-1);\n  font-size: 10px;\n  line-height: 18px;\n  text-align: center;\n}\n\n/* ===== MOUVEMENT RÉDUIT ===== */\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { transition: none !important; animation: none !important; }\n}\n";
   const ROLE_ICON = name => ICONS[name] || ICONS.unselected;
   const EXTRA_CSS = `
     :host { display: block; user-select: none; cursor: default; }
@@ -747,10 +753,11 @@ function render() {
   renderInvite();
   $('connection-dot').className = `connection-dot ${state.connected ? 'online' : state.starting ? 'starting' : 'offline'}`;
   const phaseNotes = { ReadyCheck: accepted ? 'Accepté · les autres joueurs arrivent' : 'Une place t’attend dans la faille',
-    ChampSelect: state.clientUi?.error || (state.clientUi?.opening ? 'Ouverture du client League…' : 'Sélection des champions · dans League'),
+    ChampSelect: state.champSelect ? champSelectNote(state.champSelect) : state.clientUi?.error || (state.clientUi?.opening ? 'Ouverture du client League…' : 'Sélection des champions · dans League'),
     Reconnect: state.clientUi?.error || 'Rejoins ta partie depuis le client', GameStart: 'La faille se prépare', InProgress: 'Bonne partie !',
     EndOfGame: 'Retour au salon…', WaitingForStats: 'Récupération des résultats…', PreEndOfGame: 'Récupération des résultats…' };
-  if (((inGame || searching) && !$('feedback').classList.contains('error')) || blocked || blockedShown || Date.now() > noticeUntil) {
+  // En sélection des champions, les confirmations temporaires (runes, sorts…) restent visibles 8 s.
+  if ((((inGame && state.phase !== 'ChampSelect') || searching) && !$('feedback').classList.contains('error')) || blocked || blockedShown || Date.now() > noticeUntil) {
     blockedShown = Boolean(blocked);
     const estimate = state.estimatedQueueTime > 0 ? `Attente estimée · ${formatTime(state.estimatedQueueTime)}` : 'Recherche de partie…';
     const update = state.update || {};
@@ -956,9 +963,24 @@ function renderArena(queue) {
   }
   return chips ? Math.ceil(chips / 3) : 0;
 }
+function applySize(width, height) {
+  const size = `${width}x${Math.min(480, height)}`;
+  if (size !== lastSize && LEAGUE.setWidgetSize) {
+    lastSize = size;
+    LEAGUE.setWidgetSize(width, Math.min(480, height)).catch(() => { lastSize = ''; });
+  }
+}
 function renderLayout() {
   const queue = currentQueue(), layout = queue.layout || 'duo';
   const widget = ROOT.querySelector('.widget');
+  const cs = state.connected && state.phase === 'ChampSelect' ? state.champSelect : null;
+  $('champ-select').hidden = !cs;
+  if (cs) {
+    widget.dataset.layout = 'champselect';
+    renderChampSelect(cs);
+    applySize(640, 480);
+    return;
+  }
   widget.dataset.layout = layout;
   widget.dataset.positions = queue.positions === false ? 'off' : 'on';
   $('queue-label').textContent = queue.label || 'Solo / Duo';
@@ -973,13 +995,10 @@ function renderLayout() {
     const rows = renderArena(queue);
     if (rows) height += 28 + rows * 30 + (rows - 1) * 6;
   } else $('arena-grid').hidden = true;
-  const size = `${width}x${Math.min(480, height)}`;
-  if (size !== lastSize && LEAGUE.setWidgetSize) {
-    lastSize = size;
-    LEAGUE.setWidgetSize(width, Math.min(480, height)).catch(() => { lastSize = ''; });
-  }
+  applySize(width, height);
 }
 const MODE_ICONS = {
+  kPractice: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
   kSummonersRift: '<path d="M5 19 19 5"/><path d="M5 9V5h4M15 19h4v-4"/><path d="M12 8.5 15.5 12 12 15.5 8.5 12z"/>',
   kARAM: '<path d="M3 15h18"/><path d="M5 15a7 7 0 0 1 14 0"/><path d="M8 15v4M16 15v4M12 8v7"/>',
   arena: '<circle cx="12" cy="12" r="8"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/>',
@@ -996,12 +1015,12 @@ function queueTile(queue, selected) {
   // Titre court (« Arena ») et variante en sous-titre (« Bravoure · trios ») pour tenir dans la tuile.
   const [title, ...variant] = queue.arena ? queue.label.split(' ') : [queue.label];
   const teams = { 2: 'duos', 3: 'trios' }[queue.teamSize] || `équipes de ${queue.teamSize || 2}`;
-  const players = queue.arena ? teams : queue.maxParty > 2 ? `1 à ${queue.maxParty}` : '1 ou 2';
+  const players = queue.custom ? 'seul · sans file d’attente' : queue.arena ? teams : queue.maxParty > 2 ? `1 à ${queue.maxParty}` : '1 ou 2';
   const detail = el('small');
   if (queue.disabled) detail.textContent = queue.disabled;
   else {
     if (queue.ranked) detail.append(el('span', 'ranked', 'Classée'), ' · ');
-    detail.append([...(variant.length ? [variant.join(' ')] : []), players, ...(!queue.ranked && !queue.positions && !queue.arena ? ['aléatoire'] : [])].join(' · '));
+    detail.append([...(variant.length ? [variant.join(' ')] : []), players, ...(!queue.ranked && !queue.positions && !queue.arena && !queue.custom ? ['aléatoire'] : [])].join(' · '));
   }
   text.append(el('b', '', title), detail);
   tile.append(icon, text);
@@ -1077,11 +1096,16 @@ function renderTimer() {
   const timer = $('queue-timer');
   const searching = isSearching();
   const ready = state.connected && state.phase === 'ReadyCheck' && state.ready?.active && state.ready.deadline !== null && state.ready?.response !== 'Accepted';
-  timer.hidden = !searching && !ready;
-  timer.classList.toggle('countdown', Boolean(ready));
+  const csLeft = state.connected && state.phase === 'ChampSelect' && state.champSelect ? champSelectSecondsLeft(state.champSelect) : null;
+  timer.hidden = !searching && !ready && csLeft === null;
+  timer.classList.toggle('countdown', Boolean(ready) || (csLeft !== null && csLeft <= 10));
   if (searching) {
     timer.textContent = queueStartedAt === null ? '—:——' : formatTime((Date.now() - queueStartedAt) / 1000);
     timer.title = 'Temps écoulé en recherche';
+    timer.setAttribute('aria-label', timer.title);
+  } else if (csLeft !== null) {
+    timer.textContent = `${csLeft} s`;
+    timer.title = 'Temps restant dans cette phase';
     timer.setAttribute('aria-label', timer.title);
   } else if (ready) {
     timer.textContent = `${Math.max(0, Math.ceil((state.ready.deadline - Date.now()) / 1000))} s`;
@@ -1150,7 +1174,8 @@ $('play').addEventListener('click', () => action(async () => {
       rolePreferences = await LEAGUE.getRoles();
       if (!rolePreferences) { await openRoles(); feedback('Choisis tes deux rôles'); return; }
     }
-    await LEAGUE.startSearch();
+    const started = await LEAGUE.startSearch();
+    if (started?.custom) { feedback('Sélection des champions…'); return; }
     queueStartedAt = Date.now();
     queueTransition = { searching: true, expires: Date.now() + 8000 };
     feedback('Recherche en cours · clic pour annuler');
@@ -1162,6 +1187,8 @@ async function setPanel(panel) {
   rolesExpanded = panel === 'roles';
   queuesExpanded = panel === 'queues';
   $('queue-panel').hidden = !queuesExpanded;
+  $('spells-panel').hidden = panel !== 'spells';
+  $('runes-panel').hidden = panel !== 'runes';
   $('invitations').hidden = !expanded;
   $('roles-panel').hidden = !rolesExpanded;
   $('add-friend').setAttribute('aria-expanded', String(expanded));
@@ -1268,12 +1295,594 @@ function filterFriends() {
 $('refresh-friends').addEventListener('click', loadFriends);
 $('close-friends').addEventListener('click', () => setPanel(null));
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && (expanded || rolesExpanded || queuesExpanded)) setPanel(null);
+  if (event.key === 'Escape' && (expanded || rolesExpanded || queuesExpanded || !$('spells-panel').hidden || !$('runes-panel').hidden)) setPanel(null);
 });
 $('close-widget').addEventListener('click', () => LEAGUE.closeWidget());
 setInterval(renderTimer, 200);
-async function poll() { await refresh(); setTimeout(poll, 1000); }
+async function poll() { await refresh(); setTimeout(poll, state.phase === 'ChampSelect' ? 500 : 1000); }
 poll();
+
+// Sélection des champions dans le widget (chargé après app.js, partage ses fonctions : $, el, state, action…).
+const CS_ROLES = [['ALL', 'Tous les rôles'], ['TOP', 'Top'], ['JUNGLE', 'Jungle'], ['MIDDLE', 'Mid'], ['BOTTOM', 'ADC'], ['UTILITY', 'Support']];
+const CS_POSITION_LABELS = { TOP: 'Top', JUNGLE: 'Jungle', MIDDLE: 'Mid', BOTTOM: 'ADC', UTILITY: 'Support' };
+const CS_PHASES = { PLANNING: 'Déclaration', BAN_PICK: 'Sélection', FINALIZATION: 'Finalisation', GAME_STARTING: 'Lancement' };
+const csImages = new Map();
+const csState = { sessionKey: null, data: null, loading: null, role: 'ALL', text: '', gridKey: '', spellSlot: 0, timer: { key: '', total: 0 } };
+
+// Images du jeu : file d'attente (6 à la fois) pour ne pas envoyer 170 requêtes d'un coup au client.
+// Les éléments demandés en premier (sorts, alliés) passent avant la grille.
+const csQueue = [];
+let csLoading = 0;
+function csPump() {
+  while (csLoading < 6 && csQueue.length) {
+    const { assetPath, resolve } = csQueue.shift();
+    csLoading++;
+    LEAGUE.getAsset(assetPath).catch(() => null).then(resolve).finally(() => { csLoading--; csPump(); });
+  }
+}
+function csImage(assetPath) {
+  if (!assetPath) return Promise.resolve(null);
+  if (!csImages.has(assetPath)) {
+    csImages.set(assetPath, new Promise(resolve => { csQueue.push({ assetPath, resolve }); csPump(); })
+      .then(src => { if (!src) csImages.delete(assetPath); return src; }));
+  }
+  return csImages.get(assetPath);
+}
+const championIcon = id => `/lol-game-data/assets/v1/champion-icons/${id}.png`;
+function csImg(assetPath) {
+  const img = el('img');
+  img.alt = ''; img.hidden = true;
+  csImage(assetPath).then(src => { if (src) { img.src = src; img.hidden = false; } });
+  return img;
+}
+function csChampion(id) {
+  return csState.data?.champions.find(champion => champion.id === id);
+}
+const normalize = text => String(text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+// Libellé d'en-tête pendant la sélection.
+function champSelectNote(cs) {
+  if (cs.locked && cs.phase === 'BAN_PICK') return 'Verrouillé · en attente des autres joueurs';
+  if (cs.action?.inProgress) return cs.action.type === 'ban' ? 'À toi de bannir' : 'À toi de choisir';
+  return CS_PHASES[cs.phase] || 'Sélection des champions';
+}
+function champSelectSecondsLeft(cs) {
+  if (!cs || cs.infinite) return null;
+  return Math.max(0, Math.ceil((cs.timeLeftMs - (Date.now() - cs.sampledAt)) / 1000));
+}
+
+function loadChampSelectData(cs) {
+  const key = `${cs.queueId}:${cs.localCellId}`;
+  if (csState.sessionKey === key && (csState.data || csState.loading)) return;
+  csState.sessionKey = key; csState.data = null; csState.gridKey = ''; csState.role = 'ALL'; csState.text = '';
+  $('cs-search').value = '';
+  csState.loading = LEAGUE.getChampSelectData()
+    .then(data => { if (csState.sessionKey === key) { csState.data = data; render(); } })
+    .catch(error => feedback(`Sélection indisponible : ${error.message}`, true))
+    .finally(() => { csState.loading = null; });
+}
+
+const roleIcon = position => ROLE_ICON(CS_POSITION_LABELS[position] ? position.toLowerCase() : 'unselected');
+
+// Une ligne de joueur, façon client : portrait rond + icône de poste, nom, champion, sorts.
+function playerRow(player, ally) {
+  const shown = player.championId || player.hoverId;
+  const champion = shown ? csChampion(shown)?.name : '';
+  const row = el('div', `cs-player${player.isLocal ? ' local' : ''}${player.acting ? ' acting' : ''}${player.locked ? ' locked' : ''}`);
+  const portrait = el('span', `cs-portrait${!player.locked && shown ? ' hover' : ''}`);
+  if (shown) portrait.append(csImg(championIcon(shown)));
+  if (CS_POSITION_LABELS[player.position]) {
+    const badge = el('img', 'cs-role-badge');
+    badge.src = roleIcon(player.position); badge.alt = ''; badge.title = CS_POSITION_LABELS[player.position];
+    portrait.append(badge);
+  }
+  const text = el('span', 'cs-player-text');
+  const title = ally ? (player.isLocal ? 'Toi' : player.name) : (champion || 'Ennemi');
+  const sub = player.acting ? 'choisit…'
+    : ally ? (champion || CS_POSITION_LABELS[player.position] || '—') : (CS_POSITION_LABELS[player.position] || '');
+  text.append(el('b', '', title), el('small', '', sub));
+  row.append(portrait, text);
+  if (ally) {
+    const spells = el('span', 'cs-player-spells');
+    for (const id of [player.spell1Id, player.spell2Id]) {
+      const slot = el('span', 'cs-mini-spell');
+      const spell = spellIcon(id);
+      if (spell) { slot.append(csImg(spell.iconPath)); slot.title = spell.name; }
+      spells.append(slot);
+    }
+    row.append(spells);
+  }
+  return row;
+}
+function renderBans(list, ids, count) {
+  const key = JSON.stringify([ids, count, Boolean(csState.data)]);
+  if (list.dataset.key === key) return;
+  list.dataset.key = key;
+  const slots = Math.max(ids.length, Math.ceil((count || 0) / 2));
+  list.hidden = !slots;
+  list.replaceChildren(...Array.from({ length: slots }, (_, i) => {
+    const ban = el('span', `cs-ban${ids[i] ? '' : ' empty'}`);
+    if (ids[i]) { ban.title = `${csChampion(ids[i])?.name || 'Champion'} banni`; ban.append(csImg(championIcon(ids[i]))); }
+    return ban;
+  }));
+}
+function renderAllies(cs) {
+  const list = $('cs-allies');
+  const key = JSON.stringify([cs.myTeam, Boolean(csState.data)]); // Redessine quand les noms des champions arrivent.
+  if (list.dataset.key !== key) {
+    list.dataset.key = key;
+    list.replaceChildren(...cs.myTeam.map(player => playerRow(player, true)));
+  }
+  renderBans($('cs-bans-mine'), cs.bans.mine, cs.bans.count);
+}
+function renderEnemies(cs) {
+  const list = $('cs-enemies');
+  const key = JSON.stringify([cs.theirTeam, Boolean(csState.data)]);
+  // ARAM ou partie perso : équipe adverse cachée → colonne masquée, la grille prend la place.
+  const hidden = !cs.theirTeam.length;
+  $('cs-enemy-side').hidden = hidden;
+  $('cs-body').classList.toggle('solo', hidden);
+  if (list.dataset.key !== key) {
+    list.dataset.key = key;
+    list.replaceChildren(...cs.theirTeam.map(player => playerRow(player, false)));
+  }
+  renderBans($('cs-bans-theirs'), cs.bans.theirs, cs.bans.count);
+}
+
+// Barre de temps sur toute la largeur (durée de la phase, ou premier temps restant vu).
+function renderCsTimer(cs) {
+  const fill = $('cs-timer-fill');
+  const left = champSelectSecondsLeft(cs);
+  const key = `${cs.phase}:${cs.action?.id || ''}:${cs.action?.inProgress || false}`;
+  if (csState.timer.key !== key) csState.timer = { key, total: cs.totalMs || cs.timeLeftMs };
+  const total = Math.max(csState.timer.total, cs.timeLeftMs, 1);
+  fill.style.width = left === null ? '100%' : `${Math.min(100, (left * 1000 / total) * 100)}%`;
+  const bar = fill.parentElement;
+  bar.dataset.state = cs.action?.inProgress && !cs.locked ? (cs.action.type === 'ban' ? 'ban' : 'mine') : 'idle';
+  bar.classList.toggle('urgent', left !== null && left <= 5);
+}
+
+// Carte du champion choisi, à côté du bouton.
+function renderPick(cs) {
+  const me = cs.myTeam.find(player => player.isLocal) || {};
+  const banning = cs.action?.type === 'ban' && cs.action.inProgress && !cs.locked;
+  const id = banning ? cs.action.championId
+    : cs.locked ? me.championId : (cs.action?.type === 'pick' && cs.action.championId) || me.championId || me.hoverId || 0;
+  const portrait = $('cs-pick-portrait');
+  if (portrait.dataset.id !== String(id) || (id && !portrait.querySelector('img'))) {
+    portrait.dataset.id = String(id);
+    portrait.replaceChildren(...(id ? [csImg(championIcon(id))] : []));
+  }
+  const name = csChampion(id)?.name;
+  $('cs-pick').classList.toggle('ban', banning);
+  $('cs-pick').classList.toggle('locked', cs.locked);
+  $('cs-pick-name').textContent = name || (banning ? 'Aucun ban' : 'Aucun champion');
+  $('cs-pick-sub').textContent = banning ? 'À bannir'
+    : [CS_POSITION_LABELS[cs.position], cs.locked ? 'Verrouillé' : name ? 'Survolé' : ''].filter(Boolean).join(' · ') || 'Sélection';
+}
+
+function unavailableChampions(cs) {
+  const taken = new Set([...cs.bans.mine, ...cs.bans.theirs]);
+  for (const player of [...cs.myTeam, ...cs.theirTeam]) if (player.locked && !player.isLocal) taken.add(player.championId);
+  return taken;
+}
+function renderGrid(cs) {
+  const data = csState.data, grid = $('cs-grid');
+  if (!data) { if (!grid.querySelector('.empty-list')) grid.replaceChildren(el('p', 'empty-list', 'Chargement des champions…')); return; }
+  const banning = cs.action?.type === 'ban';
+  const allowed = new Set(banning ? data.bannable : data.pickable);
+  const taken = unavailableChampions(cs);
+  const selected = cs.action?.championId || 0;
+  const position = cs.position;
+  const text = normalize(csState.text);
+  // Champions jouables (ou bannissables) dans cette sélection : écarte les variantes d'autres modes (« Jade_… »).
+  const pool = new Set(banning ? data.bannable : data.pickable);
+  const visible = data.champions
+    .filter(champion => !pool.size || pool.has(champion.id))
+    .filter(champion => csState.role === 'ALL' || champion.positions.includes(csState.role))
+    .filter(champion => !text || normalize(champion.name).includes(text) || normalize(champion.alias).includes(text))
+    .sort((a, b) => Number(b.favorites.includes(position)) - Number(a.favorites.includes(position)));
+  const canAct = Boolean(cs.action) && !cs.locked && !busy;
+  const key = JSON.stringify([visible.map(c => c.id), [...taken], selected, banning, canAct, position]);
+  if (csState.gridKey === key) return;
+  csState.gridKey = key;
+  if (!visible.length) { grid.replaceChildren(el('p', 'empty-list', 'Aucun champion')); return; }
+  grid.replaceChildren(...visible.map(champion => {
+    const button = el('button', 'cs-champ');
+    const blocked = taken.has(champion.id) || (allowed.size > 0 && !allowed.has(champion.id));
+    button.dataset.id = champion.id;
+    button.title = champion.name + (champion.favorites.includes(position) ? ' · favori' : '');
+    button.disabled = !canAct || blocked;
+    button.classList.toggle('taken', blocked);
+    button.classList.toggle('selected', champion.id === selected);
+    button.classList.toggle('favorite', champion.favorites.includes(position));
+    button.setAttribute('aria-pressed', String(champion.id === selected));
+    button.setAttribute('aria-label', champion.name);
+    button.append(csImg(championIcon(champion.id)));
+    button.addEventListener('click', () => {
+      LEAGUE.champHover(champion.id).then(refresh, error => feedback(cleanError(error), true));
+    });
+    return button;
+  }));
+}
+function cleanError(error) {
+  return String(error?.message || error).replace(/^Error invoking remote method '[^']+': (Error: )?/, '');
+}
+
+function spellIcon(id) {
+  return csState.data?.spells.find(spell => spell.id === id);
+}
+function renderSpells(cs) {
+  for (const [slot, id] of [[1, cs.spell1Id], [2, cs.spell2Id]]) {
+    const button = $(`cs-spell${slot}`);
+    const spell = spellIcon(id);
+    if (button.dataset.spell !== String(id) || (spell && !button.querySelector('img'))) {
+      button.dataset.spell = String(id);
+      button.replaceChildren(...(spell ? [csImg(spell.iconPath)] : []));
+      button.title = spell ? `Sort ${slot} : ${spell.name}` : `Sort ${slot}`;
+    }
+    button.disabled = busy || !csState.data || cs.phase === 'GAME_STARTING';
+  }
+}
+function openSpells(slot) {
+  const cs = state.champSelect;
+  if (!cs || !csState.data) return;
+  csState.spellSlot = slot;
+  const current = slot === 1 ? cs.spell1Id : cs.spell2Id;
+  $('spells-title').textContent = slot === 1 ? 'Sort 1' : 'Sort 2';
+  $('spell-options').replaceChildren(...csState.data.spells.map(spell => {
+    const option = el('button', 'spell-option');
+    option.setAttribute('aria-pressed', String(spell.id === current));
+    option.title = spell.name;
+    option.append(csImg(spell.iconPath), el('span', '', spell.name));
+    option.addEventListener('click', () => action(async () => {
+      let [one, two] = [cs.spell1Id, cs.spell2Id];
+      if (slot === 1) { if (spell.id === two) two = one; one = spell.id; } else { if (spell.id === one) one = two; two = spell.id; }
+      await LEAGUE.setSpells(one, two);
+      await setPanel(null);
+    }));
+    return option;
+  }));
+  setPanel('spells');
+}
+
+function renderAction(cs) {
+  const button = $('cs-action');
+  const chosen = csChampion(cs.action?.championId)?.name;
+  let label, enabled = false;
+  if (cs.locked) label = `${csChampion(cs.myTeam.find(p => p.isLocal)?.championId)?.name || 'Champion'} verrouillé`;
+  else if (cs.action?.inProgress) {
+    enabled = Boolean(chosen);
+    label = cs.action.type === 'ban' ? (chosen ? `Bannir ${chosen}` : 'Choisis un champion à bannir') : (chosen ? `Verrouiller ${chosen}` : 'Choisis ton champion');
+  } else if (cs.action) label = chosen ? `${chosen} · pas encore ton tour` : 'Pas encore ton tour';
+  else label = cs.phase === 'FINALIZATION' ? 'Finalisation' : 'En attente des autres joueurs';
+  button.textContent = busy ? 'Un instant…' : label;
+  button.disabled = busy || !enabled;
+  button.classList.toggle('ban', cs.action?.type === 'ban' && !cs.locked);
+  button.classList.toggle('ready', enabled);
+}
+
+// ARAM : champion attribué, relance et banc à la place de la grille.
+function renderAram(cs) {
+  const aram = cs.benchEnabled || cs.allowReroll;
+  $('cs-aram').hidden = !aram;
+  $('cs-filters').hidden = aram;
+  $('cs-grid').hidden = aram;
+  if (!aram) return;
+  const me = cs.myTeam.find(player => player.isLocal) || {};
+  const portrait = $('cs-aram-portrait');
+  if (portrait.dataset.id !== String(me.championId)) {
+    portrait.dataset.id = String(me.championId);
+    portrait.replaceChildren(...(me.championId ? [csImg(championIcon(me.championId))] : []));
+  }
+  $('cs-aram-name').textContent = csChampion(me.championId)?.name || '—';
+  $('cs-reroll').textContent = `Relancer (${cs.rerollsRemaining})`;
+  $('cs-reroll').disabled = busy || !cs.allowReroll || cs.rerollsRemaining < 1;
+  const bench = $('cs-bench');
+  const key = JSON.stringify([cs.bench, busy]);
+  if (bench.dataset.key === key) return;
+  bench.dataset.key = key;
+  bench.replaceChildren(...(cs.bench.length ? cs.bench.map(id => {
+    const button = el('button', 'cs-champ');
+    button.dataset.id = id;
+    button.title = `Prendre ${csChampion(id)?.name || 'ce champion'}`;
+    button.disabled = busy;
+    button.append(csImg(championIcon(id)), el('span', '', csChampion(id)?.name || ''));
+    button.addEventListener('click', () => action(async () => { await LEAGUE.benchSwap(id); feedback(`Tu prends ${csChampion(id)?.name || 'ce champion'}`); }));
+    return button;
+  }) : [el('p', 'empty-list', 'Banc vide')]));
+}
+// Demandes d'échange reçues (champion, ordre de choix, poste).
+function renderSwap(cs) {
+  const swap = cs.swaps[0];
+  $('cs-swap').hidden = !swap;
+  if (!swap) return;
+  const player = cs.myTeam.find(item => item.cellId === swap.cellId) || {};
+  const name = player.name || 'Un allié';
+  $('cs-swap-text').textContent = swap.kind === 'champion' ? `${name} te propose son champion ${csChampion(player.championId)?.name || ''}`.trim()
+    : swap.kind === 'pickOrder' ? `${name} propose d’échanger votre ordre de choix`
+    : `${name} propose d’échanger vos postes${CS_POSITION_LABELS[player.position] ? ` (${CS_POSITION_LABELS[player.position]})` : ''}`;
+  $('cs-swap').dataset.kind = swap.kind;
+  $('cs-swap').dataset.id = swap.id;
+  $('cs-swap-accept').disabled = $('cs-swap-decline').disabled = busy;
+}
+function answerCurrentSwap(accept) {
+  const { kind, id } = $('cs-swap').dataset;
+  action(async () => {
+    await LEAGUE.answerSwap(kind, Number(id), accept);
+    feedback(accept ? 'Échange accepté' : 'Échange refusé');
+  });
+}
+
+function renderChampSelect(cs) {
+  renderAram(cs);
+  renderSwap(cs);
+  loadChampSelectData(cs);
+  refreshRuneSummary();
+  renderAllies(cs);
+  renderEnemies(cs);
+  renderSpells(cs);
+  renderGrid(cs);
+  renderCsTimer(cs);
+  renderPick(cs);
+  renderAction(cs);
+  $('cs-roles').querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.csRole === csState.role)));
+}
+
+// Contrôles construits une fois.
+$('cs-roles').replaceChildren(...CS_ROLES.map(([role, label]) => {
+  const button = el('button', 'cs-role');
+  const icon = el('img');
+  icon.src = ROLE_ICON(role === 'ALL' ? 'fill' : role.toLowerCase()); icon.alt = '';
+  button.append(icon);
+  button.title = label;
+  button.setAttribute('aria-label', label);
+  button.dataset.csRole = role;
+  button.addEventListener('click', () => { csState.role = role; csState.gridKey = ''; render(); });
+  return button;
+}));
+$('cs-search').addEventListener('input', () => { csState.text = $('cs-search').value; csState.gridKey = ''; render(); });
+$('cs-spell1').addEventListener('click', () => openSpells(1));
+$('cs-reroll').addEventListener('click', () => action(async () => { await LEAGUE.reroll(); feedback('Champion relancé'); }));
+$('cs-swap-accept').addEventListener('click', () => answerCurrentSwap(true));
+$('cs-swap-decline').addEventListener('click', () => answerCurrentSwap(false));
+$('cs-spell2').addEventListener('click', () => openSpells(2));
+$('close-spells').addEventListener('click', () => setPanel(null));
+$('cs-action').addEventListener('click', () => action(async () => {
+  const result = await LEAGUE.champLock();
+  feedback(result.type === 'ban' ? `${csChampion(result.championId)?.name || 'Champion'} banni` : `${csChampion(result.championId)?.name || 'Champion'} verrouillé`);
+}));
+
+// Runes pendant la sélection des champions (chargé après champselect.js : $, el, csImg, action, setPanel…).
+const runeUi = { data: null, draft: null, target: null, older: 4, recoSpells: null, summaryKey: null, hoverId: 0 };
+const RUNE_POSITIONS = { top: 'Top', jungle: 'Jungle', middle: 'Mid', bottom: 'ADC', utility: 'Support' };
+// Couleur de chaque arbre, comme dans le client (Précision, Domination, Sorcellerie, Volonté, Inspiration).
+const RUNE_COLORS = { 8000: '#c8aa6e', 8100: '#d44242', 8200: '#9faafc', 8400: '#a1d586', 8300: '#49aab9' };
+const runeColor = id => RUNE_COLORS[id] || '#c8aa6e';
+
+const runeStyle = id => runeUi.data?.styles.find(style => style.id === id);
+const runePerk = id => runeUi.data?.perks[id];
+const runeRowOf = (style, id) => (style?.rows || []).findIndex(row => row.includes(id));
+const runeComplete = draft => Boolean(draft) && draft.selectedPerkIds.length === 9 && draft.selectedPerkIds.every(id => id > 0) && draft.subStyleId > 0;
+
+function blankDraft() {
+  const first = runeUi.data.styles[0];
+  return { name: 'Ward', primaryStyleId: first.id, subStyleId: first.allowedSubStyles[0], selectedPerkIds: Array(9).fill(-1) };
+}
+function editPage(page) {
+  runeUi.target = page?.editable ? page.id : null;
+  runeUi.recoSpells = null;
+  runeUi.draft = page && page.primaryStyleId > 0
+    ? { name: page.name || '', primaryStyleId: page.primaryStyleId, subStyleId: page.subStyleId, selectedPerkIds: [...page.selectedPerkIds, ...Array(9).fill(-1)].slice(0, 9) }
+    : blankDraft();
+}
+async function loadRunes() {
+  runeUi.data = await LEAGUE.getRunes();
+  return runeUi.data;
+}
+
+function perkButton(id, pressed, onClick, className = 'rune-perk') {
+  const perk = runePerk(id);
+  const button = el('button', className);
+  button.setAttribute('aria-pressed', String(pressed));
+  button.setAttribute('aria-label', perk?.name || '');
+  button.append(csImg(perk?.iconPath));
+  button.addEventListener('mouseenter', () => { runeUi.hoverId = id; renderRuneInfo(); });
+  button.addEventListener('mouseleave', () => { if (runeUi.hoverId === id) { runeUi.hoverId = 0; renderRuneInfo(); } });
+  button.addEventListener('click', () => { onClick(); renderRunes(); });
+  return button;
+}
+function styleButton(style, pressed, onClick) {
+  const button = el('button', 'rune-style');
+  button.setAttribute('aria-pressed', String(pressed));
+  button.style.setProperty('--tree', runeColor(style.id));
+  button.title = style.name;
+  button.append(csImg(style.iconPath));
+  button.addEventListener('click', () => { onClick(); renderRunes(); });
+  return button;
+}
+// Une ligne de l'arbre : les runes, puis le nom de celle qui est choisie.
+function runeRow(ids, isPressed, pick, className = 'rune-perk', extra = '') {
+  const line = el('div', `rune-row${extra}`);
+  const icons = el('div', 'rune-icons');
+  icons.append(...ids.map(id => perkButton(id, isPressed(id), () => pick(id), className)));
+  const chosen = ids.find(isPressed);
+  line.append(icons, el('span', `rune-chosen${chosen ? '' : ' empty'}`, chosen ? runePerk(chosen)?.name || '' : '—'));
+  return line;
+}
+// Zone de description : rune survolée, sinon la clé de voûte choisie.
+function renderRuneInfo() {
+  const box = $('rune-info');
+  if (!box || !runeUi.draft) return;
+  const id = runeUi.hoverId || runeUi.draft.selectedPerkIds[0];
+  const perk = runePerk(id);
+  if (!perk) { box.replaceChildren(el('span', 'rune-info-empty', 'Survole une rune pour lire sa description')); return; }
+  const text = el('div', 'rune-info-text');
+  text.append(el('b', '', perk.name), el('p', '', perk.description || ''));
+  box.replaceChildren(csImg(perk.iconPath), text);
+}
+
+function setPrimary(id) {
+  const draft = runeUi.draft;
+  if (draft.primaryStyleId === id) return;
+  draft.primaryStyleId = id;
+  for (let i = 0; i < 4; i++) draft.selectedPerkIds[i] = -1;
+  if (draft.subStyleId === id || !runeStyle(id).allowedSubStyles.includes(draft.subStyleId)) {
+    draft.subStyleId = runeStyle(id).allowedSubStyles[0];
+    draft.selectedPerkIds[4] = draft.selectedPerkIds[5] = -1;
+  }
+}
+function pickSecondary(id) {
+  const ids = runeUi.draft.selectedPerkIds, style = runeStyle(runeUi.draft.subStyleId);
+  const row = runeRowOf(style, id);
+  // Même ligne qu'une rune déjà choisie : on la remplace ; sinon on remplace la plus ancienne des deux.
+  const slot = runeRowOf(style, ids[4]) === row ? 4 : runeRowOf(style, ids[5]) === row ? 5 : ids[4] < 0 ? 4 : ids[5] < 0 ? 5 : runeUi.older;
+  ids[slot] = id;
+  runeUi.older = slot === 4 ? 5 : 4;
+}
+
+function renderRuneEditor() {
+  const draft = runeUi.draft, ids = draft.selectedPerkIds;
+  const primary = runeStyle(draft.primaryStyleId), secondary = runeStyle(draft.subStyleId);
+  $('rune-primary-col').style.setProperty('--tree', runeColor(primary.id));
+  $('rune-secondary-col').style.setProperty('--tree', runeColor(secondary?.id));
+  $('rune-primary-styles').replaceChildren(...runeUi.data.styles.map(style => styleButton(style, style.id === primary.id, () => setPrimary(style.id))));
+  $('rune-primary').replaceChildren(
+    el('span', 'rune-tree-name', primary.name),
+    runeRow(primary.keystones, id => ids[0] === id, id => { ids[0] = id; }, 'rune-perk keystone', ' keystones'),
+    ...primary.rows.map((row, index) => runeRow(row, id => ids[index + 1] === id, id => { ids[index + 1] = id; })));
+  $('rune-secondary-styles').replaceChildren(...runeUi.data.styles.filter(style => primary.allowedSubStyles.includes(style.id))
+    .map(style => styleButton(style, style.id === secondary?.id, () => {
+      if (draft.subStyleId !== style.id) { draft.subStyleId = style.id; ids[4] = ids[5] = -1; }
+    })));
+  $('rune-secondary').replaceChildren(el('span', 'rune-tree-name', secondary?.name || 'Secondaire'),
+    ...(secondary?.rows || []).map(row => runeRow(row, id => ids[4] === id || ids[5] === id, pickSecondary)));
+  $('rune-shards').replaceChildren(el('span', 'rune-label', 'Fragments'),
+    ...primary.shards.map((row, index) => runeRow(row, id => ids[6 + index] === id, id => { ids[6 + index] = id; }, 'rune-perk shard', ' shards')));
+}
+
+function renderRunes() {
+  const data = runeUi.data;
+  if (!data || !runeUi.draft) return;
+  const current = data.pages.find(page => page.current);
+  $('runes-sub').textContent = runeUi.target === 'new' ? 'Nouvelle page' : runeUi.target ? 'Page modifiable' : 'Page non modifiable';
+  $('rune-page-label').textContent = runeUi.target === 'new' ? 'Nouvelle page' : current?.name || 'Pages';
+  const pages = data.pages.map(page => {
+    const option = el('button', 'rune-page', page.name || 'Sans nom');
+    option.setAttribute('role', 'option');
+    option.setAttribute('aria-pressed', String(page.id === current?.id && runeUi.target !== 'new'));
+    option.title = page.editable ? 'Choisir cette page' : 'Page non modifiable';
+    option.classList.toggle('locked', !page.editable);
+    option.addEventListener('click', () => action(async () => {
+      togglePageMenu(false);
+      await LEAGUE.selectRunePage(page.id);
+      await loadRunes();
+      editPage(runeUi.data.pages.find(item => item.id === page.id));
+      renderRunes(); refreshRuneSummary(true);
+    }));
+    return option;
+  });
+  if (data.canAdd) {
+    const option = el('button', 'rune-page new', '+ Nouvelle');
+    option.setAttribute('role', 'option');
+    option.setAttribute('aria-pressed', String(runeUi.target === 'new'));
+    option.addEventListener('click', () => { togglePageMenu(false); runeUi.draft = blankDraft(); runeUi.target = 'new'; renderRunes(); });
+    pages.push(option);
+  }
+  $('rune-pages').replaceChildren(...pages);
+
+  const { championId, position } = data.context;
+  const champion = csChampion(championId)?.name;
+  const recos = data.recommendations.map((reco, index) => {
+    const card = el('button', 'rune-reco');
+    const keystone = runePerk(reco.keystoneId);
+    card.style.setProperty('--tree', runeColor(reco.primaryStyleId));
+    card.style.setProperty('--tree-2', runeColor(reco.subStyleId));
+    card.title = `Appliquer : ${keystone?.name || ''}`;
+    const text = el('span', 'rune-reco-text');
+    text.append(el('b', '', keystone?.name || `Page ${index + 1}`), el('small', '', `${runeStyle(reco.primaryStyleId)?.name || ''} · ${runeStyle(reco.subStyleId)?.name || ''}`));
+    card.append(csImg(keystone?.iconPath), text);
+    card.addEventListener('click', () => {
+      runeUi.draft = { name: [champion, RUNE_POSITIONS[position]].filter(Boolean).join(' · ') || 'Recommandée', primaryStyleId: reco.primaryStyleId, subStyleId: reco.subStyleId, selectedPerkIds: [...reco.perks] };
+      if (!runeUi.target && current?.editable) runeUi.target = current.id;
+      runeUi.recoSpells = reco.spells;
+      renderRunes();
+      feedback(`Recommandation ${index + 1} prête : enregistre pour l’appliquer`);
+    });
+    return card;
+  });
+  $('rune-recos').replaceChildren(el('span', 'rune-label', champion ? `Recommandées · ${champion}${RUNE_POSITIONS[position] ? ` ${RUNE_POSITIONS[position]}` : ''}` : 'Survole un champion pour voir les recommandations'), ...recos);
+  $('rune-recos').classList.toggle('empty', !recos.length);
+
+  renderRuneEditor();
+  renderRuneInfo();
+  if (document.activeElement !== $('rune-name')) $('rune-name').value = runeUi.draft.name;
+  const canSave = runeComplete(runeUi.draft) && Boolean(runeUi.target) && !busy;
+  $('rune-save').disabled = !canSave;
+  $('rune-save').textContent = runeUi.target === 'new' ? 'Créer la page' : 'Enregistrer';
+  $('rune-hint').textContent = !runeUi.target ? 'Choisis une de tes pages pour la modifier'
+    : !runeComplete(runeUi.draft) ? 'Complète la page' : runeUi.recoSpells ? 'Runes et sorts recommandés' : '';
+}
+
+function togglePageMenu(open = $('rune-pages').hidden) {
+  $('rune-pages').hidden = !open;
+  $('rune-page-button').setAttribute('aria-expanded', String(open));
+}
+
+async function openRunes() {
+  togglePageMenu(false);
+  runeUi.hoverId = 0;
+  await setPanel('runes');
+  $('runes-sub').textContent = 'Chargement…';
+  try {
+    await loadRunes();
+    editPage(runeUi.data.pages.find(page => page.current) || runeUi.data.pages[0]);
+    renderRunes();
+  } catch (error) {
+    $('runes-sub').textContent = 'Runes indisponibles';
+    feedback(cleanError(error), true);
+  }
+}
+
+// Sorts recommandés, en gardant Flash sur la même touche qu'avant.
+function recommendedSpells(spells, cs) {
+  if (!Array.isArray(spells) || spells.length !== 2 || !cs) return null;
+  let [one, two] = spells;
+  if ((cs.spell2Id === 4 && one === 4) || (cs.spell1Id === 4 && two === 4)) [one, two] = [two, one];
+  return [one, two];
+}
+
+// Bouton du bas : clé de voûte et nom de la page active.
+function refreshRuneSummary(force = false) {
+  const cs = state.champSelect;
+  const key = cs ? `${cs.queueId}:${cs.localCellId}` : null;
+  if (!key || (!force && runeUi.summaryKey === key)) return;
+  runeUi.summaryKey = key;
+  loadRunes().then(renderRuneButton).catch(() => {});
+}
+function renderRuneButton() {
+  const page = runeUi.data?.pages.find(item => item.current);
+  const button = $('cs-runes');
+  const icon = runePerk(page?.selectedPerkIds?.[0])?.iconPath;
+  button.replaceChildren(...(icon ? [csImg(icon)] : []), el('span', '', page?.name || 'Runes'));
+  button.title = page ? `Runes : ${page.name || 'page sans nom'}` : 'Runes';
+}
+
+$('cs-runes').addEventListener('click', openRunes);
+$('close-runes').addEventListener('click', () => setPanel(null));
+$('rune-page-button').addEventListener('click', event => { event.stopPropagation(); togglePageMenu(); });
+$('runes-panel').addEventListener('click', event => { if (!event.target.closest('.rune-page-picker')) togglePageMenu(false); });
+$('rune-name').addEventListener('input', () => { if (runeUi.draft) runeUi.draft.name = $('rune-name').value; });
+$('rune-save').addEventListener('click', () => action(async () => {
+  const draft = { ...runeUi.draft, name: $('rune-name').value.trim() || runeUi.draft.name };
+  await LEAGUE.saveRunePage(draft, runeUi.target);
+  const spells = recommendedSpells(runeUi.recoSpells, state.champSelect);
+  if (spells) await LEAGUE.setSpells(...spells).catch(() => {});
+  await loadRunes();
+  renderRuneButton();
+  await setPanel(null);
+  feedback(spells ? 'Runes et sorts appliqués' : 'Runes enregistrées');
+}));
 
   }
   function runReady(ROOT, LEAGUE) {
@@ -1331,9 +1940,62 @@ setInterval(render, 100);
     { id: 400, label: 'Normale', group: 'kSummonersRift', positions: true, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
     { id: 450, label: 'ARAM', group: 'kARAM', positions: false, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
     { id: 2400, label: 'ARAM Mayhem', group: 'kARAM', positions: false, arena: false, ranked: false, maxParty: 5, premadeSizes: [1, 2, 3, 4, 5], disabled: null },
-    { id: 1740, label: 'Arena Bravoure', group: 'kAlternativeLeagueGameModes', positions: false, arena: true, teamSize: 3, ranked: false, maxParty: 18, premadeSizes: [], disabled: null }
+    { id: 1740, label: 'Arena Bravoure', group: 'kAlternativeLeagueGameModes', positions: false, arena: true, teamSize: 3, ranked: false, maxParty: 18, premadeSizes: [], disabled: null },
+    { id: 3140, label: 'Entraînement', group: 'kPractice', positions: false, arena: false, custom: true, teamSize: null, ranked: false, maxParty: 1, premadeSizes: [], disabled: null }
   ];
   const CHAMP_MS = 30000;
+
+  // Sélection des champions de la démo : vrais identifiants, icônes dessinées.
+  const DEMO_CHAMPS = [
+    [103, 'Ahri', 'MIDDLE', 330], [64, 'Lee Sin', 'JUNGLE', 20], [222, 'Jinx', 'BOTTOM', 290], [412, 'Thresh', 'UTILITY', 150],
+    [122, 'Darius', 'TOP', 0], [61, 'Orianna', 'MIDDLE', 45], [145, "Kai'Sa", 'BOTTOM', 270], [89, 'Leona', 'UTILITY', 40],
+    [234, 'Viego', 'JUNGLE', 170], [86, 'Garen', 'TOP', 220], [99, 'Lux', 'UTILITY', 55], [81, 'Ezreal', 'BOTTOM', 200],
+    [157, 'Yasuo', 'MIDDLE', 210], [254, 'Vi', 'JUNGLE', 350], [266, 'Aatrox', 'TOP', 355], [267, 'Nami', 'UTILITY', 185]
+  ].map(([id, name, position, hue]) => ({ id, name, position, hue }));
+  const DEMO_SPELLS = [[4, 'Flash', 45], [14, 'Embrasement', 15], [12, 'Téléportation', 280], [11, 'Châtiment', 30],
+    [7, 'Soins', 120], [21, 'Barrière', 50], [3, 'Fatigue', 200], [6, 'Fantôme', 190]]
+    .map(([id, name, hue]) => ({ id, name, hue, iconPath: `/lol-game-data/assets/demo/spells/${id}.png` }));
+  const DEMO_STYLES = [
+    { id: 8100, name: 'Domination', hue: 355,
+      keystones: [[8112, 'Électrocution'], [8128, 'Moisson noire'], [9923, 'Pluie de lames']],
+      rows: [[[8126, 'Coup bas'], [8139, 'Goût du sang'], [8143, 'Impact soudain']], [[8137, 'Sentinelle aveugle'], [8140, 'Poro fantôme'], [8141, 'Collection de globes']], [[8135, 'Chasseur de trésors'], [8105, 'Chasseur implacable'], [8106, 'Chasseur ultime']]] },
+    { id: 8000, name: 'Précision', hue: 45,
+      keystones: [[8005, 'Attaque soutenue'], [8008, 'Tempo mortel'], [8021, 'Frappe rapide'], [8010, 'Conquérant']],
+      rows: [[[9101, 'Surplus de soins'], [9111, 'Triomphe'], [8009, 'Présence d’esprit']], [[9104, 'Légende : Alacrité'], [9105, 'Légende : Hâte'], [9103, 'Légende : Lignée']], [[8014, 'Coup de grâce'], [8017, 'Abattage'], [8299, 'Dernier rempart']]] },
+    { id: 8200, name: 'Sorcellerie', hue: 240,
+      keystones: [[8214, 'Invocation d’Aery'], [8229, 'Comète arcanique'], [8230, 'Rush phasique']],
+      rows: [[[8224, 'Orbe annulateur'], [8226, 'Bande de mana'], [8275, 'Cape nimbus']], [[8210, 'Transcendance'], [8234, 'Célérité'], [8233, 'Concentration absolue']], [[8237, 'Brûlure'], [8232, 'Marche sur l’eau'], [8236, 'Tempête menaçante']]] }
+  ];
+  const DEMO_SHARDS = [[[5008, 'Force adaptative'], [5005, 'Vitesse d’attaque'], [5007, 'Accélération de compétence']],
+    [[5008, 'Force adaptative'], [5010, 'Vitesse de déplacement'], [5001, 'PV croissants']], [[5011, 'PV'], [5013, 'Ténacité'], [5001, 'PV croissants']]];
+  const RUNE_DEMO = (() => {
+    const perks = {};
+    const add = ([id, name], hue) => { perks[id] = { id, name, hue, iconPath: `/lol-game-data/assets/demo/perks/${id}.png`, description: name }; return id; };
+    const styles = DEMO_STYLES.map(style => ({
+      id: style.id, name: style.name, iconPath: `/lol-game-data/assets/demo/styles/${style.id}.png`,
+      allowedSubStyles: DEMO_STYLES.filter(other => other.id !== style.id).map(other => other.id),
+      keystones: style.keystones.map(perk => add(perk, style.hue)), rows: style.rows.map(row => row.map(perk => add(perk, style.hue))),
+      shards: DEMO_SHARDS.map(row => row.map(perk => add(perk, 45)))
+    }));
+    return { styles, perks };
+  })();
+  const DEMO_RECOS = [
+    { keystoneId: 8112, primaryStyleId: 8100, subStyleId: 8200, perks: [8112, 8139, 8140, 8106, 8226, 8210, 5008, 5008, 5001] },
+    { keystoneId: 8010, primaryStyleId: 8000, subStyleId: 8100, perks: [8010, 9111, 9104, 8299, 8139, 8135, 5005, 5008, 5011] }
+  ];
+  const RECO_SPELLS = { TOP: [12, 4], JUNGLE: [11, 4], MIDDLE: [14, 4], BOTTOM: [7, 4], UTILITY: [14, 4] };
+  // Icônes dessinées (SVG) pour les chemins d'images du client.
+  const svgData = svg => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  const tile = (hue, letter) => svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue},55%,42%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360},60%,12%)"/></linearGradient></defs><rect width="64" height="64" fill="url(#t)"/><text x="32" y="43" font-family="Georgia,serif" font-size="30" fill="#f0e6d2" text-anchor="middle">${letter}</text></svg>`);
+  const orb = (hue, letter) => svgData(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><radialGradient id="o" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="hsl(${hue},75%,62%)"/><stop offset="1" stop-color="hsl(${hue},60%,16%)"/></radialGradient></defs><circle cx="32" cy="32" r="30" fill="url(#o)"/><text x="32" y="42" font-family="Georgia,serif" font-size="26" fill="#fff" text-anchor="middle">${letter}</text></svg>`);
+  function demoAsset(path) {
+    let match;
+    if ((match = /champion-icons\/(\d+)\.png$/.exec(path))) { const c = DEMO_CHAMPS.find(item => item.id === Number(match[1])); return c ? tile(c.hue, c.name[0]) : null; }
+    if ((match = /demo\/spells\/(\d+)\.png$/.exec(path))) { const spell = DEMO_SPELLS.find(item => item.id === Number(match[1])); return spell ? orb(spell.hue, spell.name[0]) : null; }
+    if ((match = /demo\/styles\/(\d+)\.png$/.exec(path))) { const style = DEMO_STYLES.find(item => item.id === Number(match[1])); return style ? orb(style.hue, style.name[0]) : null; }
+    if ((match = /demo\/perks\/(\d+)\.png$/.exec(path))) { const perk = RUNE_DEMO.perks[Number(match[1])]; return perk ? orb(perk.hue, perk.name.replace(/^Légende : /, '')[0]) : null; }
+    return null;
+  }
 
   function avatar(id) {
     const hues = [42, 200, 280, 160, 330, 15, 120, 250, 190, 300];
@@ -1352,10 +2014,14 @@ setInterval(render, 100);
     const s = { connected: false, starting: true, phase: 'None', searchStart: 0, roles: null, partner: null,
       ready: null, clientOpening: false, champDeadline: 0, champion: null, gameStart: 0, extraId: 90, t: {},
       invites: [], isLeader: true, invited: false, connectedAt: 0,
-      party: [], queueId: 420, subteam: { subteamIndex: 1, intraSubteamPosition: 1 } };
+      party: [], queueId: 420, subteam: { subteamIndex: 1, intraSubteamPosition: 1 }, cs: null, nextPageId: 3,
+      runePages: [
+        { id: 1, name: 'Ma page', current: true, editable: true, valid: true, primaryStyleId: 8000, subStyleId: 8100, selectedPerkIds: [8010, 9111, 9104, 8299, 8139, 8135, 5005, 5008, 5011] },
+        { id: 2, name: 'Page Riot', current: false, editable: false, valid: true, primaryStyleId: 8100, subStyleId: 8200, selectedPerkIds: [8112, 8126, 8140, 8106, 8226, 8210, 5008, 5008, 5001] }
+      ] };
     const queue = () => {
       const base = DEMO_QUEUES.find(item => item.id === s.queueId) || DEMO_QUEUES[0];
-      return { ...base, layout: base.arena ? 'arena' : base.maxParty > 2 ? 'party' : 'duo', teams: base.arena ? base.maxParty / base.teamSize : null, teamSize: base.arena ? base.teamSize : null };
+      return { ...base, layout: base.arena ? 'arena' : base.custom || base.maxParty <= 2 ? 'duo' : 'party', teams: base.arena ? base.maxParty / base.teamSize : null, teamSize: base.arena ? base.teamSize : null };
     };
     function arenaSeat() {
       const taken = new Set([`${s.subteam.subteamIndex}:${s.subteam.intraSubteamPosition}`, ...s.party.map(m => `${m.subteamIndex}:${m.intraSubteamPosition}`)]);
@@ -1442,18 +2108,81 @@ setInterval(render, 100);
         ui.notice('Tu n\'as pas accepté à temps : retour au lobby. Relance la recherche.', true);
       }, READY_MS);
     }
+    // Sélection des champions : tout se passe dans le widget (le client ne s'ouvre plus).
+    function pickFor(position) {
+      const free = DEMO_CHAMPS.filter(c => !s.cs.used.has(c.id));
+      const preferred = free.filter(c => c.position === position);
+      const champion = (preferred.length ? preferred : free)[Math.floor(Math.random() * (preferred.length || free.length))];
+      s.cs.used.add(champion.id);
+      return champion.id;
+    }
     function toChampSelect() {
       s.ready = null; pushReady(); ui.hideReady();
-      setPhase('ChampSelect');
+      const q = queue();
+      const aram = !q.positions && !q.arena && !q.custom;
+      const positions = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'UTILITY'];
+      const myPosition = q.positions ? (ROLES.includes(s.roles?.firstPreference) && s.roles.firstPreference !== 'FILL' ? s.roles.firstPreference : 'MIDDLE') : '';
+      const others = positions.filter(position => position !== myPosition);
+      const size = q.custom ? 1 : q.arena ? q.teamSize : 5;
+      const allies = [{ cellId: 0, name: 'Toi', isLocal: true, position: myPosition }];
+      s.party.slice(0, size - 1).forEach((member, i) => allies.push({ cellId: i + 1, name: member.displayName, position: q.positions ? others[i] : '' }));
+      while (allies.length < size) allies.push({ cellId: allies.length, name: `Invocateur ${allies.length + 1}`, position: q.positions ? others[allies.length - 1] : '' });
+      allies.forEach(player => Object.assign(player, { championId: 0, hoverId: 0, locked: false }));
+      const enemies = q.arena || aram || q.custom ? [] : Array.from({ length: 5 }, (_, i) => ({ cellId: 5 + i, position: '', championId: 0, hoverId: 0, locked: false }));
+      const total = aram ? 20000 : CHAMP_MS;
+      s.cs = { allies, enemies, used: new Set(), aram, bench: [], rerolls: 1, spells: [4, myPosition === 'JUNGLE' ? 11 : 14], total, deadline: Date.now() + total };
       s.champion = null;
-      s.champDeadline = Date.now() + CHAMP_MS;
-      s.clientOpening = true;
-      later(() => { s.clientOpening = false; ui.showClient(); }, 900);
+      setPhase('ChampSelect');
+      if (aram) {
+        allies.forEach(player => { player.championId = pickFor(); player.locked = true; });
+        s.cs.bench = [pickFor(), pickFor()];
+        s.t.champ = later(finishChampSelect, total);
+        return;
+      }
+      // Les autres joueurs survolent puis verrouillent au fil des secondes.
+      for (const player of [...allies.filter(p => !p.isLocal), ...enemies]) {
+        later(() => { if (s.phase === 'ChampSelect' && !player.locked && player.cellId < 5) player.hoverId = pickFor(player.position); }, 1500 + Math.random() * 4000);
+        player.lockAt = later(() => lockBot(player), 5000 + Math.random() * 14000);
+      }
       s.t.champ = later(() => {
         if (s.phase !== 'ChampSelect') return;
-        setPhase('Lobby'); ui.hideClient();
+        s.cs = null; setPhase('Lobby');
         ui.notice('La sélection a expiré avant que tu verrouilles un champion. Retour au lobby.', true);
-      }, CHAMP_MS);
+      }, total);
+    }
+    function lockBot(player) {
+      if (s.phase !== 'ChampSelect' || player.locked) return;
+      player.championId = player.hoverId || pickFor(player.position);
+      player.locked = true;
+      maybeFinish();
+    }
+    function maybeFinish() {
+      if (s.cs && [...s.cs.allies, ...s.cs.enemies].every(player => player.locked)) finishChampSelect();
+    }
+    function finishChampSelect() {
+      if (s.phase !== 'ChampSelect' || s.cs.finishing) return;
+      s.cs.finishing = true;
+      cancel(s.t.champ);
+      const me = s.cs.allies[0];
+      s.champion = DEMO_CHAMPS.find(c => c.id === me.championId)?.name || '';
+      later(() => {
+        setPhase('GameStart'); ui.showClient();
+        later(() => { setPhase('InProgress'); s.gameStart = Date.now(); s.t.game = later(endGame, 60000); }, 2500);
+      }, 1500);
+    }
+    function csStatus() {
+      const cs = s.cs, me = cs.allies[0];
+      const player = p => ({ cellId: p.cellId, name: p.name || null, position: p.position, championId: p.championId, hoverId: p.locked ? 0 : p.hoverId,
+        locked: p.locked, acting: !p.locked && !cs.aram, isLocal: Boolean(p.isLocal),
+        spell1Id: p.isLocal ? cs.spells[0] : 4, spell2Id: p.isLocal ? cs.spells[1] : ({ JUNGLE: 11, TOP: 12, BOTTOM: 7 }[p.position] || 14) });
+      return {
+        queueId: s.queueId, isCustom: false, phase: 'BAN_PICK', timeLeftMs: Math.max(0, cs.deadline - Date.now()), totalMs: cs.total, infinite: false,
+        sampledAt: Date.now(), localCellId: 0, myTeam: cs.allies.map(player), theirTeam: cs.enemies.map(player),
+        bans: { mine: [], theirs: [], count: 0 },
+        action: cs.aram || me.locked ? null : { id: 100, type: 'pick', inProgress: true, championId: me.hoverId },
+        locked: me.locked, position: me.position, spell1Id: cs.spells[0], spell2Id: cs.spells[1],
+        allowReroll: cs.aram, rerollsRemaining: cs.aram ? cs.rerolls : 0, benchEnabled: cs.aram, bench: [...cs.bench], swaps: []
+      };
     }
     function endGame() {
       if (!['InProgress', 'GameStart'].includes(s.phase)) return;
@@ -1475,9 +2204,86 @@ setInterval(render, 100);
           phase: s.phase, searching, sampledAt: Date.now(),
           timeInQueue: searching ? (Date.now() - s.searchStart) / 1000 : null,
           estimatedQueueTime: searching ? 95 : null,
-          ready: readySnapshot(), clientUi: { opening: s.clientOpening, error: '' } };
+          ready: readySnapshot(), clientUi: { opening: s.clientOpening, error: '' },
+          champSelect: s.phase === 'ChampSelect' && s.cs ? csStatus() : null };
       },
       async getProfileIcon(id) { return avatar(id); },
+      async getAsset(path) { return demoAsset(String(path)); },
+      async getChampSelectData() {
+        await delay(250);
+        return { champions: DEMO_CHAMPS.map(c => ({ id: c.id, name: c.name, alias: c.name, positions: [c.position], favorites: c.id === 103 ? ['MIDDLE'] : [] })),
+          pickable: DEMO_CHAMPS.map(c => c.id), bannable: [], spells: DEMO_SPELLS.map(({ id, name, iconPath }) => ({ id, name, iconPath })) };
+      },
+      async champHover(championId) {
+        const me = s.cs?.allies[0];
+        if (s.phase !== 'ChampSelect' || !me || me.locked || s.cs.aram) throw new Error('Ce n’est pas à toi de choisir.');
+        if ([...s.cs.allies, ...s.cs.enemies].some(p => p.locked && p.championId === championId)) throw new Error('Ce champion n’est pas disponible.');
+        await delay(80);
+        me.hoverId = championId;
+      },
+      async champLock() {
+        const me = s.cs?.allies[0];
+        if (s.phase !== 'ChampSelect' || !me || me.locked) throw new Error('Attends ton tour pour verrouiller.');
+        if (!me.hoverId) throw new Error('Choisis un champion.');
+        if ([...s.cs.allies, ...s.cs.enemies].some(p => p.locked && p.championId === me.hoverId)) throw new Error('Ce champion vient d’être pris.');
+        await delay(200);
+        me.championId = me.hoverId; me.locked = true; s.cs.used.add(me.championId);
+        ui.quest('champ');
+        // Les retardataires se dépêchent pour ne pas faire attendre la démo.
+        for (const player of [...s.cs.allies, ...s.cs.enemies]) if (!player.locked) { cancel(player.lockAt); later(() => lockBot(player), 600 + Math.random() * 1800); }
+        maybeFinish();
+        return { type: 'pick', championId: me.championId };
+      },
+      async setSpells(spell1Id, spell2Id) {
+        if (!s.cs) throw new Error('La sélection des champions est terminée.');
+        if (spell1Id === spell2Id) throw new Error('Choisis deux sorts différents.');
+        await delay(120);
+        s.cs.spells = [spell1Id, spell2Id];
+      },
+      async reroll() {
+        if (!s.cs?.aram || s.cs.rerolls < 1) throw new Error('Plus de relance disponible.');
+        await delay(250);
+        s.cs.rerolls--;
+        s.cs.allies[0].championId = pickFor();
+      },
+      async benchSwap(championId) {
+        const me = s.cs?.allies[0];
+        if (!s.cs?.aram || !s.cs.bench.includes(championId)) throw new Error('Ce champion n’est plus sur le banc.');
+        await delay(200);
+        s.cs.bench = s.cs.bench.map(id => (id === championId ? me.championId : id));
+        me.championId = championId;
+      },
+      async answerSwap() { throw new Error('Cette demande d’échange n’est plus valable.'); },
+      async getRunes() {
+        await delay(200);
+        const me = s.cs?.allies[0];
+        const championId = me?.championId || me?.hoverId || 0;
+        const position = String(me?.position || '').toLowerCase() || 'none';
+        return { ...RUNE_DEMO, context: { championId, position, mapId: 11 }, canAdd: s.runePages.length < 4,
+          pages: s.runePages.map(page => ({ ...page, selectedPerkIds: [...page.selectedPerkIds] })),
+          recommendations: championId ? DEMO_RECOS.map(reco => ({ ...reco, spells: RECO_SPELLS[me.position] || [14, 4] })) : [] };
+      },
+      async selectRunePage(id) {
+        if (!s.runePages.some(page => page.id === id)) throw new Error('Page introuvable.');
+        await delay(120);
+        s.runePages.forEach(page => { page.current = page.id === id; });
+      },
+      async saveRunePage(page, target) {
+        if (!Array.isArray(page?.selectedPerkIds) || page.selectedPerkIds.length !== 9 || page.selectedPerkIds.some(id => !(id > 0))) throw new Error('Page de runes incomplète.');
+        await delay(250);
+        const clean = { name: String(page.name || '').trim().slice(0, 25) || 'Ward', primaryStyleId: page.primaryStyleId, subStyleId: page.subStyleId, selectedPerkIds: [...page.selectedPerkIds] };
+        if (target === 'new') {
+          if (s.runePages.length >= 4) throw new Error('Plus de place pour une nouvelle page : modifie une page existante.');
+          s.runePages.push({ id: s.nextPageId++, current: false, editable: true, valid: true, ...clean });
+          target = s.runePages.at(-1).id;
+        } else {
+          const existing = s.runePages.find(item => item.id === target);
+          if (!existing?.editable) throw new Error('Cette page ne peut pas être modifiée : choisis une de tes pages.');
+          Object.assign(existing, clean);
+        }
+        s.runePages.forEach(item => { item.current = item.id === target; });
+        return target;
+      },
       async getRoles() { return s.roles ? { ...s.roles } : null; },
       async saveRoles(value) {
         const first = value?.firstPreference;
@@ -1564,6 +2370,13 @@ setInterval(render, 100);
       async startSearch() {
         if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
         if (!s.roles && queue().positions) throw new Error('Choisis tes positions avant de lancer.');
+        if (queue().custom) {
+          // Outil d'entraînement : pas de recherche, sélection des champions directement.
+          if (s.phase === 'None') setPhase('Lobby');
+          await delay(700);
+          toChampSelect();
+          return { custom: true };
+        }
         const reason = blockedReason();
         if (reason) throw new Error(reason);
         await delay(260);
@@ -1609,13 +2422,6 @@ setInterval(render, 100);
       get champion() { return s.champion; },
       champLeft: () => Math.max(0, s.champDeadline - Date.now()),
       gameSeconds: () => Math.floor((Date.now() - s.gameStart) / 1000 * 30),
-      lock(name) {
-        if (s.phase !== 'ChampSelect' || s.champion) return;
-        s.champion = name;
-        cancel(s.t.champ);
-        ui.quest('champ');
-        later(() => { setPhase('GameStart'); later(() => { setPhase('InProgress'); s.gameStart = Date.now(); s.t.game = later(endGame, 60000); }, 2500); }, 1500);
-      },
       endGame,
       destroy() { alive = false; timers.forEach(clearTimeout); timers.clear(); }
     };
@@ -1713,9 +2519,6 @@ setInterval(render, 100);
     el.innerHTML = '<div class="client-bar"><b>Client League</b><small>version démo</small><button type="button" aria-label="Fermer le client">×</button></div><div class="client-body"></div>';
     el.querySelector('.client-bar button').addEventListener('click', () => { el.hidden = true; tbClient.classList.remove('open'); });
     el.querySelector('.client-body').addEventListener('click', event => {
-      const champ = event.target.closest('.champ');
-      if (champ && !backend.champion) { picked = champ.dataset.name; clientKey = ''; renderClient(); return; }
-      if (event.target.closest('[data-lock]') && picked) { backend.lock(picked); clientKey = ''; renderClient(); return; }
       if (event.target.closest('[data-end]')) backend.endGame();
     });
     desk.insertBefore(el, desk.querySelector('.taskbar'));
@@ -1731,10 +2534,7 @@ setInterval(render, 100);
     if (key !== clientKey) {
       clientKey = key;
       if (phase === 'ChampSelect') {
-        const locked = backend.champion;
-        body.innerHTML = `<div class="cs-head"><div><h3>Sélection des champions</h3><p>Classé Solo/Duo · ${locked ? 'en attente des autres joueurs…' : 'choisis ton champion puis verrouille-le.'}</p></div><span class="cs-timer" data-timer>30</span></div>
-          <div class="champs">${CHAMPS.map(([name, hue]) => `<button type="button" class="champ" data-name="${name}" aria-pressed="${name === (locked || picked)}" ${locked ? 'disabled' : ''}><i style="background:linear-gradient(135deg,hsl(${hue},55%,40%),hsl(${(hue + 40) % 360},60%,12%))">${name[0]}</i>${name}</button>`).join('')}</div>
-          <div class="client-actions">${locked ? `<p>Verrouillé : <b style="color:var(--gold)">${locked}</b></p>` : `<button type="button" class="btn btn-gold" data-lock ${picked ? '' : 'disabled'}>Verrouiller</button>`}</div>`;
+        body.innerHTML = '<div class="game"><h3>Sélection des champions</h3><p>Dans Ward, la sélection se fait directement dans le widget : champion, sorts et runes.</p></div>';
       } else if (phase === 'GameStart') {
         body.innerHTML = `<div class="game"><h3>Chargement de la partie</h3><p>${backend.champion || ''} · Faille de l'invocateur</p></div>`;
       } else if (phase === 'InProgress') {
@@ -1771,7 +2571,7 @@ setInterval(render, 100);
     if (!backend.isLeader && backend.phase === 'Lobby') return { text: backend.roles ? 'Tu es dans le lobby de Lumen : c’est elle qui lance la recherche.' : 'Tu es dans le lobby de Lumen : choisis tes rôles, elle lancera la recherche ensuite.' };
     if (phase === 'ReadyCheck') return { text: backend.ready?.response === 'Accepted' ? 'Accepté ! Les autres joueurs arrivent…' : 'Partie trouvée : accepte dans la popup ou dans le widget.' };
     if (phase === 'Matchmaking') return { text: 'Recherche en cours… Tu peux déplacer le widget pendant ce temps.' };
-    if (phase === 'ChampSelect') return { text: backend.champion ? 'Champion verrouillé. La partie va commencer.' : 'Le client s’est ouvert tout seul : choisis un champion et verrouille-le.' };
+    if (phase === 'ChampSelect') return { text: backend.champion ? 'Tout le monde a verrouillé : la partie va commencer.' : 'Sélection des champions dans le widget : choisis ton champion, règle sorts et runes, puis verrouille.' };
     if (phase === 'GameStart') return { text: 'Chargement de la partie…' };
     if (phase === 'InProgress') return { text: 'Partie en cours. Termine-la depuis la fenêtre du client quand tu veux.' };
     if (phase === 'EndOfGame') return { text: 'Fin de partie…' };
