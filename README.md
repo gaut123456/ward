@@ -33,7 +33,7 @@ Le LCU est découvert via son lockfile, même sans processus `LeagueClientUx.exe
 
 ## Exécutable Windows portable
 
-`npm run build:exe` génère `out/Ward-0.1.4-portable.exe` pour Windows x64. Ce fichier est autonome : Node.js et les sources ne sont pas nécessaires sur le PC cible, mais League et Riot Client doivent y être installés. Double-clique dessus pour démarrer le widget. Aucun droit administrateur ni installation n’est demandé. Les préférences restent dans `%APPDATA%/ward`, comme en développement. Les rôles enregistrés sous l’ancien nom (`%APPDATA%/lol-ranked-widget`) sont repris automatiquement au premier lancement.
+`npm run build:exe` génère `out/Ward-0.1.5-portable.exe` pour Windows x64. Ce fichier est autonome : Node.js et les sources ne sont pas nécessaires sur le PC cible, mais League et Riot Client doivent y être installés. Double-clique dessus pour démarrer le widget. Aucun droit administrateur ni installation n’est demandé. Les préférences restent dans `%APPDATA%/ward`, comme en développement. Les rôles enregistrés sous l’ancien nom (`%APPDATA%/lol-ranked-widget`) sont repris automatiquement au premier lancement.
 
 L’emblème vert et or est une création vectorielle locale (`renderer/assets/app-icon.svg`). `npm run build:icon` en dérive automatiquement l’icône Windows en sept tailles, de 16 à 256 px, et l’icône de fenêtre. Cette génération est incluse dans `build:exe`.
 
