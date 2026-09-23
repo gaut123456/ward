@@ -1,0 +1,1435 @@
+<title>Ward</title>
+<meta name="description" content="Ward, un widget de bureau pour lancer tes parties classées League of Legends sans ouvrir le client." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Marcellus+SC&family=Spline+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" />
+<!-- Généré par scripts/build-site.cjs à partir de site/landing.template.html et renderer/. Ne pas modifier site/index.html à la main. -->
+<style>
+  :root {
+    color-scheme: dark;
+    --ground: #07101c;
+    --night: #0c1a2b;
+    --void: #030a12;
+    --gold: #c8aa6e;
+    --gold-deep: #785a28;
+    --gold-dark: #463714;
+    --parchment: #efe6d3;
+    --muted: #948e80;
+    --faint: #5d5a53;
+    --teal: #19c6b6;
+    --teal-pale: #cdfafa;
+    --teal-deep: #005a82;
+    --red: #e84057;
+    --line: rgba(200, 170, 110, 0.16);
+    --line-soft: rgba(200, 170, 110, 0.08);
+
+    --display: "Marcellus", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --caps: "Marcellus SC", "Marcellus", "Palatino Linotype", Georgia, serif;
+    --body: "Spline Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--parchment);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 2px; }
+  .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: 24px; }
+  @media (max-width: 480px) { .wrap { padding-inline: 16px; } }
+
+  h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; margin: 0; }
+  .eyebrow {
+    font-family: var(--caps);
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before { content: ""; width: 7px; height: 7px; transform: rotate(45deg); border: 1px solid currentColor; }
+
+  /* ---------- Boutons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 50px;
+    padding: 0 22px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    font-family: var(--caps);
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    color: inherit;
+    transition: box-shadow 0.25s var(--ease), color 0.25s var(--ease), border-color 0.2s;
+  }
+  .btn-primary {
+    color: var(--teal-pale);
+    background:
+      linear-gradient(180deg, rgba(25, 198, 182, 0.18), rgba(0, 90, 130, 0.26)) padding-box,
+      linear-gradient(var(--void), var(--void)) padding-box,
+      linear-gradient(180deg, var(--teal), var(--teal-deep)) border-box;
+    box-shadow: inset 0 0 18px rgba(25, 198, 182, 0.18), 0 0 24px rgba(25, 198, 182, 0.12);
+    text-shadow: 0 0 10px rgba(25, 198, 182, 0.5);
+  }
+  .btn-primary:hover { color: #fff; box-shadow: inset 0 0 24px rgba(25, 198, 182, 0.3), 0 0 34px rgba(25, 198, 182, 0.28); }
+  .btn-ghost { color: var(--parchment); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--gold); color: #fff; }
+  .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 50;
+    background: rgba(7, 16, 28, 0.82);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: var(--caps); font-size: 17px; letter-spacing: 0.12em; }
+  .brand-mark { width: 26px; height: 26px; display: grid; place-items: center; border: 1px solid var(--gold); transform: rotate(45deg); }
+  .brand-mark::after { content: ""; width: 8px; height: 8px; background: var(--teal); box-shadow: 0 0 10px var(--teal); }
+  .nav-links { display: flex; gap: 26px; margin-left: auto; font-size: 14px; }
+  .nav-links a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--parchment); }
+  .nav .btn { height: 38px; padding: 0 16px; font-size: 13px; }
+  @media (max-width: 820px) { .nav-links { display: none; } .nav .btn { margin-left: auto; } }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding-block: 64px 40px;
+    background:
+      radial-gradient(60% 50% at 80% 30%, rgba(25, 198, 182, 0.09), transparent 70%),
+      radial-gradient(50% 50% at 10% 0%, rgba(200, 170, 110, 0.08), transparent 70%);
+  }
+  .hero-top { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px 64px; align-items: end; }
+  .hero h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.02; letter-spacing: -0.01em; margin-top: 18px; }
+  .hero h1 em { font-style: normal; color: var(--gold); }
+  .lede { margin: 0; font-size: 18px; color: #c9c1b0; max-width: 32em; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 20px; font-size: 13px; color: var(--muted); }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+  .hero-meta span::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--gold-deep); }
+  @media (max-width: 920px) { .hero-top { grid-template-columns: 1fr; } .hero { padding-block: 44px 32px; } }
+
+  /* ---------- Terrain de jeu ---------- */
+  .playground { margin-top: 48px; scroll-margin-top: 80px; }
+  .pg-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 12px 16px;
+    border-radius: 8px 8px 0 0;
+    background: rgba(12, 26, 43, 0.7);
+  }
+  .pg-live { display: inline-flex; align-items: center; gap: 8px; font-family: var(--caps); font-size: 12px; letter-spacing: 0.18em; color: var(--teal); flex-shrink: 0; }
+  .pg-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); animation: blink 1.6s infinite; }
+  .pg-hint { flex: 1; min-width: 200px; font-size: 14px; color: var(--parchment); }
+  .pg-hint.alert { color: #ffb4be; }
+  .pg-reset { height: 32px; padding: 0 12px; font-size: 12px; }
+  @keyframes blink { 50% { opacity: 0.35; } }
+
+  .desk {
+    position: relative;
+    height: 620px;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    touch-action: none;
+    background:
+      radial-gradient(70% 90% at 100% 0%, #1d3553 0%, transparent 60%),
+      radial-gradient(60% 80% at 0% 100%, #2a1f3d 0%, transparent 60%),
+      linear-gradient(160deg, #0f2036, #0a1322);
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8);
+  }
+  .desk::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%);
+    pointer-events: none;
+  }
+  .desk-icons { position: absolute; left: 18px; top: 18px; display: grid; gap: 18px; pointer-events: none; }
+  .desk-icons span { display: grid; justify-items: center; gap: 5px; width: 68px; font-size: 11px; color: rgba(255, 255, 255, 0.78); text-align: center; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+  .desk-icons svg { width: 38px; height: 38px; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45)); }
+  @media (max-width: 640px) { .desk-icons { display: none; } }
+
+  .win { position: absolute; left: 0; top: 0; will-change: transform; }
+  .win[hidden] { display: none; }
+  .w-host { width: 300px; height: 230px; }
+  .r-host { width: 310px; height: 260px; }
+  .win.popin { animation: popin 0.28s var(--ease); }
+  @keyframes popin { from { opacity: 0; scale: 0.96; } to { opacity: 1; scale: 1; } }
+
+  .taskbar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 42px;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(12, 20, 32, 0.9);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .taskbar > i { width: 30px; height: 30px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); }
+  .tb-app {
+    position: relative;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border: 0; border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .tb-app:hover { background: rgba(255, 255, 255, 0.08); }
+  .tb-app::after { content: ""; position: absolute; bottom: 1px; left: 50%; width: 6px; height: 3px; margin-left: -3px; border-radius: 2px; background: rgba(255, 255, 255, 0.4); transition: width 0.2s, margin 0.2s, background 0.2s; }
+  .tb-app.open::after { width: 14px; margin-left: -7px; background: var(--teal); }
+  .tb-app[hidden] { display: none; }
+  .tb-widget b { width: 16px; height: 16px; border: 1.5px solid var(--gold); transform: rotate(45deg); display: grid; place-items: center; }
+  .tb-widget b::after { content: ""; width: 6px; height: 6px; background: var(--teal); }
+  .tb-widget.nudge { animation: nudge 1.2s ease-in-out infinite; }
+  @keyframes nudge { 50% { background: rgba(200, 170, 110, 0.18); } }
+  .tb-client b { width: 18px; height: 18px; border-radius: 4px; background: linear-gradient(135deg, #c8aa6e, #463714); }
+  .taskbar time { position: absolute; right: 14px; font-family: var(--mono); font-size: 11px; color: rgba(255, 255, 255, 0.6); }
+
+  /* Faux client League */
+  .client {
+    width: 620px; height: 380px;
+    max-width: calc(100% - 16px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--gold-deep);
+    background: linear-gradient(180deg, #0a1428, #010a13);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    font-size: 13px;
+  }
+  .client-bar {
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px 0 14px;
+    border-bottom: 1px solid var(--line);
+    background: #0b1523;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  .client-bar b { font-family: var(--caps); font-size: 12px; letter-spacing: 0.16em; color: var(--gold); font-weight: 400; }
+  .client-bar small { color: var(--faint); font-size: 11px; }
+  .client-bar button { margin-left: auto; width: 28px; height: 26px; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 16px; border-radius: 3px; }
+  .client-bar button:hover { color: #fff; background: rgba(232, 64, 87, 0.5); }
+  .client-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 16px 18px 18px; user-select: none; }
+  .client-body h3 { font-family: var(--caps); font-size: 18px; letter-spacing: 0.1em; color: var(--parchment); }
+  .client-body p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+  .cs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .cs-timer { font-family: var(--mono); font-size: 22px; color: var(--teal-pale); }
+  .cs-timer.low { color: var(--red); }
+  .champs { flex: 1; min-height: 0; margin: 14px 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; overflow-y: auto; align-content: start; }
+  .champ {
+    display: grid; justify-items: center; gap: 5px;
+    padding: 8px 4px;
+    border: 1px solid var(--line-soft);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--muted);
+    font: inherit; font-size: 11px;
+    cursor: pointer;
+  }
+  .champ i { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--gold-dark); font-family: var(--display); font-style: normal; font-size: 18px; color: #fff; }
+  .champ:hover { border-color: var(--gold-deep); color: var(--parchment); }
+  .champ[aria-pressed="true"] { border-color: var(--gold); color: var(--parchment); background: rgba(200, 170, 110, 0.1); box-shadow: inset 0 0 12px rgba(200, 170, 110, 0.15); }
+  .client-actions { display: flex; justify-content: flex-end; gap: 10px; }
+  .client-actions .btn { height: 40px; }
+  .btn-gold { color: #010a13; background: linear-gradient(180deg, #f0e6d2, #c8aa6e 45%, #c89b3c); }
+  .btn-gold:disabled { color: var(--faint); background: #1e2328; cursor: default; }
+  .game { flex: 1; display: grid; place-items: center; text-align: center; align-content: center; gap: 8px; }
+  .game .clock { font-family: var(--mono); font-size: 44px; color: var(--parchment); }
+  .game .victory { font-family: var(--display); font-size: 40px; color: var(--gold); }
+
+  /* ---------- Journal d'étapes ---------- */
+  .journey { padding-block: 36px 88px; }
+  .journey-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 32px; margin-bottom: 28px; }
+  .journey-head h2 { font-size: clamp(28px, 3.6vw, 38px); }
+  .journey-head p { margin: 0; max-width: 30em; color: var(--muted); font-size: 15px; }
+  .progress { font-family: var(--mono); font-size: 13px; color: var(--gold); }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+  .steps li { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 22px 16px 4px 0; }
+  .steps li::before {
+    content: "";
+    position: absolute; top: -5px; left: 0;
+    width: 9px; height: 9px;
+    transform: rotate(45deg);
+    border: 1px solid var(--gold-deep);
+    background: var(--ground);
+    transition: 0.3s var(--ease);
+  }
+  .steps li::after { content: ""; position: absolute; top: -1px; left: 0; height: 1px; width: 0; background: var(--gold); transition: width 0.6s var(--ease); }
+  .steps .num { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .steps b { font-family: var(--display); font-weight: 400; font-size: 20px; color: var(--muted); transition: color 0.3s; }
+  .steps span.d { font-size: 13.5px; line-height: 1.5; color: var(--faint); transition: color 0.3s; }
+  .steps li.done::before { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px rgba(25, 198, 182, 0.6); }
+  .steps li.done::after { width: 100%; background: var(--teal); }
+  .steps li.done .num { color: var(--teal); }
+  .steps li.done .num::after { content: " · fait"; }
+  .steps li.done b { color: var(--parchment); }
+  .steps li.on::before { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 12px rgba(200, 170, 110, 0.7); animation: blink 1.4s infinite; }
+  .steps li.on .num { color: var(--gold); }
+  .steps li.on b { color: var(--parchment); }
+  .steps li.on span.d { color: #c9c1b0; }
+  @media (max-width: 920px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 8px; } }
+  @media (max-width: 560px) {
+    .steps { grid-template-columns: 1fr; border-top: 0; border-left: 1px solid var(--line); }
+    .steps li { padding: 12px 0 12px 22px; }
+    .steps li::before { top: 20px; left: -5px; }
+    .steps li::after { display: none; }
+  }
+
+  /* ---------- Sections ---------- */
+  section.block { padding-block: 88px; border-top: 1px solid var(--line-soft); }
+  .block-head { max-width: 640px; margin-bottom: 44px; }
+  .block-head h2 { font-size: clamp(30px, 4vw, 44px); line-height: 1.1; margin-top: 14px; }
+  .block-head p { color: var(--muted); font-size: 17px; margin: 16px 0 0; }
+
+  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); }
+  .feature { background: var(--ground); padding: 30px 28px 32px; display: flex; flex-direction: column; gap: 12px; }
+  .feature .ico { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); color: var(--gold); }
+  .feature .ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .feature h3 { font-size: 22px; line-height: 1.2; }
+  .feature p { margin: 0; color: var(--muted); font-size: 15px; }
+  .feature.lead { grid-column: span 2; background: linear-gradient(135deg, rgba(200, 170, 110, 0.07), transparent 60%), var(--ground); }
+  .feature.lead h3 { font-size: 28px; }
+  .role-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .role-row span { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px 0 8px; border: 1px solid var(--line); font-size: 13px; color: #c9c1b0; }
+  .role-row img { width: 18px; height: 18px; }
+  @media (max-width: 920px) { .features { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .features { grid-template-columns: 1fr; } .feature.lead { grid-column: auto; } }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .col { padding: 30px; border: 1px solid var(--line-soft); }
+  .col h3 { font-family: var(--caps); font-size: 14px; letter-spacing: 0.2em; margin-bottom: 18px; color: var(--muted); }
+  .col.with { border-color: rgba(25, 198, 182, 0.35); background: linear-gradient(160deg, rgba(25, 198, 182, 0.07), transparent 55%); }
+  .col.with h3 { color: var(--teal); }
+  .col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .col li { display: grid; grid-template-columns: 18px 1fr; gap: 12px; font-size: 15px; color: #c9c1b0; }
+  .col li::before { content: ""; width: 8px; height: 8px; margin-top: 8px; transform: rotate(45deg); border: 1px solid var(--faint); }
+  .col.with li::before { border-color: var(--teal); background: var(--teal); }
+  @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+
+  .local { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; align-items: start; }
+  .local ul { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 18px; }
+  .local li b { display: block; font-weight: 600; font-size: 15px; }
+  .local li span { color: var(--muted); font-size: 15px; }
+  .console { border: 1px solid var(--line); background: var(--void); font-family: var(--mono); font-size: 12.5px; line-height: 1.85; overflow-x: auto; }
+  .console-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line-soft); color: var(--faint); font-size: 11px; }
+  .console-bar::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+  .console pre { margin: 0; padding: 16px 18px 18px; white-space: pre; color: #bcb5a6; }
+  .console .m { color: var(--gold); }
+  .console .c { color: var(--faint); }
+  .console .v { color: var(--teal-pale); }
+  @media (max-width: 920px) { .local { grid-template-columns: 1fr; gap: 36px; } }
+
+  .faq { max-width: 780px; }
+  .faq details { border-top: 1px solid var(--line-soft); }
+  .faq details:last-child { border-bottom: 1px solid var(--line-soft); }
+  .faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0; font-family: var(--display); font-size: 21px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: ""; flex-shrink: 0; width: 9px; height: 9px; border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); transform: rotate(45deg); transition: transform 0.25s var(--ease); margin-top: -6px; }
+  .faq details[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
+  .faq details p { margin: 0 0 24px; max-width: 62ch; color: var(--muted); font-size: 15.5px; }
+  .faq code { font-family: var(--mono); font-size: 13px; color: var(--teal-pale); }
+
+  .download { position: relative; overflow: hidden; padding-block: 96px; border-top: 1px solid var(--line-soft); background: radial-gradient(50% 80% at 50% 100%, rgba(25, 198, 182, 0.12), transparent 70%); text-align: center; }
+  .download h2 { font-size: clamp(34px, 5vw, 56px); line-height: 1.05; }
+  .download p { max-width: 36em; margin: 18px auto 0; color: var(--muted); font-size: 17px; }
+  .download .hero-cta { justify-content: center; }
+  .file { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 22px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .file span:first-child { color: var(--gold); }
+  .download .source { margin-top: 14px; font-size: 14px; }
+  .download .source a, .local li a, footer a { color: var(--gold); text-underline-offset: 3px; }
+
+  footer { padding-block: 36px 48px; border-top: 1px solid var(--line-soft); font-size: 12.5px; color: var(--faint); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px 40px; }
+  footer p { margin: 0; max-width: 70ch; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+
+<nav class="nav" aria-label="Navigation principale">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>Ward</a>
+    <div class="nav-links">
+      <a href="#demo">Démo</a>
+      <a href="#fonctions">Fonctions</a>
+      <a href="#local">Confidentialité</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a class="btn btn-primary" href="#telecharger">Télécharger</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-top">
+    <div>
+      <span class="eyebrow">Ward · le widget de ta file classée</span>
+      <h1>La file classée, <em>sans ouvrir le client.</em></h1>
+    </div>
+    <div>
+      <p class="lede">Un widget de 300 pixels posé sur ton bureau. Tu choisis tes rôles, tu invites ton duo, tu lances la recherche et tu acceptes la partie. League tourne en arrière-plan et ne s'affiche qu'à la sélection des champions.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+          Télécharger pour Windows
+        </a>
+        <a class="btn btn-ghost" href="#demo">Essayer la démo</a>
+      </div>
+      <div class="hero-meta">
+        <span>Gratuit</span>
+        <span>Exécutable portable, sans installation</span>
+        <span>Tout reste sur ton PC</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap playground" id="demo">
+    <div class="pg-bar">
+      <span class="pg-live">Démo jouable</span>
+      <span class="pg-hint" id="hint" role="status">League démarre en arrière-plan…</span>
+      <button class="btn btn-ghost pg-reset" id="reset" type="button">Recommencer</button>
+    </div>
+    <div class="desk" id="desk" aria-label="Bureau de démonstration : le vrai widget, avec un faux client League">
+      <div class="desk-icons" aria-hidden="true">
+        <span>
+          <svg viewBox="0 0 40 40">
+            <defs>
+              <linearGradient id="bin-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8eef5" stop-opacity=".95"/><stop offset="1" stop-color="#8fa3b8" stop-opacity=".8"/></linearGradient>
+              <linearGradient id="bin-lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#b9c7d6"/></linearGradient>
+            </defs>
+            <path d="M10 12h20l-2 22a2 2 0 0 1-2 1.8H14A2 2 0 0 1 12 34z" fill="url(#bin-body)"/>
+            <path d="M16 16v15M20 16v15M24 16v15" stroke="#5f7489" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>
+            <rect x="8" y="8.5" width="24" height="4" rx="1.6" fill="url(#bin-lid)"/>
+            <path d="M16.5 8.5V6.8A1.3 1.3 0 0 1 17.8 5.5h4.4a1.3 1.3 0 0 1 1.3 1.3v1.7" fill="none" stroke="#dfe7ef" stroke-width="1.6"/>
+          </svg>
+          Corbeille
+        </span>
+        <span>
+          <svg viewBox="0 0 40 40">
+            <defs>
+              <linearGradient id="music-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6b8b"/><stop offset="1" stop-color="#b3265a"/></linearGradient>
+            </defs>
+            <rect x="4" y="4" width="32" height="32" rx="8" fill="url(#music-bg)"/>
+            <path d="M16.5 26.5V12.5l12-2.6v14" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+            <ellipse cx="13.8" cy="26.8" rx="3.4" ry="2.7" fill="#fff"/>
+            <ellipse cx="25.8" cy="24.2" rx="3.4" ry="2.7" fill="#fff"/>
+          </svg>
+          Musique
+        </span>
+        <span>
+          <svg viewBox="0 0 40 40">
+            <defs>
+              <linearGradient id="folder-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5c542"/><stop offset="1" stop-color="#d99a1e"/></linearGradient>
+              <linearGradient id="folder-front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f2b534"/></linearGradient>
+            </defs>
+            <path d="M4 10a2 2 0 0 1 2-2h9l3 3h16a2 2 0 0 1 2 2v19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="url(#folder-back)"/>
+            <path d="M4 15a2 2 0 0 1 2-2h28a2 2 0 0 1 2 2v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="url(#folder-front)"/>
+            <rect x="13" y="18" width="14" height="10" rx="2" fill="none" stroke="#a86a0c" stroke-width="1.6"/>
+            <circle cx="20" cy="23" r="2.6" fill="none" stroke="#a86a0c" stroke-width="1.6"/>
+            <path d="M16.5 18l1-1.8h5l1 1.8" fill="none" stroke="#a86a0c" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          Captures
+        </span>
+      </div>
+      <div class="taskbar">
+        <i aria-hidden="true"></i><i aria-hidden="true"></i>
+        <button class="tb-app tb-widget open" id="tb-widget" type="button" title="Ward" aria-label="Afficher Ward"><b></b></button>
+        <button class="tb-app tb-client" id="tb-client" type="button" title="Client League (démo)" aria-label="Afficher le client League" hidden><b></b></button>
+        <i aria-hidden="true"></i>
+        <time id="clock">21:47</time>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="journey" aria-labelledby="parcours-title">
+  <div class="wrap">
+    <div class="journey-head">
+      <div>
+        <h2 id="parcours-title">Du bureau à la Faille</h2>
+        <span class="progress" id="progress">0 / 6 étapes</span>
+      </div>
+      <p>Joue la démo au-dessus : chaque étape se valide quand tu la fais. Tu peux déplacer les fenêtres, fermer le widget et le rouvrir depuis la barre des tâches.</p>
+    </div>
+    <ol class="steps" id="steps">
+      <li data-quest="launch"><span class="num">01</span><b>Lancer</b><span class="d">Le widget démarre League en arrière-plan, sans sa fenêtre.</span></li>
+      <li data-quest="roles"><span class="num">02</span><b>Rôles</b><span class="d">Principal et secondaire, mémorisés d'une session à l'autre.</span></li>
+      <li data-quest="duo"><span class="num">03</span><b>Duo</b><span class="d">Invite un ami connecté ou tape son Riot ID.</span></li>
+      <li data-quest="search"><span class="num">04</span><b>Recherche</b><span class="d">Chrono en direct et attente estimée dans l'en-tête.</span></li>
+      <li data-quest="accept"><span class="num">05</span><b>Accepter</b><span class="d">Une popup au premier plan, même si tu es sur une autre fenêtre.</span></li>
+      <li data-quest="champ"><span class="num">06</span><b>Champion</b><span class="d">Le client s'ouvre tout seul pour la sélection des champions.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="block" id="fonctions" aria-labelledby="fonctions-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">Fonctions</span>
+      <h2 id="fonctions-title">Tout ce qu'il faut pour lancer une partie classée</h2>
+      <p>Le widget couvre tout ce qui se passe avant la sélection des champions. Pour la suite, le vrai client prend le relais.</p>
+    </div>
+    <div class="features">
+      <article class="feature lead">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 8v8M8 12h8"/></svg></span>
+        <h3>Tes rôles, choisis une fois</h3>
+        <p>Choisis ton rôle principal et ton rôle secondaire dans une grille. Le widget les garde en mémoire et les applique au lobby avant chaque recherche. Si tu prends Fill, il ne demande pas de second rôle.</p>
+        <div class="role-row">
+          <span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACDUlEQVR4Ae3SxZVWQRhF0WrLhXxwDYExQ9zd3aX/7hx4U7KCb4a9ixZW7LPWnZfspg+TJEmSJEmSJEmSJEnSm42Db//YbLO2BsjcbKO22mYCxNZrK20mQOxlwgGIPU84ALGnCQcg9jDhAMQe1JbbTIDYvdpSmwkQu5NwAGK3Eg5A7EbCAYhd6Ynj0J4t2wAZZ5c649hemwAZYxda1RsHIGPsXGccO2oTIGPsTGccO2sTIGPsVGccu2oTIGPs+O/AAci/uSOdcexOOIYE0vQ9OPZkHICE4AAEjr0ZBSAhOACBY3/GAEgIDkDgOPD9OACBAxB9PwpAAAFEgAACCCCAAAIIIIAAAggggAACCCCAACJA8n7/A/cdIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIID8tgABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEED+jwABBBBAAAEEEEAAAQQQQAABBBBAjiIBSNpxHABJO4kCIGlnMEgBch6BFCAXm0KAXGoKAXKlttRmEiDX4UgBchOOFCC34UgBch+OFCAPeuKoC2+rva5N9u8DeVhbhmNugDyqrXTGMdkYQJ7BkQbICzjSAHkFRxogG3CkAbJZW4UjDZA1OADJwQEIHID8SRzbfSQgcAACByBwAAIHIOMmSZIkSZIkSZIkSZKkd8dKK/Dyg9OUAAAAAElFTkSuQmCC" alt="" />Top</span>
+          <span><img src="data:image/png;base64,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" alt="" />Jungle</span>
+          <span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACBUlEQVR4Ae3dwTFtQRSF4fOUmUREAwCACEwBiEcQTEUFE3jYDXTdVbe+v2olsM83Pj28TpIkSZIkSZIkSZIkSTrcmL55nu0Nv+j2av/icfd/uRwgthOAIxSIbQfgACR0WwE4AAndZgAOQEK3EYADkNCt5eMABA5A4rYaigOQgC3n4wAEDkCidv24pVAcgATgWMjHAQgcgMThmA/FAUgAjtkgHIAMyQXgAKRbcAACByBwAAJHv10CMpLgAAQOQOAABI7+AQIHIHAAAgcgcPQPEDgAgQMQOACBo3+AwAEIHIDAUXybCUDK4HjcISBVcBw17wsIHIDUwQHIB8FxXN0XEDhO2vcFBA5APgiO0x/cFxA4ACmCAxA4zqp7AgLH+Q/uCwgcgBTBAQgcFx/dDhA4/rVxjD+QPTiat52qbzf+QHbgqAJkG44qQLbgqAJkE44qQDbgqAJkDQ5A4Ph2gKzCUQXIMhyADHC0A+T3b7zBUd92chyA1M94weHvCXA0A+SzN97gAGQWDkC6BAcgcAACByBwANI/OACBAxA4AIEDkP7BAQgcgMABCByA9AkOQOAABA5A4BhpgMDRI0DgAAQOQODoECCx/wTbLQ4dMEDgAAQOQOAIGCBwAAIHIHAAAgcgcAQMEDgAgQMQOACBo8MAgQMQOABJxgGIJEmSJEmSJEmSJEmS9ABV/259BSpn/AAAAABJRU5ErkJggg==" alt="" />Mid</span>
+          <span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACYElEQVR4Ae3aRZYUMBSG0XR1117YAu7uLotgzAx3d3eXIROkYcquigSXPLS87nfOv4G8O0z6NkmSJEmSJEmSJEmSJGnHtilvuzbbCEg02zAAHACBAxA4/iNA4AAEDkDgAASOd0+2NwGJBsdE3lNAaoNjPO9JXguQ2uB4VHAAUhsc9wsMQGqD425BAUhtcNz8EQcgZXA08m7UcAACx1je9QJhaIEk/Q+OqxEMQOC4FKEABI4LEQhA4DgbYQAEjlMRBEAAORkhAASO4xEAQOA4Eh0fEDgORYcHBI795cCjDuRlUg3Hno8HBuR50o84doUHB0T1QwMiQAABBBBAAAEEEEAAAQQQQADp/SdqQAABBBBAAAGk4wECCCCAAAIIIIAAAggggADyDBBAfrXHgAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAgggIxMggADyH7uRBMgvdj1pxIEAAggggAACCCCAAAIIIIAAAggggADyKm9aEiABjhlJgAQ4ZiZVAuR13uykSoBM5s1JAiTAMTcJkADH/CRAAhwLkwAJcCxp8+PtzmvZ4AN5k7e0zTj2DuKBAKnjWNZmHPsH9ECAVHCsaDOOg8NxLEAKjlVtxnF4OA4FSMGxps04jg3HkQApONa1EcZY3snhORIgG9qM4/QQHQiQNuM466iARDjOOyggEY6LjglIhOOqQwJSw9HIu+6IgNRwjOfdcEBAIhy3HA+QCMcdhwMkwnHf0QCJcDxyMEBqOCbynjgWIDUczbynDgWIJEmSJEmSJEmSJEmS+qP3NNsmpc39RZcAAAAASUVORK5CYII=" alt="" />ADC</span>
+          <span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAAE/klEQVR4AezBgQAAAACAoP2pF6kCAAAAAACA2Tlr6KiCMArjce2wJi4d3sZ1+4PT4LDpsZcKd3eokwr3CnfXTRfpcNflFhNc3s3Ovpnd979zPiQhw87MPbP3W3NzXWgJZoNnIGyIHbILdgdkJQgb5DMYITthZziGgrcgbJgzoLfsiH0B2QnCljBOdsSucBSBjxYFpAOkys7YE5BWELaMJbIzdoRjBPhiYUDegXzZIfMBOQ7ClnJQdsh8QDZbHJDNskPmA9IPnLIwHKdAP9khO0KSAUIWhSMEMmVn7ApJHnhmQTieSTm1NyTl4JPBcHwCFbITdodkpsGAzJIdELMRY4mDgPT1yGzEWMRsxFjEbMRYxGzEWDy+xGzEWMRsxFjEbHjEWMRsxFjEbMRY3C9YE9XyzeMYMBstxoIxnBha50+gqfuG14AnvgkJbzazfBaOp6Dm1wkUgNs+C8lm1lh8EI7boOBvE0kGe+I9JITZKGPxTTj2gGQ3k5oCXvskJMpseGOJo3C8BlPYyZWCGz4JiTIb3ljiIBw3QWlPJ5kAlseI5Tg6zEZR4YNwfFJ7m6BDhceAez4IyUwwywfhuAfG6H68JEFN/m28hsQHtvIWOCAhmouQD45ISGIuHEdAvpcLUgvuWh8SCcddUGvyGdKJIGR/SHwXjhCYBPra8vbHyRZqcZsHc2+zbM431F70s/XJv0rQAt5ZsFjrPJjvOks+aqIFVMbaJw7OAscMmk+DB/OsN2gkx9QaZ8f6SwqSQR2YD1pVceqKcnDegCQP5pYE3kQ5CF1qzVrBArWWyfLiHpSsSLTOxfgDgfOfAjrQxTiHI7idk3q2OhKO4gifMAy6+D8au23nH3YScDFOMMInykpkx8m7JA2PseSRiur87esuxsnV8FgFcZchAdnjhd7i3+3/9XETRfgH9nuku3tl55ne4YHe4t91uhiry0PdnSwJ0N87eL1VBZUYbyCjuwb6iPQOVm+JguqGAKO7BvqI9A6Cw1F4DsVxOeYhYkwtfUR6B0+QK6guUEWV1l3pIx70Dp48tqASRZXWXfN9RHoHr7eqoJIM5HVX+ogNvYPXW1VQSQKGnt3dK71DH/X6CypdVOuiMK/J0jv06y1fUPmiyuuu/j4ivYPXW76gMkWV1139fUR6B0+QLqg8A1ndlT7CB2QE2A5eal68PLqg8gS81l3FS7VmI/zUQ9LANHBFr94SBZWn2eMXM18F00Ga3x8PGQ62gZca9FZnQSWKKq+7clrwQUnt4alSr6Gg6i6qdXJaGDhVCL0lCirFQF535bQwc6rwetuoISABXnfltDB5qgS1FVT9RTUop4X5UyVXW0HVX1RzY+u0kGB1aQhIVxwujVx8QeWLqv2XXPoLKl9U7b/kIgsqT/PX9u7YioAoiqLoK0hR09kUoRRoB6KfAFwP7LPWpMBwd/ZL31cDUAdUBaigCqhxqApQQRVQQRVQQVV5oIIqoIIqoIKqwkAFVUAFVUDthKoAFVQBFVQBFVQB9cXXsgSooAqooAqooKpWoIIqoIIqoIIqoIKqRkc0pm8AUAXUKFQFqKAKqKAKqKAKqKCqBqCCKqCCKqCCqhtkyh81cvORHVN9RW6SxThypOXaHp+zvi7n4c0NN8d8fK6SyTEpJsekmByTEsjkmBSTszYpgUyOSTlmckzKHZmcjUk5l8kxKZIkSZIkSZIkSWppD3zS30GHlwYQAAAAAElFTkSuQmCC" alt="" />Support</span>
+          <span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAAQlBMVEUAAADIqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm4Gp40KAAAAFXRSTlMAf4D3CN4h1UsqtLNM1Csi3YGyTX6Q7ueIAAACIUlEQVR4Xu3ay4pCQQxF0VR8lOVV+5n//9WGHhRcG7c0xINI9lSRg1kDFe1FqqqqqqqqqqpxbsP+3WjnYbm1iLixBVZERLPczhHxdwuv+K1baiNmcwuvmI30y8ziYNhh9eSWf5nZbmvQ9n01pOdfZsYCv2PdyL/MbLO3m+03sc4trx5XLXazz7iqJ19m3YGkwm1SLzO9stSZ514GvILU3NscY4Zep9R1x4QJ8PILSF21ebO0PAK8otSID8truwvwClIn66xOAV5RanzZTOOVpQq9slSdV5Yq9MpSdV5Zqs4rSxV6Zak6ryxV6JWl6ryyVJ1Xlir0ylKVXkmq1CtJlXoFqVqvIFXqFaRKvYJUrVeQqvPKUnVeWarGK0sV5SKpLR5cE+7gmnAH14Q7uCbcwTXhDq7xDmENdzzHEg9pbs+xxA1y5Q7MhTs4F+7gXL+Dl+h36Je46ANLs2f5qLg3TUtwsZikQ9ztZC/5BYulcq6Uyl51UrmjVCp71Uvd7cCrUurpJPTKv/wvaq9L3g+++VL99sm0UrfwkFQqvVlKqcxHKJVnKqXy4ZRSmbJUKnlVSmVEQqk8VimVvSqlslehVPaqlMqUJFKlXjtJve+1W1YOBMFrPpJBUu97vVhanaUyqG55+bP8sXawVPZ6scQ6SWWv3TJrJJW9+qP+oN/9YpxdvMdsWGodVuCWbrk1WIFb3HIbsAK3DHuNqqqqqqqqquoH3/Bt2cjPZ58AAAAASUVORK5CYII=" alt="" />Fill</span>
+        </div>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 9.5V13l2.5 1.5M9.5 3h5"/></svg></span>
+        <h3>Impossible de rater l'acceptation</h3>
+        <p>Quand une partie est trouvée, une popup s'affiche au premier plan avec un compte à rebours. Tu peux accepter depuis la popup ou depuis le widget.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M17 7v6M14 10h6"/></svg></span>
+        <h3>Duo en deux clics</h3>
+        <p>La liste de tes amis connectés se filtre pendant que tu tapes. Sinon, entre directement un Riot ID <span style="font-family:var(--mono);font-size:13px;color:var(--teal-pale)">Pseudo#TAG</span>.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg></span>
+        <h3>Toujours synchronisé</h3>
+        <p>L'état du client est relu chaque seconde. Si tu lances une recherche depuis un autre endroit, le widget la détecte et affiche le chrono.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M10 5H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4"/></svg></span>
+        <h3>Le client à portée de clic</h3>
+        <p>Un bouton dans l'en-tête affiche le client League à tout moment : pour la boutique, ton profil ou une file que le widget ne gère pas.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <h3>Chef de lobby</h3>
+        <p>Si tu es chef de lobby, tu peux exclure ton partenaire depuis le widget, après confirmation.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="block" aria-labelledby="compare-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">Avant / après</span>
+      <h2 id="compare-title">Moins de clics avant chaque partie</h2>
+    </div>
+    <div class="compare">
+      <div class="col">
+        <h3>Avec le client seul</h3>
+        <ul>
+          <li>Ouvrir le client et attendre qu'il charge</li>
+          <li>Jouer → Classé → Solo/Duo → Confirmer</li>
+          <li>Rechoisir ses rôles dans le lobby</li>
+          <li>Garder un œil sur le client pour ne pas rater le « Accepter »</li>
+          <li>Une grande fenêtre ouverte en permanence</li>
+        </ul>
+      </div>
+      <div class="col with">
+        <h3>Avec Ward</h3>
+        <ul>
+          <li>Un clic sur « Lancer » depuis le bureau</li>
+          <li>Le lobby Solo/Duo est créé automatiquement</li>
+          <li>Tes rôles sont déjà enregistrés</li>
+          <li>Une popup au premier plan pour accepter la partie</li>
+          <li>300 × 230 pixels, là où tu veux sur l'écran</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="local" aria-labelledby="local-title">
+  <div class="wrap local">
+    <div>
+      <span class="eyebrow">Confidentialité</span>
+      <h2 id="local-title" style="font-size:clamp(30px,4vw,44px);line-height:1.1;margin-top:14px">Il ne parle qu'au client League de ton PC</h2>
+      <ul>
+        <li><b>Aucun serveur tiers</b><span>Le widget utilise l'interface locale du client League, sur 127.0.0.1. Rien ne sort de ta machine.</span></li>
+        <li><b>Aucun mot de passe</b><span>Il utilise la session déjà ouverte dans le Riot Client. Les identifiants de session ne sont ni enregistrés ni journalisés.</span></li>
+        <li><b>Ne touche pas au jeu</b><span>Il ne modifie aucun fichier du jeu et ne lit pas la mémoire de la partie. Il fait seulement ce que tu pourrais faire toi-même dans le client.</span></li>
+        <li><b>Code ouvert</b><span>Tout le code est public sur <a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">GitHub</a> : tu peux vérifier ce que fait Ward avant de le lancer.</span></li>
+      </ul>
+    </div>
+    <div class="console" role="img" aria-label="Exemple des appels envoyés au client League local">
+      <div class="console-bar">127.0.0.1 · client League</div>
+<pre><span class="c"># Lancer : créer le lobby Classé Solo/Duo</span>
+<span class="m">POST</span> /lol-lobby/v2/lobby            <span class="v">{ queueId: 420 }</span>
+
+<span class="c"># Appliquer tes rôles</span>
+<span class="m">PUT </span> /lol-lobby/v2/lobby/members/localMember/position-preferences
+      <span class="v">{ firstPreference: "MIDDLE", secondPreference: "JUNGLE" }</span>
+
+<span class="c"># Chercher une partie</span>
+<span class="m">POST</span> /lol-lobby/v2/lobby/matchmaking/search
+
+<span class="c"># Partie trouvée</span>
+<span class="m">POST</span> /lol-matchmaking/v1/ready-check/accept</pre>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">FAQ</span>
+      <h2 id="faq-title">Questions fréquentes</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Est-ce que je risque quelque chose sur mon compte ?</summary>
+        <p>Le widget passe par l'interface locale du client, comme de nombreux outils de la communauté. Il ne modifie pas le jeu, n'automatise rien en partie et ne lit pas la mémoire du jeu. Riot Games n'approuve pas officiellement l'outil : c'est une application indépendante.</p>
+      </details>
+      <details>
+        <summary>Faut-il installer quelque chose ?</summary>
+        <p>Non. C'est un exécutable portable pour Windows 10 et 11 (<code>Ward-0.1.2-portable.exe</code>) : tu le lances et le widget apparaît en haut à droite de ton écran. Il faut que League of Legends soit installé.</p>
+      </details>
+      <details>
+        <summary>Dois-je me connecter à chaque lancement ?</summary>
+        <p>Non, si l'option « Rester connecté » est cochée dans le Riot Client. Sinon, le Riot Client affiche sa fenêtre de connexion une fois, puis le widget prend le relais.</p>
+      </details>
+      <details>
+        <summary>Quelles files sont prises en charge ?</summary>
+        <p>La file Classé Solo/Duo, seul ou à deux. Pour les autres modes, le bouton dans l'en-tête ouvre le client en un clic.</p>
+      </details>
+      <details>
+        <summary>Que se passe-t-il pendant la partie ?</summary>
+        <p>Le widget affiche « Partie en cours » et reste en attente, sans rien faire. Une fois la partie terminée et de retour au lobby, tu peux relancer une recherche depuis le widget.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="download" id="telecharger" aria-labelledby="dl-title">
+  <div class="wrap">
+    <span class="eyebrow">Windows 10 · 11</span>
+    <h2 id="dl-title" style="margin-top:16px">Ta prochaine partie classée<br />se lance depuis le bureau.</h2>
+    <p>Télécharge l'exécutable et lance-le. Aucune installation, aucun compte à créer.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+        Télécharger la v0.1.2
+      </a>
+    </div>
+    <div class="file"><span>Ward-0.1.2-portable.exe</span><span>x64</span><span>Portable</span></div>
+    <p class="source"><a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">Code source et versions sur GitHub</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Ward n'est pas approuvé par Riot Games et ne reflète pas les opinions de Riot Games ni de quiconque ayant participé à la production ou à la gestion de League of Legends. League of Legends et Riot Games sont des marques déposées de Riot Games, Inc.</p>
+    <p>Icônes de rôle : client League of Legends, via CommunityDragon. <a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">Code source sur GitHub</a>.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // ---------------------------------------------------------------------------
+  // Code réel du widget (renderer/), injecté par scripts/build-site.cjs.
+  // ---------------------------------------------------------------------------
+  const ICONS = {"top":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACDUlEQVR4Ae3SxZVWQRhF0WrLhXxwDYExQ9zd3aX/7hx4U7KCb4a9ixZW7LPWnZfspg+TJEmSJEmSJEmSJEnSm42Db//YbLO2BsjcbKO22mYCxNZrK20mQOxlwgGIPU84ALGnCQcg9jDhAMQe1JbbTIDYvdpSmwkQu5NwAGK3Eg5A7EbCAYhd6Ynj0J4t2wAZZ5c649hemwAZYxda1RsHIGPsXGccO2oTIGPsTGccO2sTIGPsVGccu2oTIGPs+O/AAci/uSOdcexOOIYE0vQ9OPZkHICE4AAEjr0ZBSAhOACBY3/GAEgIDkDgOPD9OACBAxB9PwpAAAFEgAACCCCAAAIIIIAAAggggAACCCCAACJA8n7/A/cdIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIID8tgABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEED+jwABBBBAAAEEEEAAAQQQQAABBBBAjiIBSNpxHABJO4kCIGlnMEgBch6BFCAXm0KAXGoKAXKlttRmEiDX4UgBchOOFCC34UgBch+OFCAPeuKoC2+rva5N9u8DeVhbhmNugDyqrXTGMdkYQJ7BkQbICzjSAHkFRxogG3CkAbJZW4UjDZA1OADJwQEIHID8SRzbfSQgcAACByBwAAIHIOMmSZIkSZIkSZIkSZKkd8dKK/Dyg9OUAAAAAElFTkSuQmCC","jungle":"data:image/png;base64,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","middle":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACBUlEQVR4Ae3dwTFtQRSF4fOUmUREAwCACEwBiEcQTEUFE3jYDXTdVbe+v2olsM83Pj28TpIkSZIkSZIkSZIkSTrcmL55nu0Nv+j2av/icfd/uRwgthOAIxSIbQfgACR0WwE4AAndZgAOQEK3EYADkNCt5eMABA5A4rYaigOQgC3n4wAEDkCidv24pVAcgATgWMjHAQgcgMThmA/FAUgAjtkgHIAMyQXgAKRbcAACByBwAAJHv10CMpLgAAQOQOAABI7+AQIHIHAAAgcgcPQPEDgAgQMQOACBo3+AwAEIHIDAUXybCUDK4HjcISBVcBw17wsIHIDUwQHIB8FxXN0XEDhO2vcFBA5APgiO0x/cFxA4ACmCAxA4zqp7AgLH+Q/uCwgcgBTBAQgcFx/dDhA4/rVxjD+QPTiat52qbzf+QHbgqAJkG44qQLbgqAJkE44qQDbgqAJkDQ5A4Ph2gKzCUQXIMhyADHC0A+T3b7zBUd92chyA1M94weHvCXA0A+SzN97gAGQWDkC6BAcgcAACByBwANI/OACBAxA4AIEDkP7BAQgcgMABCByA9AkOQOAABA5A4BhpgMDRI0DgAAQOQODoECCx/wTbLQ4dMEDgAAQOQOAIGCBwAAIHIHAAAgcgcAQMEDgAgQMQOACBo8MAgQMQOABJxgGIJEmSJEmSJEmSJEmS9ABV/259BSpn/AAAAABJRU5ErkJggg==","bottom":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAACYElEQVR4Ae3aRZYUMBSG0XR1117YAu7uLotgzAx3d3eXIROkYcquigSXPLS87nfOv4G8O0z6NkmSJEmSJEmSJEmSJGnHtilvuzbbCEg02zAAHACBAxA4/iNA4AAEDkDgAASOd0+2NwGJBsdE3lNAaoNjPO9JXguQ2uB4VHAAUhsc9wsMQGqD425BAUhtcNz8EQcgZXA08m7UcAACx1je9QJhaIEk/Q+OqxEMQOC4FKEABI4LEQhA4DgbYQAEjlMRBEAAORkhAASO4xEAQOA4Eh0fEDgORYcHBI795cCjDuRlUg3Hno8HBuR50o84doUHB0T1QwMiQAABBBBAAAEEEEAAAQQQQADp/SdqQAABBBBAAAGk4wECCCCAAAIIIIAAAggggADyDBBAfrXHgAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAgggIxMggADyH7uRBMgvdj1pxIEAAggggAACCCCAAAIIIIAAAggggADyKm9aEiABjhlJgAQ4ZiZVAuR13uykSoBM5s1JAiTAMTcJkADH/CRAAhwLkwAJcCxp8+PtzmvZ4AN5k7e0zTj2DuKBAKnjWNZmHPsH9ECAVHCsaDOOg8NxLEAKjlVtxnF4OA4FSMGxps04jg3HkQApONa1EcZY3snhORIgG9qM4/QQHQiQNuM466iARDjOOyggEY6LjglIhOOqQwJSw9HIu+6IgNRwjOfdcEBAIhy3HA+QCMcdhwMkwnHf0QCJcDxyMEBqOCbynjgWIDUczbynDgWIJEmSJEmSJEmSJEmS+qP3NNsmpc39RZcAAAAASUVORK5CYII=","utility":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAYAAAA8uqNSAAAE/klEQVR4AezBgQAAAACAoP2pF6kCAAAAAACA2Tlr6KiCMArjce2wJi4d3sZ1+4PT4LDpsZcKd3eokwr3CnfXTRfpcNflFhNc3s3Ovpnd979zPiQhw87MPbP3W3NzXWgJZoNnIGyIHbILdgdkJQgb5DMYITthZziGgrcgbJgzoLfsiH0B2QnCljBOdsSucBSBjxYFpAOkys7YE5BWELaMJbIzdoRjBPhiYUDegXzZIfMBOQ7ClnJQdsh8QDZbHJDNskPmA9IPnLIwHKdAP9khO0KSAUIWhSMEMmVn7ApJHnhmQTieSTm1NyTl4JPBcHwCFbITdodkpsGAzJIdELMRY4mDgPT1yGzEWMRsxFjEbMRYxGzEWDy+xGzEWMRsxFjEbHjEWMRsxFjEbMRY3C9YE9XyzeMYMBstxoIxnBha50+gqfuG14AnvgkJbzazfBaOp6Dm1wkUgNs+C8lm1lh8EI7boOBvE0kGe+I9JITZKGPxTTj2gGQ3k5oCXvskJMpseGOJo3C8BlPYyZWCGz4JiTIb3ljiIBw3QWlPJ5kAlseI5Tg6zEZR4YNwfFJ7m6BDhceAez4IyUwwywfhuAfG6H68JEFN/m28hsQHtvIWOCAhmouQD45ISGIuHEdAvpcLUgvuWh8SCcddUGvyGdKJIGR/SHwXjhCYBPra8vbHyRZqcZsHc2+zbM431F70s/XJv0rQAt5ZsFjrPJjvOks+aqIFVMbaJw7OAscMmk+DB/OsN2gkx9QaZ8f6SwqSQR2YD1pVceqKcnDegCQP5pYE3kQ5CF1qzVrBArWWyfLiHpSsSLTOxfgDgfOfAjrQxTiHI7idk3q2OhKO4gifMAy6+D8au23nH3YScDFOMMInykpkx8m7JA2PseSRiur87esuxsnV8FgFcZchAdnjhd7i3+3/9XETRfgH9nuku3tl55ne4YHe4t91uhiry0PdnSwJ0N87eL1VBZUYbyCjuwb6iPQOVm+JguqGAKO7BvqI9A6Cw1F4DsVxOeYhYkwtfUR6B0+QK6guUEWV1l3pIx70Dp48tqASRZXWXfN9RHoHr7eqoJIM5HVX+ogNvYPXW1VQSQKGnt3dK71DH/X6CypdVOuiMK/J0jv06y1fUPmiyuuu/j4ivYPXW76gMkWV1139fUR6B0+QLqg8A1ndlT7CB2QE2A5eal68PLqg8gS81l3FS7VmI/zUQ9LANHBFr94SBZWn2eMXM18F00Ga3x8PGQ62gZca9FZnQSWKKq+7clrwQUnt4alSr6Gg6i6qdXJaGDhVCL0lCirFQF535bQwc6rwetuoISABXnfltDB5qgS1FVT9RTUop4X5UyVXW0HVX1RzY+u0kGB1aQhIVxwujVx8QeWLqv2XXPoLKl9U7b/kIgsqT/PX9u7YioAoiqLoK0hR09kUoRRoB6KfAFwP7LPWpMBwd/ZL31cDUAdUBaigCqhxqApQQRVQQRVQQVV5oIIqoIIqoIKqwkAFVUAFVUDthKoAFVQBFVQBFVQB9cXXsgSooAqooAqooKpWoIIqoIIqoIIqoIKqRkc0pm8AUAXUKFQFqKAKqKAKqKAKqKCqBqCCKqCCKqCCqhtkyh81cvORHVN9RW6SxThypOXaHp+zvi7n4c0NN8d8fK6SyTEpJsekmByTEsjkmBSTszYpgUyOSTlmckzKHZmcjUk5l8kxKZIkSZIkSZIkSWppD3zS30GHlwYQAAAAAElFTkSuQmCC","fill":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAAQlBMVEUAAADIqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm7Iqm4Gp40KAAAAFXRSTlMAf4D3CN4h1UsqtLNM1Csi3YGyTX6Q7ueIAAACIUlEQVR4Xu3ay4pCQQxF0VR8lOVV+5n//9WGHhRcG7c0xINI9lSRg1kDFe1FqqqqqqqqqqpxbsP+3WjnYbm1iLixBVZERLPczhHxdwuv+K1baiNmcwuvmI30y8ziYNhh9eSWf5nZbmvQ9n01pOdfZsYCv2PdyL/MbLO3m+03sc4trx5XLXazz7iqJ19m3YGkwm1SLzO9stSZ514GvILU3NscY4Zep9R1x4QJ8PILSF21ebO0PAK8otSID8truwvwClIn66xOAV5RanzZTOOVpQq9slSdV5Yq9MpSdV5Zqs4rSxV6Zak6ryxV6JWl6ryyVJ1Xlir0ylKVXkmq1CtJlXoFqVqvIFXqFaRKvYJUrVeQqvPKUnVeWarGK0sV5SKpLR5cE+7gmnAH14Q7uCbcwTXhDq7xDmENdzzHEg9pbs+xxA1y5Q7MhTs4F+7gXL+Dl+h36Je46ANLs2f5qLg3TUtwsZikQ9ztZC/5BYulcq6Uyl51UrmjVCp71Uvd7cCrUurpJPTKv/wvaq9L3g+++VL99sm0UrfwkFQqvVlKqcxHKJVnKqXy4ZRSmbJUKnlVSmVEQqk8VimVvSqlslehVPaqlMqUJFKlXjtJve+1W1YOBMFrPpJBUu97vVhanaUyqG55+bP8sXawVPZ6scQ6SWWv3TJrJJW9+qP+oN/9YpxdvMdsWGodVuCWbrk1WIFb3HIbsAK3DHuNqqqqqqqqquoH3/Bt2cjPZ58AAAAASUVORK5CYII=","unselected":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII="};
+  const WIDGET_HTML = "\n  <main class=\"widget\" data-phase=\"Disconnected\">\n    <header class=\"header drag-handle\">\n      <span id=\"queue-badge\" class=\"queue-badge\" aria-label=\"File d'attente\"><i class=\"badge-gem\" aria-hidden=\"true\"><\/i><span class=\"badge-label\">Solo / Duo<\/span><span id=\"feedback\" class=\"feedback\" role=\"status\" title=\"\">Connexion…<\/span><\/span>\n      <time id=\"queue-timer\" class=\"queue-timer\" aria-label=\"Temps de recherche\" role=\"timer\" hidden>0:00<\/time>\n      <div class=\"header-actions\">\n        <button id=\"open-client\" aria-label=\"Ouvrir le client League\" title=\"Ouvrir le client League\" disabled>\n          <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M14 4h6v6M20 4l-8 8M10 5H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4\"/><\/svg>\n        <\/button>\n        <button id=\"close-widget\" aria-label=\"Fermer\" title=\"Fermer\">\n          <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg>\n        <\/button>\n      <\/div>\n    <\/header>\n\n    <div class=\"players\">\n      <div class=\"profile player\" id=\"profile\" title=\"Connexion à League…\">\n        <div class=\"portrait-frame\">\n          <div class=\"portrait\">\n            <img id=\"avatar\" alt=\"Photo de profil\" hidden />\n            <svg id=\"avatar-fallback\" viewBox=\"0 0 48 48\" aria-hidden=\"true\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M9 44v-4a15 15 0 0 1 30 0v4\"/><\/svg>\n          <\/div>\n          <i id=\"connection-dot\" class=\"connection-dot\"><\/i>\n          <span id=\"level\" class=\"level\" hidden><\/span>\n        <\/div>\n        <strong id=\"summoner-name\" class=\"player-name\">—<\/strong>\n        <div class=\"role-slots\" aria-label=\"Mes rôles\">\n          <button id=\"primary-role\" class=\"role-slot\" aria-label=\"Choisir le rôle principal\" title=\"Rôle principal\" aria-expanded=\"false\" aria-controls=\"roles-panel\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"\" /><\/button>\n          <button id=\"secondary-role\" class=\"role-slot secondary-slot\" aria-label=\"Choisir le rôle secondaire\" title=\"Rôle secondaire\" aria-expanded=\"false\" aria-controls=\"roles-panel\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"\" /><\/button>\n        <\/div>\n      <\/div>\n\n      <div class=\"link\" aria-hidden=\"true\"><i><\/i><\/div>\n\n      <div class=\"duo-slot player\" id=\"duo-slot\" title=\"Duo partenaire\">\n        <div class=\"portrait-frame\">\n          <div class=\"portrait\" id=\"duo-portrait\" hidden>\n            <img id=\"duo-avatar\" alt=\"Photo de profil du partenaire\" hidden />\n            <svg id=\"duo-avatar-fallback\" viewBox=\"0 0 48 48\" aria-hidden=\"true\"><circle cx=\"24\" cy=\"18\" r=\"8\"/><path d=\"M9 44v-4a15 15 0 0 1 30 0v4\"/><\/svg>\n          <\/div>\n          <button id=\"add-friend\" class=\"add-friend\" aria-label=\"Inviter un ami\" aria-expanded=\"false\" title=\"Inviter un ami\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 6v12M6 12h12\"/><\/svg><\/button>\n          <button id=\"kick-friend\" class=\"kick-friend\" aria-label=\"Exclure le partenaire du lobby\" title=\"Exclure le partenaire du lobby\" hidden>\n            <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 8l8 8M16 8l-8 8\"/><\/svg>\n          <\/button>\n          <span id=\"duo-level\" class=\"level\" hidden><\/span>\n        <\/div>\n        <strong id=\"duo-name\" class=\"player-name\" hidden><\/strong>\n        <span id=\"invite-label\" class=\"invite-label\">Inviter<\/span>\n        <div id=\"duo-roles\" class=\"role-slots\" role=\"group\" aria-label=\"Rôles du partenaire\" hidden>\n          <div id=\"duo-primary-role\" class=\"role-slot\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"Principal : non sélectionné\" /><\/div>\n          <div id=\"duo-secondary-role\" class=\"role-slot secondary-slot\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIgAAACICAMAAAALZFNgAAAADFBMVEUAAADIqm7Iqm7Iqm6reR4gAAAABHRSTlMA/36BJgi1uQAAAUhJREFUeNrt2jGOwzAUA1GGvP+RAy+QcneRwOFAFadw9WW/0pCktQ5kqy+A45KvHkI4BEhCOAhJAAciSe9gJKkdkCStg5KkdGCSdA5OksoBStI4SEkKBypJ4UAlKRyoJLhD8rVfo7XWWmuttdZaay0k61428IH0Gz6+vlnyOxMOXdaN/p034SAkBhyIxL2Dkbh2QBK3Dkri0oFJ3Dk4iSsHKHHjICUuHKjEhQOVuHCgEhcOVPJ6PHSj9/Nfv+4FeVo3+jTvp/70ed4qJKBDViEBHbIKCeiQVUhAh6xCAjpkFRLQIauRcA5ZlQRzyOoklENWKYEcsloJ45BVSxCHrF5SONg7Jbm9YFs/a6211lprrbXWWkx5vC0HJbyDl0RHC+vgJdHxUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYUjjYsvOXdaIfkW2T+RGMx3AAAAAASUVORK5CYII=\" alt=\"Secondaire : non sélectionné\" /><\/div>\n        <\/div>\n      <\/div>\n    <\/div>\n\n    <button id=\"play\" class=\"primary play\" disabled>Lancement de League…<\/button>\n\n    <section id=\"roles-panel\" class=\"panel roles-panel\" role=\"dialog\" aria-labelledby=\"role-picker-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"role-picker-title\">Rôle principal<\/h2><span id=\"role-step\" class=\"panel-sub\">Étape 1 sur 2<\/span><\/div>\n        <button id=\"close-roles\" aria-label=\"Fermer le choix des rôles\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n      <\/div>\n      <div id=\"role-options\" class=\"role-options\" role=\"group\" aria-labelledby=\"role-picker-title\"><\/div>\n    <\/section>\n\n    <section id=\"invitations\" class=\"panel friends-panel\" role=\"dialog\" aria-labelledby=\"friends-title\" hidden>\n      <div class=\"panel-header\">\n        <div class=\"panel-title\"><h2 id=\"friends-title\">Inviter un ami<\/h2><span id=\"friends-count\" class=\"panel-sub\">Amis connectés<\/span><\/div>\n        <div class=\"panel-actions\">\n          <button id=\"refresh-friends\" title=\"Actualiser\" aria-label=\"Actualiser les amis\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M19 12a7 7 0 1 1-2.05-4.95M19 4v4h-4\"/><\/svg><\/button>\n          <button id=\"close-friends\" title=\"Fermer\" aria-label=\"Fermer les invitations\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button>\n        <\/div>\n      <\/div>\n      <form id=\"invite-form\"><input id=\"friend-name\" placeholder=\"Pseudo#TAG\" aria-label=\"Pseudo ou Riot ID\" maxlength=\"100\" required /><button id=\"invite\" type=\"submit\" aria-label=\"Envoyer l'invitation\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h13M13 6l6 6-6 6\"/><\/svg><\/button><\/form>\n      <div id=\"friend-list\" class=\"friend-list\" tabindex=\"0\" aria-label=\"Amis connectés\"><p class=\"empty-list\">Chargement…<\/p><\/div>\n    <\/section>\n  <\/main>\n  ";
+  const READY_HTML = "\n  <main class=\"ready-popup\">\n    <header class=\"drag-handle\"><span>PARTIE TROUVÉE<\/span><button id=\"close\" aria-label=\"Masquer la notification\" title=\"Masquer\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 7l10 10M17 7 7 17\"/><\/svg><\/button><\/header>\n    <div class=\"ready-content\">\n      <div id=\"ready-clock\" class=\"ready-clock\" aria-label=\"Temps restant estimé pour accepter\">\n        <svg viewBox=\"0 0 64 64\" aria-hidden=\"true\"><circle class=\"clock-track\" cx=\"32\" cy=\"32\" r=\"28\"/><circle id=\"clock-progress\" cx=\"32\" cy=\"32\" r=\"28\" pathLength=\"100\"/><\/svg>\n        <strong id=\"countdown\" aria-label=\"Compte à rebours\">—<\/strong>\n      <\/div>\n      <div class=\"ready-copy\"><h1 id=\"ready-title\">À toi de jouer.<\/h1><p id=\"ready-subtitle\">La faille t'attend.<\/p><\/div>\n    <\/div>\n    <button id=\"accept\" class=\"accept\" disabled>Accepter<\/button>\n    <p id=\"ready-feedback\" class=\"feedback\" role=\"status\">Synchronisation avec League…<\/p>\n  <\/main>\n  ";
+  const WIDGET_CSS = "/* ===== TOKENS — palette Hextech ===== */\n:host {\n  color-scheme: dark;\n  font-family: \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif;\n  font-size: 12px;\n  line-height: 1.35;\n  color: var(--gold-1);\n  font-synthesis: none;\n  -webkit-font-smoothing: antialiased;\n\n  --font-display: \"Constantia\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif;\n\n  --void: #010a13;\n  --abyss: #0a1428;\n  --deep: #091a26;\n  --slate: #1e2328;\n  --slate-2: #1e282d;\n\n  --gold-1: #f0e6d2;\n  --gold-2: #c8aa6e;\n  --gold-3: #c89b3c;\n  --gold-4: #785a28;\n  --gold-5: #463714;\n  --gold-glow: rgba(200, 170, 110, 0.18);\n\n  --blue-1: #cdfafa;\n  --blue-2: #0ac8b9;\n  --blue-3: #0397ab;\n  --blue-4: #005a82;\n  --blue-glow: rgba(10, 200, 185, 0.22);\n\n  --grey-1: #a09b8c;\n  --grey-2: #5b5a56;\n  --grey-3: #3c3c41;\n\n  --red: #e84057;\n  --red-glow: rgba(232, 64, 87, 0.2);\n\n  --line: rgba(200, 170, 110, 0.16);\n  --line-strong: rgba(200, 170, 110, 0.38);\n\n  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);\n  --fast: 0.14s var(--ease);\n  --normal: 0.24s var(--ease);\n}\n\n/* ===== BASE ===== */\n* { box-sizing: border-box; }\n[hidden] { display: none !important; }\nbody { margin: 0; user-select: none; cursor: default; }\ninput { user-select: text; }\nimg { -webkit-user-drag: none; }\nbutton, input { font: inherit; color: inherit; border: 0; background: none; }\nbutton { cursor: pointer; padding: 0; }\nbutton:disabled { cursor: default; }\nbutton:focus-visible, input:focus-visible { outline: 1px solid var(--blue-2); outline-offset: 2px; }\nsvg { display: block; }\n\n/* Icônes trait (header, panneaux, formulaire) */\n.header-actions svg, .panel-header svg, form button svg, .kick-friend svg, .ready-popup header svg {\n  width: 14px; height: 14px;\n  fill: none; stroke: currentColor; stroke-width: 1.7;\n  stroke-linecap: round; stroke-linejoin: round;\n}\n\n/* ===== CADRE DU WIDGET ===== */\n.widget-body, .ready-body {\n  height: 100%;\n  padding: 6px;\n  overflow: hidden;\n  background: transparent;\n}\n\n.widget {\n  --accent: var(--gold-2);\n  --accent-soft: var(--gold-glow);\n  height: 100%;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  padding: 0 12px 12px;\n  overflow: hidden;\n  border: 1px solid var(--gold-5);\n  border-radius: 6px;\n  background:\n    radial-gradient(120% 70% at 50% -10%, rgba(10, 200, 185, 0.09), transparent 60%),\n    linear-gradient(180deg, var(--abyss) 0%, var(--void) 78%);\n  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);\n  transition: border-color var(--normal), box-shadow var(--normal);\n}\n\n/* Ornement doré en haut */\n.widget::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 96px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--accent), transparent);\n  pointer-events: none;\n  transition: background var(--normal);\n}\n\n.widget[data-phase=\"Matchmaking\"] { --accent: var(--blue-2); --accent-soft: var(--blue-glow); border-color: var(--blue-4); }\n.widget[data-phase=\"ReadyCheck\"] { --accent: var(--gold-1); border-color: var(--gold-3); box-shadow: 0 0 0 1px var(--gold-4), 0 0 18px var(--gold-glow), 0 10px 24px rgba(0, 0, 0, 0.55); }\n.widget[data-phase=\"ChampSelect\"], .widget[data-phase=\"Reconnect\"] { --accent: var(--blue-2); border-color: var(--blue-3); }\n.widget[data-phase=\"Disconnected\"] { --accent: var(--red); border-color: #4a1c24; }\n.widget[data-phase=\"InProgress\"] .players { opacity: 0.7; }\n\n/* ===== HEADER ===== */\n.header {\n  position: relative;\n  height: 32px;\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n\n/* Barre de recherche animée sous le header */\n.header::after {\n  content: \"\";\n  position: absolute;\n  left: -12px; right: -12px; bottom: 0;\n  height: 1px;\n  background: var(--line);\n}\n.widget[data-phase=\"Matchmaking\"] .header::after {\n  background: linear-gradient(90deg, transparent 0%, var(--blue-2) 50%, transparent 100%) no-repeat, var(--line);\n  background-size: 40% 100%, 100% 100%;\n  animation: scan 1.8s linear infinite;\n}\n@keyframes scan { from { background-position: -80% 0, 0 0; } to { background-position: 180% 0, 0 0; } }\n\n.drag-handle button { -webkit-app-region: no-drag; }\n\n.queue-badge {\n  display: flex;\n  align-items: center;\n  gap: 7px;\n  font-family: var(--font-display);\n  font-size: 9.5px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  color: var(--gold-2);\n  transition: color var(--fast);\n}\n\n.badge-gem {\n  width: 7px; height: 7px;\n  transform: rotate(45deg);\n  border: 1px solid currentColor;\n  background: transparent;\n  transition: background var(--fast), box-shadow var(--fast);\n}\n\n.queue-badge.active { color: var(--blue-1); }\n.queue-badge.active .badge-gem { background: var(--blue-2); border-color: var(--blue-2); box-shadow: 0 0 8px var(--blue-2); animation: pulse 1.4s ease-in-out infinite; }\n.queue-badge.warning { color: var(--gold-1); }\n.queue-badge.warning .badge-gem { background: var(--gold-2); border-color: var(--gold-2); box-shadow: 0 0 8px var(--gold-2); }\n.widget[data-phase=\"Disconnected\"] .queue-badge { color: var(--grey-1); }\n\n.queue-timer {\n  margin-left: auto;\n  font-size: 12px;\n  font-weight: 600;\n  font-variant-numeric: tabular-nums;\n  letter-spacing: 0.4px;\n  color: var(--blue-1);\n  text-shadow: 0 0 10px var(--blue-glow);\n}\n.queue-timer.countdown { color: var(--gold-1); text-shadow: 0 0 10px var(--gold-glow); }\n\n.header-actions {\n  display: flex;\n  gap: 2px;\n  margin-left: auto;\n  margin-right: -4px;\n  -webkit-app-region: no-drag;\n}\n.queue-timer:not([hidden]) + .header-actions { margin-left: 4px; }\n\n.header-actions button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: color var(--fast), background var(--fast);\n}\n.header-actions button:hover:not(:disabled) { color: var(--gold-1); background: rgba(200, 170, 110, 0.08); }\n.header-actions button:disabled { color: var(--grey-3); }\n#close-widget:hover { color: var(--red) !important; background: var(--red-glow) !important; }\n\n@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }\n\n/* ===== JOUEURS ===== */\n.players {\n  flex-shrink: 0;\n  flex: 1;\n  min-height: 0;\n  display: flex;\n  justify-content: center;\n  align-items: flex-start;\n  padding-top: 12px;\n  transition: opacity var(--normal);\n}\n\n.player {\n  width: 100px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n\n.portrait-frame {\n  position: relative;\n  width: 58px; height: 58px;\n}\n\n.portrait {\n  position: absolute;\n  inset: 0;\n  display: grid;\n  place-items: center;\n  overflow: hidden;\n  border-radius: 50%;\n  border: 2px solid transparent;\n  background:\n    radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box,\n    linear-gradient(180deg, var(--grey-2), var(--grey-3)) border-box;\n  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);\n  transition: box-shadow var(--normal);\n}\n.portrait.connected, #duo-portrait {\n  background:\n    radial-gradient(circle at 50% 30%, #16283a, var(--abyss)) padding-box,\n    linear-gradient(160deg, var(--gold-1) 0%, var(--gold-2) 35%, var(--gold-4) 100%) border-box;\n  box-shadow: 0 0 0 3px rgba(1, 10, 19, 0.9), 0 0 0 4px var(--gold-5), 0 4px 16px rgba(0, 0, 0, 0.55);\n}\n.widget[data-phase=\"Matchmaking\"] .portrait.connected {\n  box-shadow: 0 0 0 3px rgba(1, 10, 19, 0.9), 0 0 0 4px var(--blue-4), 0 0 16px var(--blue-glow);\n}\n\n.portrait img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }\n.portrait svg { width: 100%; height: 100%; padding: 13px 13px 9px; fill: var(--grey-2); }\n\n.connection-dot {\n  position: absolute;\n  top: 1px; right: 1px;\n  width: 11px; height: 11px;\n  border: 2px solid var(--void);\n  border-radius: 50%;\n  background: var(--grey-2);\n  z-index: 2;\n}\n.connection-dot.online { background: var(--blue-2); box-shadow: 0 0 6px var(--blue-2); }\n.connection-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }\n.connection-dot.starting { background: var(--gold-2); animation: pulse 1.2s ease-in-out infinite; }\n\n.level {\n  position: absolute;\n  left: 50%; bottom: -6px;\n  transform: translateX(-50%);\n  z-index: 2;\n  min-width: 26px;\n  height: 14px;\n  padding: 0 5px;\n  border: 1px solid var(--gold-4);\n  border-radius: 7px;\n  background: var(--void);\n  color: var(--gold-1);\n  font-size: 8.5px;\n  font-weight: 600;\n  line-height: 12px;\n  text-align: center;\n  font-variant-numeric: tabular-nums;\n}\n\n.player-name, .invite-label {\n  display: block;\n  max-width: 100%;\n  height: 14px;\n  margin-top: 10px;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  line-height: 14px;\n  text-align: center;\n}\n.player-name { font-size: 11px; font-weight: 600; color: var(--gold-1); }\n.widget[data-phase=\"Disconnected\"] #summoner-name { color: var(--grey-1); font-weight: 400; }\n.invite-label {\n  font-family: var(--font-display);\n  font-size: 8.5px;\n  font-weight: 700;\n  letter-spacing: 2px;\n  text-transform: uppercase;\n  color: var(--grey-2);\n  pointer-events: none;\n}\n\n/* Lien entre les deux joueurs */\n.link {\n  width: 36px; height: 58px;\n  display: grid; place-items: center;\n  position: relative;\n}\n.link::before {\n  content: \"\";\n  position: absolute;\n  left: 2px; right: 2px; top: 50%;\n  height: 1px;\n  background: linear-gradient(90deg, transparent, var(--gold-5), transparent);\n  transition: background var(--normal);\n}\n.link i {\n  width: 7px; height: 7px;\n  transform: rotate(45deg);\n  border: 1px solid var(--gold-4);\n  background: var(--void);\n  z-index: 1;\n  transition: var(--normal);\n}\n.players:has(.has-partner) .link::before { background: linear-gradient(90deg, var(--gold-4), var(--gold-2), var(--gold-4)); }\n.players:has(.has-partner) .link i { background: var(--gold-2); border-color: var(--gold-1); box-shadow: 0 0 8px var(--gold-glow); }\n\n/* Rôles */\n.role-slots {\n  display: flex;\n  gap: 4px;\n  margin-top: 5px;\n}\n.role-slot {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: rgba(1, 10, 19, 0.6);\n  transition: border-color var(--fast), background var(--fast), box-shadow var(--fast);\n}\n.role-slot img { width: 16px; height: 16px; object-fit: contain; pointer-events: none; }\n.secondary-slot img { opacity: 0.6; }\nbutton.role-slot:hover:not(:disabled), .role-slot[aria-expanded=\"true\"] {\n  border-color: var(--gold-2);\n  background: rgba(200, 170, 110, 0.1);\n  box-shadow: 0 0 8px var(--gold-glow);\n}\nbutton.role-slot:disabled { opacity: 0.55; }\n.role-slot.draft { border-style: dashed; border-color: var(--gold-3); }\n\n/* Slot duo */\n.add-friend {\n  position: absolute;\n  inset: 0;\n  display: grid; place-items: center;\n  border-radius: 50%;\n  border: 1px dashed var(--gold-4);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.05), transparent 70%);\n  color: var(--gold-3);\n  -webkit-app-region: no-drag;\n  transition: var(--normal);\n}\n.add-friend svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }\n.add-friend:hover:not(:disabled), .add-friend[aria-expanded=\"true\"] {\n  border-style: solid;\n  border-color: var(--gold-2);\n  color: var(--gold-1);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.16), transparent 75%);\n  box-shadow: 0 0 14px var(--gold-glow);\n}\n.add-friend:disabled { color: var(--grey-3); border-color: var(--grey-3); }\n.duo-slot:has(.add-friend:hover:not(:disabled)) .invite-label,\n.duo-slot:has(.add-friend[aria-expanded=\"true\"]) .invite-label { color: var(--gold-2); }\n\n.kick-friend {\n  position: absolute;\n  top: -3px; right: -5px;\n  z-index: 3;\n  width: 18px; height: 18px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: var(--void);\n  color: var(--grey-1);\n  -webkit-app-region: no-drag;\n  transition: var(--fast);\n}\n.kick-friend svg { width: 10px; height: 10px; stroke-width: 2.2; }\n.kick-friend:hover:not(:disabled) { color: #fff; border-color: var(--red); background: var(--red); }\n.kick-friend:disabled { opacity: 0.4; }\n\n/* ===== BOUTON PRINCIPAL ===== */\n.play {\n  flex-shrink: 0;\n  position: relative;\n  width: 100%;\n  height: 36px;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  font-family: var(--font-display);\n  font-size: 12px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  -webkit-app-region: no-drag;\n  transition: background var(--normal), color var(--normal), box-shadow var(--normal), filter var(--fast);\n}\n\n/* Lobby : bouton hextech bleu */\n.primary {\n  color: var(--blue-1);\n  background:\n    linear-gradient(180deg, rgba(10, 200, 185, 0.16) 0%, rgba(0, 90, 130, 0.22) 100%) padding-box,\n    linear-gradient(var(--deep), var(--deep)) padding-box,\n    linear-gradient(180deg, var(--blue-2), var(--blue-4)) border-box;\n  box-shadow: inset 0 0 12px rgba(10, 200, 185, 0.15), 0 0 12px rgba(10, 200, 185, 0.12);\n  text-shadow: 0 0 8px rgba(10, 200, 185, 0.5);\n}\n.primary:hover:not(:disabled) {\n  color: #fff;\n  box-shadow: inset 0 0 16px rgba(10, 200, 185, 0.3), 0 0 18px rgba(10, 200, 185, 0.28);\n}\n.primary:active:not(:disabled) { filter: brightness(0.9); }\n\n/* Recherche : bouton neutre, rouge au survol */\n.play.searching {\n  color: var(--gold-1);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--gold-4), var(--gold-5)) border-box;\n  box-shadow: none;\n}\n.play.searching:hover:not(:disabled) {\n  color: #fff;\n  background:\n    linear-gradient(180deg, #3a1219, #1c070b) padding-box,\n    linear-gradient(180deg, var(--red), #6e1d29) border-box;\n  box-shadow: 0 0 14px var(--red-glow);\n}\n\n/* Partie trouvée : or plein */\n.play.ready-action {\n  color: var(--void);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box,\n    linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n  animation: ready-pulse 1.6s ease-in-out infinite;\n}\n.play.ready-action:hover:not(:disabled) { filter: brightness(1.08); }\n@keyframes ready-pulse {\n  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 170, 110, 0.5), 0 0 12px var(--gold-glow); }\n  50% { box-shadow: 0 0 0 5px rgba(200, 170, 110, 0), 0 0 20px var(--gold-glow); }\n}\n\n.play:disabled {\n  color: var(--grey-2);\n  text-shadow: none;\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--grey-3), var(--grey-3)) border-box;\n  box-shadow: none;\n  animation: none;\n}\n\n/* ===== STATUT (dans l'en-tête) ===== */\n.queue-badge { min-width: 0; flex: 1; }\n.badge-gem { flex-shrink: 0; }\n.widget .feedback {\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  font-family: \"Segoe UI Variable Text\", \"Segoe UI\", system-ui, sans-serif;\n  font-size: 10.5px;\n  font-weight: 500;\n  letter-spacing: 0.1px;\n  text-transform: none;\n  color: var(--gold-1);\n  -webkit-app-region: no-drag;\n}\n.widget .feedback:empty { display: none; }\n.queue-badge:has(.feedback:not(:empty)) .badge-label { display: none; }\n.feedback.error { color: var(--red); }\n.queue-badge:has(.feedback.error) .badge-gem { border-color: var(--red); background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }\n\n/* ===== CALQUES (rôles, invitations) ===== */\n.panel {\n  position: absolute;\n  inset: 0;\n  z-index: 10;\n  display: flex;\n  flex-direction: column;\n  padding: 8px 12px 12px;\n  border-radius: 5px;\n  background:\n    radial-gradient(120% 60% at 50% 0%, rgba(200, 170, 110, 0.1), transparent 60%),\n    linear-gradient(180deg, var(--abyss), var(--void) 85%);\n  animation: sheet-in 0.2s var(--ease);\n}\n.panel::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 96px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--gold-2), transparent);\n}\n@keyframes sheet-in { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }\n\n.panel-header {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 8px;\n  height: 32px;\n  margin-bottom: 8px;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n.panel-header button { -webkit-app-region: no-drag; }\n.panel-title { display: flex; flex-direction: column; min-width: 0; }\n.panel h2 {\n  margin: 0;\n  font-family: var(--font-display);\n  font-size: 11px;\n  font-weight: 700;\n  letter-spacing: 1.8px;\n  text-transform: uppercase;\n  color: var(--gold-1);\n}\n.panel-sub { font-size: 9.5px; color: var(--grey-1); }\n.panel-actions { display: flex; gap: 2px; margin-right: -4px; }\n.panel-header > button { margin-right: -4px; }\n.panel-header button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: var(--fast);\n}\n.panel-header button:hover { color: var(--gold-1); background: rgba(200, 170, 110, 0.08); }\n\n/* Choix des rôles : grille 3 × 2 */\n.role-options {\n  flex: 1;\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  grid-template-rows: repeat(2, 1fr);\n  gap: 6px;\n}\n.role-option {\n  position: relative;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 7px;\n  border: 1px solid var(--line);\n  border-radius: 3px;\n  background: linear-gradient(180deg, rgba(30, 35, 40, 0.55), rgba(1, 10, 19, 0.7));\n  color: var(--grey-1);\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  letter-spacing: 1.2px;\n  text-transform: uppercase;\n  transition: var(--fast);\n}\n.role-option img { width: 30px; height: 30px; object-fit: contain; filter: grayscale(0.5) brightness(0.9); transition: filter var(--fast), transform var(--fast); }\n.role-option:hover:not(:disabled) { border-color: var(--gold-4); color: var(--gold-1); background: linear-gradient(180deg, rgba(200, 170, 110, 0.12), rgba(1, 10, 19, 0.7)); }\n.role-option:hover:not(:disabled) img { filter: none; transform: translateY(-1px) scale(1.06); }\n.role-option[aria-pressed=\"true\"] {\n  border-color: var(--gold-2);\n  color: var(--gold-1);\n  background: linear-gradient(180deg, rgba(200, 170, 110, 0.22), rgba(200, 170, 110, 0.04));\n  box-shadow: inset 0 0 14px var(--gold-glow), 0 0 10px var(--gold-glow);\n}\n.role-option[aria-pressed=\"true\"] img, .role-option[data-rank] img { filter: none; }\n.role-option[data-rank]::after {\n  content: attr(data-rank);\n  position: absolute;\n  top: 4px; right: 4px;\n  width: 14px; height: 14px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-4);\n  border-radius: 50%;\n  background: var(--void);\n  color: var(--gold-2);\n  font-family: \"Segoe UI\", system-ui, sans-serif;\n  font-size: 8px;\n  letter-spacing: 0;\n}\n.role-option:disabled { opacity: 0.45; }\n\n/* Invitations */\nform {\n  flex-shrink: 0;\n  display: flex;\n  gap: 6px;\n  margin: 0 0 6px;\n}\ninput {\n  flex: 1;\n  min-width: 0;\n  height: 28px;\n  padding: 0 10px;\n  border: 1px solid var(--grey-3);\n  border-radius: 2px;\n  background: rgba(1, 10, 19, 0.8);\n  color: var(--gold-1);\n  font-size: 11px;\n  transition: border-color var(--fast), box-shadow var(--fast);\n}\ninput::placeholder { color: var(--grey-2); }\ninput:focus-visible { outline: none; border-color: var(--gold-3); box-shadow: 0 0 0 2px var(--gold-glow); }\nform button {\n  flex-shrink: 0;\n  width: 28px; height: 28px;\n  display: grid; place-items: center;\n  border: 1px solid var(--blue-3);\n  border-radius: 2px;\n  background: linear-gradient(180deg, rgba(10, 200, 185, 0.2), rgba(0, 90, 130, 0.25));\n  color: var(--blue-1);\n  transition: var(--fast);\n}\nform button:hover:not(:disabled) { color: #fff; box-shadow: 0 0 12px var(--blue-glow); }\nform button:disabled { border-color: var(--grey-3); background: none; color: var(--grey-2); }\n\n.friend-list {\n  flex: 1;\n  min-height: 0;\n  margin: 0 -8px;\n  padding: 0 4px 0 8px;\n  overflow-y: auto;\n  scrollbar-gutter: stable;\n  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 18px), transparent);\n}\n.friend-list::-webkit-scrollbar { width: 4px; }\n.friend-list::-webkit-scrollbar-thumb { background: var(--gold-5); border-radius: 2px; }\n.friend-list::-webkit-scrollbar-thumb:hover { background: var(--gold-4); }\n\n.friend-item {\n  position: relative;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  height: 30px;\n  padding: 0 2px 0 14px;\n  border-radius: 2px;\n  transition: background var(--fast);\n}\n.friend-item:hover { background: rgba(200, 170, 110, 0.06); }\n.friend-item::before {\n  content: \"\";\n  position: absolute;\n  left: 4px; top: 50%;\n  width: 6px; height: 6px;\n  margin-top: -3px;\n  border-radius: 50%;\n  background: var(--blue-2);\n  box-shadow: 0 0 5px var(--blue-2);\n}\n.friend-item.in-game::before { background: var(--gold-3); box-shadow: 0 0 5px var(--gold-3); }\n.friend-item > div { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; }\n.friend-item strong {\n  min-width: 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--gold-1);\n  font-size: 11px;\n  font-weight: 600;\n}\n.friend-item small { flex-shrink: 0; margin-left: auto; color: var(--blue-2); font-size: 9px; }\n.friend-item.in-game small { color: var(--gold-3); }\n.friend-item button {\n  flex-shrink: 0;\n  width: 22px; height: 22px;\n  display: grid; place-items: center;\n  border: 1px solid var(--gold-5);\n  border-radius: 2px;\n  color: var(--gold-2);\n  font-size: 14px;\n  line-height: 1;\n  transition: var(--fast);\n}\n.friend-item button:hover:not(:disabled) { border-color: var(--gold-2); color: var(--gold-1); background: rgba(200, 170, 110, 0.1); }\n.friend-item button:disabled { border-color: var(--blue-4); color: var(--blue-2); }\n\n.empty-list { margin: 0; padding: 22px 0; color: var(--grey-2); font-size: 11px; text-align: center; }\n\n/* ===== POPUP PARTIE TROUVÉE ===== */\n.ready-body { padding: 8px; }\n\n.ready-popup {\n  position: relative;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  padding: 0 16px 10px;\n  overflow: hidden;\n  border: 1px solid var(--gold-3);\n  border-radius: 6px;\n  background:\n    radial-gradient(90% 70% at 50% 0%, rgba(200, 170, 110, 0.14), transparent 65%),\n    linear-gradient(180deg, var(--abyss), var(--void) 80%);\n  box-shadow: 0 0 0 1px var(--gold-5), 0 0 22px var(--gold-glow), 0 10px 28px rgba(0, 0, 0, 0.6);\n}\n.ready-popup::after {\n  content: \"\";\n  position: absolute;\n  top: -1px; left: 50%;\n  width: 120px; height: 2px;\n  transform: translateX(-50%);\n  background: linear-gradient(90deg, transparent, var(--gold-1), transparent);\n}\n\n.ready-popup header {\n  height: 34px;\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  -webkit-app-region: drag;\n  user-select: none;\n}\n.ready-popup header span {\n  font-family: var(--font-display);\n  font-size: 10px;\n  font-weight: 700;\n  letter-spacing: 2.4px;\n  color: var(--gold-2);\n}\n.ready-popup header button {\n  width: 24px; height: 24px;\n  display: grid; place-items: center;\n  margin-right: -6px;\n  border-radius: 3px;\n  color: var(--grey-1);\n  transition: var(--fast);\n}\n.ready-popup header button:hover { color: var(--gold-1); background: rgba(200, 170, 110, 0.1); }\n\n.ready-content {\n  flex: 1;\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.ready-clock {\n  position: relative;\n  flex-shrink: 0;\n  width: 76px; height: 76px;\n  display: grid; place-items: center;\n  border-radius: 50%;\n  color: var(--gold-2);\n  background: radial-gradient(circle, rgba(200, 170, 110, 0.12), transparent 68%);\n}\n.ready-clock::before {\n  content: \"\";\n  position: absolute;\n  inset: 9px;\n  border: 1px solid var(--gold-5);\n  border-radius: 50%;\n}\n.ready-clock svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }\n.ready-clock circle { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: butt; }\n.ready-clock .clock-track { stroke: var(--gold-5); }\n#clock-progress { stroke-dasharray: 100; transition: stroke-dashoffset 0.1s linear, stroke var(--fast); filter: drop-shadow(0 0 3px rgba(200, 170, 110, 0.6)); }\n.ready-clock strong {\n  z-index: 1;\n  font-family: var(--font-display);\n  font-size: 26px;\n  font-weight: 700;\n  font-variant-numeric: tabular-nums;\n  color: var(--gold-1);\n}\n.ready-clock.urgent { color: var(--red); }\n.ready-clock.urgent strong { color: var(--red); animation: pulse 0.8s ease-in-out infinite; }\n.ready-clock.accepted { color: var(--blue-2); }\n.ready-clock.accepted strong { color: var(--blue-1); text-shadow: 0 0 10px var(--blue-2); }\n.ready-clock.accepted #clock-progress { filter: drop-shadow(0 0 3px var(--blue-2)); }\n\n.ready-copy { min-width: 0; }\n.ready-copy h1 {\n  margin: 0 0 5px;\n  font-family: var(--font-display);\n  font-size: 19px;\n  font-weight: 700;\n  line-height: 1.15;\n  color: var(--gold-1);\n}\n.ready-copy p { margin: 0; color: var(--grey-1); font-size: 11px; }\n\n.accept {\n  flex-shrink: 0;\n  width: 100%;\n  height: 38px;\n  border: 1px solid transparent;\n  border-radius: 2px;\n  font-family: var(--font-display);\n  font-size: 13px;\n  font-weight: 700;\n  letter-spacing: 2px;\n  text-transform: uppercase;\n  color: var(--void);\n  background:\n    linear-gradient(180deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%) padding-box,\n    linear-gradient(180deg, var(--gold-1), var(--gold-4)) border-box;\n  animation: ready-pulse 1.6s ease-in-out infinite;\n  transition: filter var(--fast);\n}\n.accept:hover:not(:disabled) { filter: brightness(1.08); }\n.accept:disabled {\n  color: var(--grey-2);\n  background:\n    linear-gradient(180deg, var(--slate), var(--void)) padding-box,\n    linear-gradient(180deg, var(--grey-3), var(--grey-3)) border-box;\n  animation: none;\n}\n.ready-popup:has(.ready-clock.accepted) .accept:disabled {\n  color: var(--blue-1);\n  background:\n    linear-gradient(180deg, rgba(10, 200, 185, 0.12), rgba(0, 90, 130, 0.2)) padding-box,\n    linear-gradient(var(--deep), var(--deep)) padding-box,\n    linear-gradient(180deg, var(--blue-3), var(--blue-4)) border-box;\n  animation: none;\n}\n\n.ready-popup .feedback {\n  flex-shrink: 0;\n  height: 18px;\n  margin: 6px 0 0;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--grey-1);\n  font-size: 10px;\n  line-height: 18px;\n  text-align: center;\n}\n\n/* ===== MOUVEMENT RÉDUIT ===== */\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { transition: none !important; animation: none !important; }\n}\n";
+  const ROLE_ICON = name => ICONS[name] || ICONS.unselected;
+  const EXTRA_CSS = `
+    :host { display: block; user-select: none; cursor: default; }
+    .widget-body, .ready-body { height: 100%; }
+    .drag-handle, .panel-header, .ready-popup header { cursor: grab; touch-action: none; }
+    :host(.dragging) .drag-handle, :host(.dragging) .panel-header, :host(.dragging) header { cursor: grabbing; }`;
+
+  function runApp(ROOT, LEAGUE) {
+const $ = id => ROOT.getElementById(id);
+let state = { connected: false, starting: true, phase: 'None' };
+let busy = false, expanded = false, rolesExpanded = false, lastIcon, lastDuoIcon, noticeUntil = 0;
+let rolePreferences, queueTransition = null, actionVersion = 0, refreshVersion = 0;
+let roleDraft = null, selectedRoleSlot = 'firstPreference';
+let queueStartedAt = null, duoKey = null, duoIconRequest = null;
+const roleLabels = { TOP: 'Top', JUNGLE: 'Jungle', MIDDLE: 'Mid', BOTTOM: 'ADC', UTILITY: 'Support', FILL: 'Fill' };
+const gamePhases = ['ReadyCheck', 'ChampSelect', 'InProgress', 'Reconnect', 'GameStart', 'WaitingForStats', 'PreEndOfGame', 'EndOfGame'];
+
+function isSearching() {
+  if (!state.connected || gamePhases.includes(state.phase)) return false;
+  return queueTransition ? queueTransition.searching : state.searching || state.phase === 'Matchmaking';
+}
+
+function feedback(text, error = false, temporary = true) {
+  $('feedback').textContent = text;
+  $('feedback').title = text;
+  $('feedback').classList.toggle('error', error);
+  if (temporary) noticeUntil = Date.now() + 8000;
+}
+function render() {
+  const searching = isSearching();
+  const inGame = gamePhases.includes(state.phase);
+  $('open-client').disabled = busy || !state.connected || Boolean(state.clientUi?.opening);
+  const accepted = state.ready?.response === 'Accepted';
+  const canAccept = state.phase === 'ReadyCheck' && state.ready?.active && !['Accepted', 'Declined'].includes(state.ready.response);
+  const canOpen = ['ChampSelect', 'Reconnect'].includes(state.phase);
+  const labels = { ReadyCheck: accepted ? 'En attente des joueurs' : 'Accepter la partie', ChampSelect: 'Choisir mon champion',
+    Reconnect: 'Ouvrir League', GameStart: 'Chargement de la partie', InProgress: 'Partie en cours',
+    WaitingForStats: 'Fin de partie', PreEndOfGame: 'Fin de partie', EndOfGame: 'Partie terminée' };
+  $('play').disabled = busy || (!state.connected && state.starting) || (state.connected && inGame && !canAccept && !canOpen);
+  $('play').textContent = busy ? 'Un instant…' : !state.connected ? state.starting ? 'Lancement de League…' : 'Réessayer' : searching ? 'Annuler' : labels[state.phase] || 'Lancer';
+  $('play').classList.toggle('searching', searching);
+  $('play').classList.toggle('ready-action', canAccept);
+  ROOT.querySelector('.widget').dataset.phase = state.connected ? searching ? 'Matchmaking' : state.phase : 'Disconnected';
+  const badge = $('queue-badge');
+  if (badge) {
+    badge.classList.toggle('active', searching || state.phase === 'Matchmaking');
+    badge.classList.toggle('warning', canAccept || state.phase === 'ChampSelect' || state.phase === 'Reconnect');
+  }
+  const portrait = $('profile').querySelector('.portrait');
+  if (portrait) portrait.classList.toggle('connected', state.connected);
+  $('add-friend').disabled = !expanded && (busy || !state.connected || searching || inGame);
+  $('invite').disabled = busy || !state.connected;
+  const rolesLocked = busy || !state.connected || searching || inGame;
+  $('primary-role').disabled = rolesLocked;
+  $('secondary-role').disabled = rolesLocked || (roleDraft || rolePreferences)?.firstPreference === 'FILL';
+  for (const button of $('role-options').children) button.disabled = rolesLocked;
+  renderRoleIcons();
+  renderDuo();
+  $('connection-dot').className = `connection-dot ${state.connected ? 'online' : state.starting ? 'starting' : 'offline'}`;
+  const phaseNotes = { ReadyCheck: accepted ? 'Accepté · les autres joueurs arrivent' : 'Une place t’attend dans la faille',
+    ChampSelect: state.clientUi?.error || (state.clientUi?.opening ? 'Ouverture du client League…' : 'Sélection des champions · dans League'),
+    Reconnect: state.clientUi?.error || 'Rejoins ta partie depuis le client', GameStart: 'La faille se prépare', InProgress: 'Bonne partie !',
+    EndOfGame: 'Retour au salon…', WaitingForStats: 'Récupération des résultats…', PreEndOfGame: 'Récupération des résultats…' };
+  if (((inGame || searching) && !$('feedback').classList.contains('error')) || Date.now() > noticeUntil) {
+    const estimate = state.estimatedQueueTime > 0 ? `Attente estimée · ${formatTime(state.estimatedQueueTime)}` : 'Recherche de partie…';
+    feedback(state.connected ? searching ? estimate : phaseNotes[state.phase] || '' : state.message || 'Connexion…', !state.connected && !state.starting, false);
+  }
+  renderTimer();
+}
+function renderDuo() {
+  const partner = state.connected ? state.duoPartner : null;
+  const key = partner ? `${partner.summonerId}:${partner.profileIconId}` : null;
+  const avatar = $('duo-avatar');
+  if (key !== duoKey) {
+    duoKey = key; lastDuoIcon = undefined; duoIconRequest = null;
+    avatar.hidden = true; avatar.removeAttribute('src');
+    $('duo-avatar-fallback').hidden = false;
+  }
+  $('duo-portrait').hidden = !partner;
+  $('duo-roles').hidden = !partner;
+  $('kick-friend').hidden = !partner || !state.canKick;
+  $('kick-friend').disabled = busy || isSearching() || state.phase !== 'Lobby';
+  $('duo-slot').classList.toggle('has-partner', Boolean(partner));
+  for (const [id, key, label] of [['duo-primary-role', 'firstPreference', 'Principal'], ['duo-secondary-role', 'secondPreference', 'Secondaire']]) {
+    const role = partner?.[key];
+    const slot = $(id), icon = slot.querySelector('img');
+    const knownRole = Object.hasOwn(roleLabels, role);
+    icon.src = ROLE_ICON(knownRole ? role.toLowerCase() : 'unselected');
+    slot.title = `${label} : ${knownRole ? roleLabels[role] : 'non sélectionné'}`;
+    icon.alt = slot.title;
+  }
+  $('add-friend').hidden = Boolean(partner);
+  $('invite-label').hidden = Boolean(partner);
+  $('duo-name').hidden = !partner;
+  $('duo-name').textContent = partner?.displayName || 'Partenaire';
+  setLevel($('duo-level'), partner?.summonerLevel);
+  $('duo-slot').title = partner ? `${partner.displayName || 'Partenaire'} · Niveau ${partner.summonerLevel || '—'}` : 'Inviter un ami';
+  if (!partner || !Number.isInteger(partner.profileIconId) || partner.profileIconId < 0 || lastDuoIcon === partner.profileIconId || duoIconRequest) return;
+  const request = {};
+  duoIconRequest = request;
+  LEAGUE.getProfileIcon(partner.profileIconId).then(icon => {
+    if (duoIconRequest !== request || !icon) return;
+    lastDuoIcon = partner.profileIconId;
+    avatar.src = icon; avatar.hidden = false;
+    $('duo-avatar-fallback').hidden = true;
+  }).catch(() => {}).finally(() => {
+    if (duoIconRequest === request) duoIconRequest = null;
+  });
+}
+$('kick-friend').addEventListener('click', () => {
+  if (!state.connected || !state.canKick || !state.duoPartner || $('kick-friend').disabled) return;
+  const id = state.duoPartner.summonerId;
+  action(async () => {
+    if (await LEAGUE.kickMember(id)) feedback('Joueur exclu du lobby');
+  });
+});
+$('duo-avatar').addEventListener('error', () => {
+  $('duo-avatar').hidden = true;
+  $('duo-avatar-fallback').hidden = false;
+  lastDuoIcon = undefined;
+});
+function setLevel(element, level) {
+  element.hidden = !Number.isInteger(level) || level <= 0;
+  element.textContent = element.hidden ? '' : String(level);
+}
+function formatTime(seconds) {
+  const value = Math.max(0, Math.floor(seconds));
+  return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`;
+}
+function renderTimer() {
+  const timer = $('queue-timer');
+  const searching = isSearching();
+  const ready = state.connected && state.phase === 'ReadyCheck' && state.ready?.active && state.ready.deadline !== null && state.ready?.response !== 'Accepted';
+  timer.hidden = !searching && !ready;
+  timer.classList.toggle('countdown', Boolean(ready));
+  if (searching) {
+    timer.textContent = queueStartedAt === null ? '—:——' : formatTime((Date.now() - queueStartedAt) / 1000);
+    timer.title = 'Temps écoulé en recherche';
+    timer.setAttribute('aria-label', timer.title);
+  } else if (ready) {
+    timer.textContent = `${Math.max(0, Math.ceil((state.ready.deadline - Date.now()) / 1000))} s`;
+    timer.title = 'Temps restant estimé pour accepter';
+    timer.setAttribute('aria-label', timer.title);
+  }
+}
+async function refresh() {
+  if (busy) return;
+  const version = actionVersion, request = ++refreshVersion;
+  try {
+    const next = await LEAGUE.getStatus();
+    if (version !== actionVersion || request !== refreshVersion) return;
+    if (state.phase !== next.phase || Boolean(state.searching) !== Boolean(next.searching)) { noticeUntil = 0; $('feedback').classList.remove('error'); }
+    state = next;
+    if (!state.connected || gamePhases.includes(state.phase)) queueStartedAt = null;
+    else if (state.searching && state.timeInQueue !== null && state.timeInQueue !== undefined) queueStartedAt = state.sampledAt - state.timeInQueue * 1000;
+    else if (!state.searching && !queueTransition?.searching) queueStartedAt = null;
+    if (queueTransition && (gamePhases.includes(state.phase) || Date.now() > queueTransition.expires ||
+      (state.connected && Boolean(state.searching || state.phase === 'Matchmaking') === queueTransition.searching))) queueTransition = null;
+    render();
+    if (state.connected && state.duoPartner && expanded) await setPanel(null);
+    if (state.connected && rolePreferences === undefined && !roleDraft) {
+      rolePreferences = await LEAGUE.getRoles();
+      renderRoleIcons();
+    }
+    const player = state.summoner;
+    $('profile').title = state.connected ? `${player.gameName || player.displayName || 'Invocateur'} · Niveau ${player.summonerLevel || '—'}` : state.message || 'Connexion…';
+    $('summoner-name').textContent = state.connected ? player.gameName || player.displayName || 'Invocateur' : state.starting ? 'Connexion…' : 'Hors ligne';
+    setLevel($('level'), state.connected ? player.summonerLevel : null);
+    if (state.connected && player.profileIconId !== undefined && lastIcon !== player.profileIconId) {
+      const icon = await LEAGUE.getProfileIcon(player.profileIconId);
+      if (icon) { $('avatar').src = icon; $('avatar').hidden = false; $('avatar-fallback').hidden = true; lastIcon = player.profileIconId; }
+    }
+  } catch (error) { feedback(error.message, true); }
+}
+async function action(work) {
+  if (busy) return;
+  actionVersion++;
+  busy = true; render();
+  try { await work(); } catch (error) { feedback(error.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, ''), true); }
+  finally { actionVersion++; busy = false; render(); await refresh(); }
+}
+
+$('open-client').addEventListener('click', () => action(async () => {
+  feedback('Ouverture du client League…');
+  await LEAGUE.openClient();
+  feedback('Client League affiché');
+}));
+$('play').addEventListener('click', () => action(async () => {
+  if (!state.connected) { await LEAGUE.launch(); return; }
+  if (state.phase === 'ReadyCheck') {
+    await LEAGUE.acceptReady();
+    state.ready = { ...state.ready, response: 'Accepted' };
+    return;
+  }
+  if (['ChampSelect', 'Reconnect'].includes(state.phase)) { await LEAGUE.openClient(); return; }
+  if (gamePhases.includes(state.phase)) return;
+  if (isSearching()) {
+    await LEAGUE.cancelSearch();
+    queueStartedAt = null;
+    queueTransition = { searching: false, expires: Date.now() + 8000 };
+    feedback('Recherche annulée');
+  } else {
+    rolePreferences = await LEAGUE.getRoles();
+    if (!rolePreferences) { await openRoles(); feedback('Choisis tes deux rôles'); return; }
+    await LEAGUE.startSearch();
+    queueStartedAt = Date.now();
+    queueTransition = { searching: true, expires: Date.now() + 8000 };
+    feedback('Recherche en cours · clic pour annuler');
+  }
+}));
+async function setPanel(panel) {
+  if (panel !== 'roles') roleDraft = null;
+  expanded = panel === 'friends';
+  rolesExpanded = panel === 'roles';
+  $('invitations').hidden = !expanded;
+  $('roles-panel').hidden = !rolesExpanded;
+  $('add-friend').setAttribute('aria-expanded', String(expanded));
+  $('primary-role').setAttribute('aria-expanded', String(rolesExpanded && selectedRoleSlot === 'firstPreference'));
+  $('secondary-role').setAttribute('aria-expanded', String(rolesExpanded && selectedRoleSlot === 'secondPreference'));
+  render();
+}
+$('add-friend').addEventListener('click', async () => {
+  await setPanel(expanded ? null : 'friends');
+  if (expanded) { loadFriends(); $('friend-name').focus(); }
+});
+
+function renderRoleIcons() {
+  const current = roleDraft || rolePreferences;
+  for (const [id, key, label] of [['primary-role', 'firstPreference', 'Principal'], ['secondary-role', 'secondPreference', 'Secondaire']]) {
+    const role = current?.[key];
+    const button = $(id);
+    button.querySelector('img').src = ROLE_ICON(roleLabels[role] ? role.toLowerCase() : 'unselected');
+    button.title = `${label} : ${roleLabels[role] || 'à choisir'}${roleDraft ? ' (non enregistré)' : ''}`;
+    button.setAttribute('aria-label', button.title);
+    button.classList.toggle('draft', Boolean(roleDraft));
+  }
+  $('role-picker-title').textContent = selectedRoleSlot === 'firstPreference' ? 'Rôle principal' : 'Rôle secondaire';
+  $('role-step').textContent = selectedRoleSlot === 'firstPreference' ? 'Étape 1 sur 2' : 'Étape 2 sur 2';
+  for (const button of $('role-options').children) {
+    button.setAttribute('aria-pressed', String(button.dataset.role === current?.[selectedRoleSlot]));
+    const rank = button.dataset.role === current?.firstPreference ? '1' : button.dataset.role === current?.secondPreference ? '2' : null;
+    if (rank) button.dataset.rank = rank; else delete button.dataset.rank;
+  }
+}
+async function openRoles(slot = 'firstPreference') {
+  if (!roleDraft) rolePreferences = await LEAGUE.getRoles();
+  selectedRoleSlot = slot;
+  await setPanel('roles');
+}
+for (const [id, slot] of [['primary-role', 'firstPreference'], ['secondary-role', 'secondPreference']]) {
+  $(id).addEventListener('click', async () => {
+    try {
+      if (rolesExpanded && selectedRoleSlot === slot) { roleDraft = null; await setPanel(null); }
+      else await openRoles(slot);
+    } catch (error) { feedback(error.message, true); }
+  });
+}
+$('close-roles').addEventListener('click', async () => { roleDraft = null; await setPanel(null); });
+for (const [role, label] of Object.entries(roleLabels)) {
+  const button = document.createElement('button');
+  button.className = 'role-option'; button.dataset.role = role; button.title = label === 'Fill' ? 'Remplissage' : label;
+  const icon = document.createElement('img'); icon.src = ROLE_ICON(role.toLowerCase()); icon.alt = '';
+  const text = document.createElement('span'); text.textContent = label;
+  button.append(icon, text);
+  button.addEventListener('click', () => action(async () => {
+    const next = { ...(roleDraft || rolePreferences || {}) };
+    const other = selectedRoleSlot === 'firstPreference' ? 'secondPreference' : 'firstPreference';
+    if (next[other] === role) next[other] = next[selectedRoleSlot] || 'UNSELECTED';
+    next[selectedRoleSlot] = role;
+    if (next.firstPreference === 'FILL') next.secondPreference = 'UNSELECTED';
+    roleDraft = next;
+    if (!roleLabels[next.firstPreference] || (next.firstPreference !== 'FILL' && !roleLabels[next.secondPreference])) {
+      selectedRoleSlot = !roleLabels[next.firstPreference] ? 'firstPreference' : 'secondPreference';
+      await setPanel('roles');
+      feedback(selectedRoleSlot === 'firstPreference' ? 'Choisis ton rôle principal' : 'Choisis ton rôle secondaire');
+      return;
+    }
+    const result = await LEAGUE.saveRoles(next);
+    rolePreferences = result; roleDraft = null;
+    await setPanel(null);
+    feedback(result.recovered ? 'Lobby rétabli · rôles enregistrés' : 'Rôles enregistrés');
+  }));
+  $('role-options').append(button);
+}
+async function loadFriends() {
+  try {
+    const friends = await LEAGUE.getOnlineFriends();
+    $('friend-list').replaceChildren();
+    $('friends-count').textContent = friends.length ? `${friends.length} connecté${friends.length > 1 ? 's' : ''}` : 'Amis connectés';
+    if (!friends.length) {
+      const empty = document.createElement('p'); empty.className = 'empty-list'; empty.textContent = 'Aucun ami connecté'; $('friend-list').append(empty);
+    }
+    for (const friend of friends) {
+      const row = document.createElement('div'); row.className = `friend-item ${friend.status === 'inGame' ? 'in-game' : 'online'}`;
+      const label = document.createElement('div');
+      const name = document.createElement('strong'); name.textContent = friend.name;
+      const status = document.createElement('small'); status.textContent = friend.status === 'inGame' ? 'En partie' : 'En ligne';
+      label.append(name, status);
+      const invite = document.createElement('button'); invite.textContent = '+'; invite.title = `Inviter ${friend.name}`;
+      invite.addEventListener('click', () => action(async () => {
+        await LEAGUE.inviteSummoner(friend.summonerId); invite.textContent = '✓'; invite.disabled = true; feedback('Invitation envoyée');
+      }));
+      row.dataset.name = friend.name.toLowerCase();
+      row.append(label, invite); $('friend-list').append(row);
+    }
+    filterFriends();
+  } catch (error) { feedback('Amis indisponibles : ' + error.message, true); }
+}
+$('invite-form').addEventListener('submit', event => {
+  event.preventDefault();
+  action(async () => { await LEAGUE.invite($('friend-name').value); feedback('Invitation envoyée'); $('friend-name').value = ''; filterFriends(); });
+});
+$('friend-name').addEventListener('input', filterFriends);
+function filterFriends() {
+  const query = $('friend-name').value.trim().toLowerCase();
+  for (const row of $('friend-list').querySelectorAll('.friend-item')) row.hidden = Boolean(query) && !row.dataset.name.includes(query);
+}
+$('refresh-friends').addEventListener('click', loadFriends);
+$('close-friends').addEventListener('click', () => setPanel(null));
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && (expanded || rolesExpanded)) setPanel(null);
+});
+$('close-widget').addEventListener('click', () => LEAGUE.closeWidget());
+setInterval(renderTimer, 200);
+async function poll() { await refresh(); setTimeout(poll, 1000); }
+poll();
+
+  }
+  function runReady(ROOT, LEAGUE) {
+const button = ROOT.querySelector('#accept');
+const message = ROOT.querySelector('#ready-feedback');
+let ready = null, busy = false, acceptedLocally = false, errorText = '';
+function render() {
+  const accepted = acceptedLocally || ready?.response === 'Accepted';
+  const remaining = ready?.active && ready.deadline !== null ? Math.max(0, ready.deadline - Date.now()) : null;
+  button.disabled = busy || !ready?.active || accepted || ready?.response === 'Declined';
+  button.textContent = busy ? 'Acceptation…' : accepted ? 'Partie acceptée' : 'Accepter';
+  ROOT.querySelector('#countdown').textContent = accepted ? '✓' : remaining === null ? '—' : Math.ceil(remaining / 1000);
+  ROOT.querySelector('#clock-progress').style.strokeDashoffset = accepted ? 0 : remaining === null ? 100 : 100 - Math.min(100, remaining / ready.duration * 100);
+  ROOT.querySelector('#ready-clock').classList.toggle('accepted', accepted);
+  ROOT.querySelector('#ready-clock').classList.toggle('urgent', !accepted && remaining !== null && remaining < 4000);
+  ROOT.querySelector('#ready-title').textContent = accepted ? 'C’est confirmé.' : 'À toi de jouer.';
+  ROOT.querySelector('#ready-subtitle').textContent = accepted ? 'En attente des joueurs…' : 'La faille t’attend.';
+  message.textContent = errorText || (accepted ? 'League s’ouvrira pour choisir ton champion.' : ready?.active ? 'Solo / Duo · Faille de l’invocateur' : 'Synchronisation avec League…');
+  message.classList.toggle('error', Boolean(errorText));
+}
+function update(value) { ready = value; render(); }
+LEAGUE.onReadyCheck(update);
+LEAGUE.getReadyState().then(update).catch(() => { errorText = 'Connexion à League indisponible'; render(); });
+button.addEventListener('click', async () => {
+  if (button.disabled) return;
+  busy = true; errorText = ''; render();
+  try { await LEAGUE.acceptReady(); acceptedLocally = true; }
+  catch (error) { errorText = error.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, ''); }
+  finally { busy = false; render(); }
+});
+ROOT.querySelector('#close').addEventListener('click', () => LEAGUE.hideReady());
+setInterval(render, 100);
+
+  }
+
+  // ---------------------------------------------------------------------------
+  // Faux client League : remplace le processus Electron et l'API locale.
+  // ---------------------------------------------------------------------------
+  const FRIENDS = [
+    { summonerId: 11, name: 'Aerith#EUW', status: 'outOfGame', icon: 2, level: 212 },
+    { summonerId: 12, name: 'Brume#FR1', status: 'outOfGame', icon: 3, level: 88 },
+    { summonerId: 13, name: 'Kaelis#EUW', status: 'inGame', icon: 4, level: 301 },
+    { summonerId: 14, name: 'Lumen#EUW', status: 'outOfGame', icon: 5, level: 154 },
+    { summonerId: 15, name: 'Nox#0001', status: 'outOfGame', icon: 6, level: 47 },
+    { summonerId: 16, name: 'Orage#FR1', status: 'inGame', icon: 7, level: 520 },
+    { summonerId: 17, name: 'Sélène#EUW', status: 'outOfGame', icon: 8, level: 233 },
+    { summonerId: 18, name: 'Vesper#EUW', status: 'outOfGame', icon: 9, level: 176 }
+  ];
+  const ROLES = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'UTILITY', 'FILL'];
+  const READY_MS = 10733;
+  const CHAMP_MS = 30000;
+
+  function avatar(id) {
+    const hues = [42, 200, 280, 160, 330, 15, 120, 250, 190, 300];
+    const h = hues[Math.abs(id) % hues.length];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h},55%,42%)"/><stop offset="1" stop-color="hsl(${(h + 40) % 360},60%,12%)"/></linearGradient></defs><rect width="64" height="64" fill="url(#g)"/><path d="M32 11 47 32 32 53 17 32Z" fill="none" stroke="hsl(${h},70%,84%)" stroke-width="2.5"/><path d="M32 22 39 32 32 42 25 32Z" fill="hsl(${h},80%,86%)" opacity=".85"/></svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  function createBackend(ui) {
+    let alive = true;
+    const timers = new Set();
+    const later = (fn, ms) => { const t = setTimeout(() => { timers.delete(t); if (alive) fn(); }, ms); timers.add(t); return t; };
+    const cancel = t => { if (t) { clearTimeout(t); timers.delete(t); } };
+    const delay = ms => new Promise(resolve => later(resolve, ms));
+    const readyListeners = [];
+    const s = { connected: false, starting: true, phase: 'None', searchStart: 0, roles: null, partner: null,
+      ready: null, clientOpening: false, champDeadline: 0, champion: null, gameStart: 0, extraId: 90, t: {} };
+
+    const setPhase = phase => { s.phase = phase; ui.phaseChanged(phase); };
+    const readySnapshot = () => s.ready
+      ? { active: s.ready.active, response: s.ready.response, elapsed: (Date.now() - s.ready.start) / 1000,
+          deadline: s.ready.active ? s.ready.start + READY_MS : null, duration: READY_MS, sampledAt: Date.now() }
+      : { active: false, response: 'None', elapsed: null, deadline: null, duration: READY_MS, sampledAt: Date.now() };
+    const pushReady = () => { const value = readySnapshot(); readyListeners.forEach(cb => cb(value)); };
+
+    function connect() { s.connected = true; s.starting = false; ui.quest('launch'); }
+    later(connect, 1900);
+
+    function ensureLobby() {
+      if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
+      if (s.phase === 'None') setPhase('Lobby');
+    }
+    function partnerRoles() {
+      const mine = [s.roles?.firstPreference, s.roles?.secondPreference];
+      const free = ['BOTTOM', 'UTILITY', 'TOP', 'JUNGLE', 'MIDDLE'].filter(role => !mine.includes(role));
+      return { firstPreference: free[0], secondPreference: free[1] };
+    }
+    function join(friend) {
+      later(() => {
+        if (s.phase !== 'Lobby' || s.partner) return;
+        const short = friend.name.split('#')[0];
+        if (friend.status === 'inGame') { ui.notice(`${short} est en partie et a refusé l'invitation. Essaie un ami « En ligne ».`, true); return; }
+        s.partner = { summonerId: friend.summonerId, displayName: short, profileIconId: friend.icon,
+          summonerLevel: friend.level, ...partnerRoles() };
+        ui.quest('duo');
+        ui.notice(`${short} a rejoint ton lobby.`);
+      }, 1500);
+    }
+    function startReady() {
+      setPhase('ReadyCheck');
+      s.ready = { active: true, response: 'None', start: Date.now() };
+      ui.showReady();
+      const loop = () => { if (s.phase !== 'ReadyCheck') return; pushReady(); later(loop, 250); };
+      loop();
+      s.t.ready = later(() => {
+        if (s.ready?.response === 'Accepted') return;
+        s.ready = null; pushReady(); ui.hideReady(); setPhase('Lobby');
+        ui.notice('Tu n\'as pas accepté à temps : retour au lobby. Relance la recherche.', true);
+      }, READY_MS);
+    }
+    function toChampSelect() {
+      s.ready = null; pushReady(); ui.hideReady();
+      setPhase('ChampSelect');
+      s.champion = null;
+      s.champDeadline = Date.now() + CHAMP_MS;
+      s.clientOpening = true;
+      later(() => { s.clientOpening = false; ui.showClient(); }, 900);
+      s.t.champ = later(() => {
+        if (s.phase !== 'ChampSelect') return;
+        setPhase('Lobby'); ui.hideClient();
+        ui.notice('La sélection a expiré avant que tu verrouilles un champion. Retour au lobby.', true);
+      }, CHAMP_MS);
+    }
+    function endGame() {
+      if (!['InProgress', 'GameStart'].includes(s.phase)) return;
+      cancel(s.t.game);
+      setPhase('EndOfGame');
+      later(() => { setPhase('Lobby'); ui.hideClient(); ui.notice('Victoire, +21 LP (pour la démo). Tu peux relancer une partie.'); }, 3500);
+    }
+
+    const handlers = {
+      async getStatus() {
+        if (!s.connected) return { connected: false, starting: s.starting, message: s.starting ? 'Lancement de League…' : 'League est fermé' };
+        const searching = s.phase === 'Matchmaking';
+        return { connected: true, summoner: { summonerId: 1, gameName: 'Toi', summonerLevel: 379, profileIconId: 1 },
+          duoPartner: s.partner ? { ...s.partner } : null, canKick: Boolean(s.partner) && s.phase === 'Lobby',
+          phase: s.phase, searching, sampledAt: Date.now(),
+          timeInQueue: searching ? (Date.now() - s.searchStart) / 1000 : null,
+          estimatedQueueTime: searching ? 95 : null,
+          ready: readySnapshot(), clientUi: { opening: s.clientOpening, error: '' } };
+      },
+      async getProfileIcon(id) { return avatar(id); },
+      async getRoles() { return s.roles ? { ...s.roles } : null; },
+      async saveRoles(value) {
+        const first = value?.firstPreference;
+        const second = first === 'FILL' ? 'UNSELECTED' : value?.secondPreference;
+        if (!ROLES.includes(first)) throw new Error('Choisis ton rôle principal.');
+        if (first !== 'FILL' && !ROLES.includes(second)) throw new Error('Choisis ton rôle secondaire.');
+        if (first === second) throw new Error('Choisis deux rôles différents.');
+        if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Annule la recherche avant de changer tes rôles.');
+        await delay(160);
+        s.roles = { firstPreference: first, secondPreference: second };
+        ui.quest('roles');
+        return { ...s.roles, recovered: false };
+      },
+      async launch() { if (!s.connected) { s.starting = true; later(connect, 1500); } },
+      async openClient() { await delay(250); ui.showClient(); },
+      async getReadyState() { return readySnapshot(); },
+      async createRanked() { ensureLobby(); },
+      async invite(name) {
+        const value = String(name || '').trim();
+        if (!/^[^#]{3,16}#[\p{L}\p{N}]{2,5}$/u.test(value)) throw new Error('Riot ID introuvable. Utilise le format Pseudo#TAG.');
+        ensureLobby();
+        await delay(300);
+        join({ summonerId: ++s.extraId, name: value, status: 'outOfGame', icon: s.extraId, level: 30 + (s.extraId * 37) % 400 });
+      },
+      async getOnlineFriends() { await delay(220); return FRIENDS.map(({ summonerId, name, status }) => ({ summonerId, name, status })); },
+      async inviteSummoner(id) {
+        const friend = FRIENDS.find(item => item.summonerId === id);
+        if (!friend) throw new Error('Ami invalide.');
+        ensureLobby();
+        await delay(250);
+        join(friend);
+      },
+      async kickMember() {
+        if (s.phase !== 'Lobby') throw new Error('Impossible d\'exclure un joueur maintenant.');
+        await delay(200);
+        s.partner = null;
+      },
+      async startSearch() {
+        if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
+        if (!s.roles) throw new Error('Choisis tes positions avant de lancer.');
+        await delay(260);
+        setPhase('Matchmaking');
+        s.searchStart = Date.now();
+        ui.quest('search');
+        s.t.found = later(startReady, 6000 + Math.random() * 3000);
+      },
+      async cancelSearch() {
+        if (s.phase !== 'Matchmaking') return;
+        await delay(160);
+        cancel(s.t.found);
+        setPhase('Lobby');
+      },
+      async acceptReady() {
+        if (!s.ready?.active) throw new Error('Aucune partie à accepter.');
+        await delay(180);
+        s.ready.response = 'Accepted';
+        cancel(s.t.ready);
+        pushReady();
+        ui.quest('accept');
+        later(toChampSelect, 2600);
+      },
+      async hideReady() { ui.hideReady(true); },
+      async closeWidget() { ui.hideWidget(); },
+      onReadyCheck(callback) { readyListeners.push(callback); }
+    };
+
+    const api = {};
+    for (const [name, fn] of Object.entries(handlers)) {
+      api[name] = name === 'onReadyCheck' ? fn : (...args) => alive ? fn(...args) : new Promise(() => {});
+    }
+    return {
+      api,
+      get phase() { return s.phase; },
+      get connected() { return s.connected; },
+      get roles() { return s.roles; },
+      get partner() { return s.partner; },
+      get ready() { return s.ready; },
+      get champion() { return s.champion; },
+      champLeft: () => Math.max(0, s.champDeadline - Date.now()),
+      gameSeconds: () => Math.floor((Date.now() - s.gameStart) / 1000 * 30),
+      lock(name) {
+        if (s.phase !== 'ChampSelect' || s.champion) return;
+        s.champion = name;
+        cancel(s.t.champ);
+        ui.quest('champ');
+        later(() => { setPhase('GameStart'); later(() => { setPhase('InProgress'); s.gameStart = Date.now(); s.t.game = later(endGame, 60000); }, 2500); }, 1500);
+      },
+      endGame,
+      destroy() { alive = false; timers.forEach(clearTimeout); timers.clear(); }
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Bureau : fenêtres déplaçables, barre des tâches, faux client, étapes.
+  // ---------------------------------------------------------------------------
+  const desk = document.getElementById('desk');
+  const hint = document.getElementById('hint');
+  const tbWidget = document.getElementById('tb-widget');
+  const tbClient = document.getElementById('tb-client');
+  const TASKBAR = 42;
+  const QUESTS = ['launch', 'roles', 'duo', 'search', 'accept', 'champ'];
+  const CHAMPS = [['Ahri', 330], ['Lee Sin', 20], ['Jinx', 290], ['Thresh', 150], ['Darius', 0], ['Orianna', 45],
+    ["Kai'Sa", 270], ['Leona', 40], ['Viego', 170], ['Garen', 220], ['Lux', 55], ['Ezreal', 200]];
+  let z = 10, backend = null, hosts = {}, quests = new Set(), notice = null, readyDismissed = false, clientKey = '', picked = null;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  function place(el, x, y) {
+    const maxX = Math.max(0, desk.clientWidth - el.offsetWidth);
+    const maxY = Math.max(0, desk.clientHeight - TASKBAR - el.offsetHeight);
+    el._x = clamp(x, 0, maxX); el._y = clamp(y, 0, maxY);
+    el.style.transform = `translate(${el._x}px, ${el._y}px)`;
+  }
+  function front(el) { el.style.zIndex = ++z; }
+  function show(el) {
+    el.hidden = false;
+    el.classList.remove('popin'); void el.offsetWidth; el.classList.add('popin');
+    place(el, el._x, el._y);
+    front(el);
+  }
+  function draggable(el, handleSelector) {
+    el.addEventListener('pointerdown', event => {
+      front(el);
+      if (event.button !== 0) return;
+      let handle = false;
+      for (const node of event.composedPath()) {
+        if (node === el) break;
+        if (!(node instanceof Element)) continue;
+        if (node.matches('button, input, a, [role="button"], .champ')) return;
+        if (node.matches(handleSelector)) handle = true;
+      }
+      if (!handle) return;
+      event.preventDefault();
+      const start = { x: event.clientX, y: event.clientY, ox: el._x, oy: el._y };
+      el.setPointerCapture(event.pointerId);
+      el.classList.add('dragging');
+      const move = ev => place(el, start.ox + ev.clientX - start.x, start.oy + ev.clientY - start.y);
+      const up = () => {
+        el.classList.remove('dragging');
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerup', up);
+        el.removeEventListener('pointercancel', up);
+      };
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up);
+      el.addEventListener('pointercancel', up);
+    });
+  }
+
+  function shadowWindow(className, html) {
+    const host = document.createElement('div');
+    host.className = `win ${className}`;
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = `<style>${WIDGET_CSS}${EXTRA_CSS}</style>${html}`;
+    desk.insertBefore(host, desk.querySelector('.taskbar'));
+    return { host, root };
+  }
+
+  const ui = {
+    quest(key) { quests.add(key); renderQuests(); },
+    notice(text, alert = false) { notice = { text, alert, until: Date.now() + 6000 }; renderHint(); },
+    phaseChanged() { clientKey = ''; },
+    showReady() { readyDismissed = false; show(hosts.ready); },
+    hideReady(dismiss = false) { if (dismiss) readyDismissed = true; hosts.ready.hidden = true; },
+    hideWidget() { hosts.widget.hidden = true; tbWidget.classList.remove('open'); tbWidget.classList.add('nudge'); },
+    showClient() { clientKey = ''; renderClient(); show(hosts.client); tbClient.hidden = false; tbClient.classList.add('open'); },
+    hideClient() { hosts.client.hidden = true; tbClient.hidden = true; }
+  };
+
+  function buildClient() {
+    const el = document.createElement('div');
+    el.className = 'win client';
+    el.hidden = true;
+    el.innerHTML = '<div class="client-bar"><b>Client League</b><small>version démo</small><button type="button" aria-label="Fermer le client">×</button></div><div class="client-body"></div>';
+    el.querySelector('.client-bar button').addEventListener('click', () => { el.hidden = true; tbClient.classList.remove('open'); });
+    el.querySelector('.client-body').addEventListener('click', event => {
+      const champ = event.target.closest('.champ');
+      if (champ && !backend.champion) { picked = champ.dataset.name; clientKey = ''; renderClient(); return; }
+      if (event.target.closest('[data-lock]') && picked) { backend.lock(picked); clientKey = ''; renderClient(); return; }
+      if (event.target.closest('[data-end]')) backend.endGame();
+    });
+    desk.insertBefore(el, desk.querySelector('.taskbar'));
+    return el;
+  }
+
+  function renderClient() {
+    const el = hosts.client;
+    if (!el || el.hidden && clientKey) return;
+    const phase = backend.phase;
+    const body = el.querySelector('.client-body');
+    const key = `${phase}|${picked}|${backend.champion}`;
+    if (key !== clientKey) {
+      clientKey = key;
+      if (phase === 'ChampSelect') {
+        const locked = backend.champion;
+        body.innerHTML = `<div class="cs-head"><div><h3>Sélection des champions</h3><p>Classé Solo/Duo · ${locked ? 'en attente des autres joueurs…' : 'choisis ton champion puis verrouille-le.'}</p></div><span class="cs-timer" data-timer>30</span></div>
+          <div class="champs">${CHAMPS.map(([name, hue]) => `<button type="button" class="champ" data-name="${name}" aria-pressed="${name === (locked || picked)}" ${locked ? 'disabled' : ''}><i style="background:linear-gradient(135deg,hsl(${hue},55%,40%),hsl(${(hue + 40) % 360},60%,12%))">${name[0]}</i>${name}</button>`).join('')}</div>
+          <div class="client-actions">${locked ? `<p>Verrouillé : <b style="color:var(--gold)">${locked}</b></p>` : `<button type="button" class="btn btn-gold" data-lock ${picked ? '' : 'disabled'}>Verrouiller</button>`}</div>`;
+      } else if (phase === 'GameStart') {
+        body.innerHTML = `<div class="game"><h3>Chargement de la partie</h3><p>${backend.champion || ''} · Faille de l'invocateur</p></div>`;
+      } else if (phase === 'InProgress') {
+        body.innerHTML = `<div class="game"><p>Partie en cours · ${backend.champion || ''}</p><div class="clock" data-clock>0:00</div><button type="button" class="btn btn-ghost" data-end>Terminer la partie</button><p>Le widget reste en attente pendant la partie.</p></div>`;
+      } else if (phase === 'EndOfGame') {
+        body.innerHTML = '<div class="game"><div class="victory">Victoire</div><p>+21 LP · démo</p></div>';
+      } else {
+        picked = null;
+        body.innerHTML = `<h3>Accueil</h3><p>Dans l'application, ce bouton affiche le vrai client League, pour la boutique, ton profil ou un autre mode de jeu.</p><p>Ici, c'est une version simplifiée pour la démo. ${phase === 'Matchmaking' ? 'La recherche continue : le widget s’en occupe.' : 'Ferme cette fenêtre et reviens au widget.'}</p>`;
+      }
+    }
+    const timer = body.querySelector('[data-timer]');
+    if (timer) { const left = Math.ceil(backend.champLeft() / 1000); timer.textContent = left; timer.classList.toggle('low', left <= 10); }
+    const clock = body.querySelector('[data-clock]');
+    if (clock) { const sec = backend.gameSeconds(); clock.textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
+  }
+
+  function renderQuests() {
+    const next = QUESTS.find(key => !quests.has(key));
+    document.querySelectorAll('#steps li').forEach(li => {
+      li.classList.toggle('done', quests.has(li.dataset.quest));
+      li.classList.toggle('on', li.dataset.quest === next);
+    });
+    document.getElementById('progress').textContent = quests.size === QUESTS.length ? '6 / 6 étapes · bravo !' : `${quests.size} / 6 étapes`;
+  }
+
+  function hintText() {
+    if (notice && Date.now() < notice.until) return notice;
+    if (hosts.widget.hidden) return { text: 'Widget fermé : clique sur son icône dans la barre des tâches pour le rouvrir.' };
+    const phase = backend.phase;
+    if (!backend.connected) return { text: 'League démarre en arrière-plan…' };
+    if (phase === 'ReadyCheck') return { text: backend.ready?.response === 'Accepted' ? 'Accepté ! Les autres joueurs arrivent…' : 'Partie trouvée : accepte dans la popup ou dans le widget.' };
+    if (phase === 'Matchmaking') return { text: 'Recherche en cours… Tu peux déplacer le widget pendant ce temps.' };
+    if (phase === 'ChampSelect') return { text: backend.champion ? 'Champion verrouillé. La partie va commencer.' : 'Le client s’est ouvert tout seul : choisis un champion et verrouille-le.' };
+    if (phase === 'GameStart') return { text: 'Chargement de la partie…' };
+    if (phase === 'InProgress') return { text: 'Partie en cours. Termine-la depuis la fenêtre du client quand tu veux.' };
+    if (phase === 'EndOfGame') return { text: 'Fin de partie…' };
+    if (!backend.roles) return { text: 'Clique sur « Lancer » ou sur les icônes sous ton portrait pour choisir tes rôles.' };
+    if (!backend.partner && !quests.has('duo')) return { text: 'Invite un ami avec le cercle « Inviter », ou clique directement sur « Lancer ».' };
+    return { text: 'Tout est prêt : clique sur « Lancer ».' };
+  }
+  function renderHint() {
+    if (!backend) return;
+    const { text, alert } = hintText();
+    if (hint.textContent !== text) hint.textContent = text;
+    hint.classList.toggle('alert', Boolean(alert));
+  }
+
+  function mount() {
+    backend = createBackend(ui);
+    quests = new Set(); notice = null; readyDismissed = false; clientKey = ''; picked = null;
+    renderQuests();
+    const widget = shadowWindow('w-host', `<div class="widget-body">${WIDGET_HTML}</div>`);
+    const ready = shadowWindow('r-host', `<div class="ready-body">${READY_HTML}</div>`);
+    ready.host.hidden = true;
+    hosts = { widget: widget.host, ready: ready.host, client: buildClient() };
+    draggable(widget.host, '.drag-handle, .panel-header');
+    draggable(ready.host, 'header');
+    draggable(hosts.client, '.client-bar');
+    const W = desk.clientWidth, H = desk.clientHeight - TASKBAR;
+    widget.host._x = W - 300 - 14; widget.host._y = 14;
+    ready.host._x = W - 310 - 14; ready.host._y = H - 260 - 10;
+    hosts.client._x = W < 700 ? 8 : Math.max(8, Math.min(110, W - 620 - 340)); hosts.client._y = W < 700 ? 60 : 50;
+    place(widget.host, widget.host._x, widget.host._y); front(widget.host);
+    place(ready.host, ready.host._x, ready.host._y);
+    place(hosts.client, hosts.client._x, hosts.client._y);
+    tbWidget.classList.add('open'); tbWidget.classList.remove('nudge');
+    tbClient.hidden = true; tbClient.classList.remove('open');
+    runApp(widget.root, backend.api);
+    runReady(ready.root, backend.api);
+  }
+
+  tbWidget.addEventListener('click', () => {
+    const w = hosts.widget;
+    if (w.hidden) { show(w); tbWidget.classList.add('open'); tbWidget.classList.remove('nudge'); }
+    else if (Number(w.style.zIndex) === z) { w.hidden = true; tbWidget.classList.remove('open'); }
+    else front(w);
+  });
+  tbClient.addEventListener('click', () => {
+    const c = hosts.client;
+    if (c.hidden) { show(c); tbClient.classList.add('open'); renderClient(); }
+    else { c.hidden = true; tbClient.classList.remove('open'); }
+  });
+  document.getElementById('reset').addEventListener('click', () => {
+    backend.destroy();
+    Object.values(hosts).forEach(el => el.remove());
+    mount();
+  });
+  addEventListener('resize', () => Object.values(hosts).forEach(el => place(el, el._x, el._y)));
+
+  const clock = document.getElementById('clock');
+  const tickClock = () => { const d = new Date(); clock.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  tickClock(); setInterval(tickClock, 30000);
+
+  mount();
+  setInterval(() => { renderHint(); if (!hosts.client.hidden) renderClient(); }, 250);
+})();
+</script>

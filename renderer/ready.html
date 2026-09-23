@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'" />
+  <link rel="stylesheet" href="styles.css" /><title>Partie trouvée</title>
+</head>
+<body class="ready-body">
+  <main class="ready-popup">
+    <header class="drag-handle"><span>PARTIE TROUVÉE</span><button id="close" aria-label="Masquer la notification" title="Masquer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></header>
+    <div class="ready-content">
+      <div id="ready-clock" class="ready-clock" aria-label="Temps restant estimé pour accepter">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="clock-track" cx="32" cy="32" r="28"/><circle id="clock-progress" cx="32" cy="32" r="28" pathLength="100"/></svg>
+        <strong id="countdown" aria-label="Compte à rebours">—</strong>
+      </div>
+      <div class="ready-copy"><h1 id="ready-title">À toi de jouer.</h1><p id="ready-subtitle">La faille t'attend.</p></div>
+    </div>
+    <button id="accept" class="accept" disabled>Accepter</button>
+    <p id="ready-feedback" class="feedback" role="status">Synchronisation avec League…</p>
+  </main>
+  <script src="ready.js"></script>
+</body>
+</html>

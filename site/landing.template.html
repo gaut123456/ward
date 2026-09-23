@@ -1,0 +1,1088 @@
+<title>Ward</title>
+<meta name="description" content="Ward, un widget de bureau pour lancer tes parties classées League of Legends sans ouvrir le client." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Marcellus+SC&family=Spline+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" />
+<!-- Généré par scripts/build-site.cjs à partir de site/landing.template.html et renderer/. Ne pas modifier site/index.html à la main. -->
+<style>
+  :root {
+    color-scheme: dark;
+    --ground: #07101c;
+    --night: #0c1a2b;
+    --void: #030a12;
+    --gold: #c8aa6e;
+    --gold-deep: #785a28;
+    --gold-dark: #463714;
+    --parchment: #efe6d3;
+    --muted: #948e80;
+    --faint: #5d5a53;
+    --teal: #19c6b6;
+    --teal-pale: #cdfafa;
+    --teal-deep: #005a82;
+    --red: #e84057;
+    --line: rgba(200, 170, 110, 0.16);
+    --line-soft: rgba(200, 170, 110, 0.08);
+
+    --display: "Marcellus", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --caps: "Marcellus SC", "Marcellus", "Palatino Linotype", Georgia, serif;
+    --body: "Spline Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--parchment);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 2px; }
+  .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: 24px; }
+  @media (max-width: 480px) { .wrap { padding-inline: 16px; } }
+
+  h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; margin: 0; }
+  .eyebrow {
+    font-family: var(--caps);
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before { content: ""; width: 7px; height: 7px; transform: rotate(45deg); border: 1px solid currentColor; }
+
+  /* ---------- Boutons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 50px;
+    padding: 0 22px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    font-family: var(--caps);
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    color: inherit;
+    transition: box-shadow 0.25s var(--ease), color 0.25s var(--ease), border-color 0.2s;
+  }
+  .btn-primary {
+    color: var(--teal-pale);
+    background:
+      linear-gradient(180deg, rgba(25, 198, 182, 0.18), rgba(0, 90, 130, 0.26)) padding-box,
+      linear-gradient(var(--void), var(--void)) padding-box,
+      linear-gradient(180deg, var(--teal), var(--teal-deep)) border-box;
+    box-shadow: inset 0 0 18px rgba(25, 198, 182, 0.18), 0 0 24px rgba(25, 198, 182, 0.12);
+    text-shadow: 0 0 10px rgba(25, 198, 182, 0.5);
+  }
+  .btn-primary:hover { color: #fff; box-shadow: inset 0 0 24px rgba(25, 198, 182, 0.3), 0 0 34px rgba(25, 198, 182, 0.28); }
+  .btn-ghost { color: var(--parchment); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--gold); color: #fff; }
+  .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 50;
+    background: rgba(7, 16, 28, 0.82);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: var(--caps); font-size: 17px; letter-spacing: 0.12em; }
+  .brand-mark { width: 26px; height: 26px; display: grid; place-items: center; border: 1px solid var(--gold); transform: rotate(45deg); }
+  .brand-mark::after { content: ""; width: 8px; height: 8px; background: var(--teal); box-shadow: 0 0 10px var(--teal); }
+  .nav-links { display: flex; gap: 26px; margin-left: auto; font-size: 14px; }
+  .nav-links a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--parchment); }
+  .nav .btn { height: 38px; padding: 0 16px; font-size: 13px; }
+  @media (max-width: 820px) { .nav-links { display: none; } .nav .btn { margin-left: auto; } }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    padding-block: 64px 40px;
+    background:
+      radial-gradient(60% 50% at 80% 30%, rgba(25, 198, 182, 0.09), transparent 70%),
+      radial-gradient(50% 50% at 10% 0%, rgba(200, 170, 110, 0.08), transparent 70%);
+  }
+  .hero-top { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px 64px; align-items: end; }
+  .hero h1 { font-size: clamp(40px, 6vw, 72px); line-height: 1.02; letter-spacing: -0.01em; margin-top: 18px; }
+  .hero h1 em { font-style: normal; color: var(--gold); }
+  .lede { margin: 0; font-size: 18px; color: #c9c1b0; max-width: 32em; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 20px; font-size: 13px; color: var(--muted); }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+  .hero-meta span::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--gold-deep); }
+  @media (max-width: 920px) { .hero-top { grid-template-columns: 1fr; } .hero { padding-block: 44px 32px; } }
+
+  /* ---------- Terrain de jeu ---------- */
+  .playground { margin-top: 48px; scroll-margin-top: 80px; }
+  .pg-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 12px 16px;
+    border-radius: 8px 8px 0 0;
+    background: rgba(12, 26, 43, 0.7);
+  }
+  .pg-live { display: inline-flex; align-items: center; gap: 8px; font-family: var(--caps); font-size: 12px; letter-spacing: 0.18em; color: var(--teal); flex-shrink: 0; }
+  .pg-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); animation: blink 1.6s infinite; }
+  .pg-hint { flex: 1; min-width: 200px; font-size: 14px; color: var(--parchment); }
+  .pg-hint.alert { color: #ffb4be; }
+  .pg-reset { height: 32px; padding: 0 12px; font-size: 12px; }
+  @keyframes blink { 50% { opacity: 0.35; } }
+
+  .desk {
+    position: relative;
+    height: 620px;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    touch-action: none;
+    background:
+      radial-gradient(70% 90% at 100% 0%, #1d3553 0%, transparent 60%),
+      radial-gradient(60% 80% at 0% 100%, #2a1f3d 0%, transparent 60%),
+      linear-gradient(160deg, #0f2036, #0a1322);
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8);
+  }
+  .desk::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%);
+    pointer-events: none;
+  }
+  .desk-icons { position: absolute; left: 18px; top: 18px; display: grid; gap: 18px; pointer-events: none; }
+  .desk-icons span { display: grid; justify-items: center; gap: 5px; width: 68px; font-size: 11px; color: rgba(255, 255, 255, 0.78); text-align: center; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+  .desk-icons svg { width: 38px; height: 38px; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45)); }
+  @media (max-width: 640px) { .desk-icons { display: none; } }
+
+  .win { position: absolute; left: 0; top: 0; will-change: transform; }
+  .win[hidden] { display: none; }
+  .w-host { width: 300px; height: 230px; }
+  .r-host { width: 310px; height: 260px; }
+  .win.popin { animation: popin 0.28s var(--ease); }
+  @keyframes popin { from { opacity: 0; scale: 0.96; } to { opacity: 1; scale: 1; } }
+
+  .taskbar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 42px;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(12, 20, 32, 0.9);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .taskbar > i { width: 30px; height: 30px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); }
+  .tb-app {
+    position: relative;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border: 0; border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .tb-app:hover { background: rgba(255, 255, 255, 0.08); }
+  .tb-app::after { content: ""; position: absolute; bottom: 1px; left: 50%; width: 6px; height: 3px; margin-left: -3px; border-radius: 2px; background: rgba(255, 255, 255, 0.4); transition: width 0.2s, margin 0.2s, background 0.2s; }
+  .tb-app.open::after { width: 14px; margin-left: -7px; background: var(--teal); }
+  .tb-app[hidden] { display: none; }
+  .tb-widget b { width: 16px; height: 16px; border: 1.5px solid var(--gold); transform: rotate(45deg); display: grid; place-items: center; }
+  .tb-widget b::after { content: ""; width: 6px; height: 6px; background: var(--teal); }
+  .tb-widget.nudge { animation: nudge 1.2s ease-in-out infinite; }
+  @keyframes nudge { 50% { background: rgba(200, 170, 110, 0.18); } }
+  .tb-client b { width: 18px; height: 18px; border-radius: 4px; background: linear-gradient(135deg, #c8aa6e, #463714); }
+  .taskbar time { position: absolute; right: 14px; font-family: var(--mono); font-size: 11px; color: rgba(255, 255, 255, 0.6); }
+
+  /* Faux client League */
+  .client {
+    width: 620px; height: 380px;
+    max-width: calc(100% - 16px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--gold-deep);
+    background: linear-gradient(180deg, #0a1428, #010a13);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+    font-size: 13px;
+  }
+  .client-bar {
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px 0 14px;
+    border-bottom: 1px solid var(--line);
+    background: #0b1523;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  .client-bar b { font-family: var(--caps); font-size: 12px; letter-spacing: 0.16em; color: var(--gold); font-weight: 400; }
+  .client-bar small { color: var(--faint); font-size: 11px; }
+  .client-bar button { margin-left: auto; width: 28px; height: 26px; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 16px; border-radius: 3px; }
+  .client-bar button:hover { color: #fff; background: rgba(232, 64, 87, 0.5); }
+  .client-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 16px 18px 18px; user-select: none; }
+  .client-body h3 { font-family: var(--caps); font-size: 18px; letter-spacing: 0.1em; color: var(--parchment); }
+  .client-body p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+  .cs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .cs-timer { font-family: var(--mono); font-size: 22px; color: var(--teal-pale); }
+  .cs-timer.low { color: var(--red); }
+  .champs { flex: 1; min-height: 0; margin: 14px 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; overflow-y: auto; align-content: start; }
+  .champ {
+    display: grid; justify-items: center; gap: 5px;
+    padding: 8px 4px;
+    border: 1px solid var(--line-soft);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--muted);
+    font: inherit; font-size: 11px;
+    cursor: pointer;
+  }
+  .champ i { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--gold-dark); font-family: var(--display); font-style: normal; font-size: 18px; color: #fff; }
+  .champ:hover { border-color: var(--gold-deep); color: var(--parchment); }
+  .champ[aria-pressed="true"] { border-color: var(--gold); color: var(--parchment); background: rgba(200, 170, 110, 0.1); box-shadow: inset 0 0 12px rgba(200, 170, 110, 0.15); }
+  .client-actions { display: flex; justify-content: flex-end; gap: 10px; }
+  .client-actions .btn { height: 40px; }
+  .btn-gold { color: #010a13; background: linear-gradient(180deg, #f0e6d2, #c8aa6e 45%, #c89b3c); }
+  .btn-gold:disabled { color: var(--faint); background: #1e2328; cursor: default; }
+  .game { flex: 1; display: grid; place-items: center; text-align: center; align-content: center; gap: 8px; }
+  .game .clock { font-family: var(--mono); font-size: 44px; color: var(--parchment); }
+  .game .victory { font-family: var(--display); font-size: 40px; color: var(--gold); }
+
+  /* ---------- Journal d'étapes ---------- */
+  .journey { padding-block: 36px 88px; }
+  .journey-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 32px; margin-bottom: 28px; }
+  .journey-head h2 { font-size: clamp(28px, 3.6vw, 38px); }
+  .journey-head p { margin: 0; max-width: 30em; color: var(--muted); font-size: 15px; }
+  .progress { font-family: var(--mono); font-size: 13px; color: var(--gold); }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+  .steps li { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 22px 16px 4px 0; }
+  .steps li::before {
+    content: "";
+    position: absolute; top: -5px; left: 0;
+    width: 9px; height: 9px;
+    transform: rotate(45deg);
+    border: 1px solid var(--gold-deep);
+    background: var(--ground);
+    transition: 0.3s var(--ease);
+  }
+  .steps li::after { content: ""; position: absolute; top: -1px; left: 0; height: 1px; width: 0; background: var(--gold); transition: width 0.6s var(--ease); }
+  .steps .num { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .steps b { font-family: var(--display); font-weight: 400; font-size: 20px; color: var(--muted); transition: color 0.3s; }
+  .steps span.d { font-size: 13.5px; line-height: 1.5; color: var(--faint); transition: color 0.3s; }
+  .steps li.done::before { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 10px rgba(25, 198, 182, 0.6); }
+  .steps li.done::after { width: 100%; background: var(--teal); }
+  .steps li.done .num { color: var(--teal); }
+  .steps li.done .num::after { content: " · fait"; }
+  .steps li.done b { color: var(--parchment); }
+  .steps li.on::before { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 12px rgba(200, 170, 110, 0.7); animation: blink 1.4s infinite; }
+  .steps li.on .num { color: var(--gold); }
+  .steps li.on b { color: var(--parchment); }
+  .steps li.on span.d { color: #c9c1b0; }
+  @media (max-width: 920px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 8px; } }
+  @media (max-width: 560px) {
+    .steps { grid-template-columns: 1fr; border-top: 0; border-left: 1px solid var(--line); }
+    .steps li { padding: 12px 0 12px 22px; }
+    .steps li::before { top: 20px; left: -5px; }
+    .steps li::after { display: none; }
+  }
+
+  /* ---------- Sections ---------- */
+  section.block { padding-block: 88px; border-top: 1px solid var(--line-soft); }
+  .block-head { max-width: 640px; margin-bottom: 44px; }
+  .block-head h2 { font-size: clamp(30px, 4vw, 44px); line-height: 1.1; margin-top: 14px; }
+  .block-head p { color: var(--muted); font-size: 17px; margin: 16px 0 0; }
+
+  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); }
+  .feature { background: var(--ground); padding: 30px 28px 32px; display: flex; flex-direction: column; gap: 12px; }
+  .feature .ico { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); color: var(--gold); }
+  .feature .ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .feature h3 { font-size: 22px; line-height: 1.2; }
+  .feature p { margin: 0; color: var(--muted); font-size: 15px; }
+  .feature.lead { grid-column: span 2; background: linear-gradient(135deg, rgba(200, 170, 110, 0.07), transparent 60%), var(--ground); }
+  .feature.lead h3 { font-size: 28px; }
+  .role-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .role-row span { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px 0 8px; border: 1px solid var(--line); font-size: 13px; color: #c9c1b0; }
+  .role-row img { width: 18px; height: 18px; }
+  @media (max-width: 920px) { .features { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .features { grid-template-columns: 1fr; } .feature.lead { grid-column: auto; } }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .col { padding: 30px; border: 1px solid var(--line-soft); }
+  .col h3 { font-family: var(--caps); font-size: 14px; letter-spacing: 0.2em; margin-bottom: 18px; color: var(--muted); }
+  .col.with { border-color: rgba(25, 198, 182, 0.35); background: linear-gradient(160deg, rgba(25, 198, 182, 0.07), transparent 55%); }
+  .col.with h3 { color: var(--teal); }
+  .col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .col li { display: grid; grid-template-columns: 18px 1fr; gap: 12px; font-size: 15px; color: #c9c1b0; }
+  .col li::before { content: ""; width: 8px; height: 8px; margin-top: 8px; transform: rotate(45deg); border: 1px solid var(--faint); }
+  .col.with li::before { border-color: var(--teal); background: var(--teal); }
+  @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+
+  .local { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; align-items: start; }
+  .local ul { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 18px; }
+  .local li b { display: block; font-weight: 600; font-size: 15px; }
+  .local li span { color: var(--muted); font-size: 15px; }
+  .console { border: 1px solid var(--line); background: var(--void); font-family: var(--mono); font-size: 12.5px; line-height: 1.85; overflow-x: auto; }
+  .console-bar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line-soft); color: var(--faint); font-size: 11px; }
+  .console-bar::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+  .console pre { margin: 0; padding: 16px 18px 18px; white-space: pre; color: #bcb5a6; }
+  .console .m { color: var(--gold); }
+  .console .c { color: var(--faint); }
+  .console .v { color: var(--teal-pale); }
+  @media (max-width: 920px) { .local { grid-template-columns: 1fr; gap: 36px; } }
+
+  .faq { max-width: 780px; }
+  .faq details { border-top: 1px solid var(--line-soft); }
+  .faq details:last-child { border-bottom: 1px solid var(--line-soft); }
+  .faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0; font-family: var(--display); font-size: 21px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: ""; flex-shrink: 0; width: 9px; height: 9px; border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); transform: rotate(45deg); transition: transform 0.25s var(--ease); margin-top: -6px; }
+  .faq details[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
+  .faq details p { margin: 0 0 24px; max-width: 62ch; color: var(--muted); font-size: 15.5px; }
+  .faq code { font-family: var(--mono); font-size: 13px; color: var(--teal-pale); }
+
+  .download { position: relative; overflow: hidden; padding-block: 96px; border-top: 1px solid var(--line-soft); background: radial-gradient(50% 80% at 50% 100%, rgba(25, 198, 182, 0.12), transparent 70%); text-align: center; }
+  .download h2 { font-size: clamp(34px, 5vw, 56px); line-height: 1.05; }
+  .download p { max-width: 36em; margin: 18px auto 0; color: var(--muted); font-size: 17px; }
+  .download .hero-cta { justify-content: center; }
+  .file { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 22px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .file span:first-child { color: var(--gold); }
+  .download .source { margin-top: 14px; font-size: 14px; }
+  .download .source a, .local li a, footer a { color: var(--gold); text-underline-offset: 3px; }
+
+  footer { padding-block: 36px 48px; border-top: 1px solid var(--line-soft); font-size: 12.5px; color: var(--faint); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px 40px; }
+  footer p { margin: 0; max-width: 70ch; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+
+<nav class="nav" aria-label="Navigation principale">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>Ward</a>
+    <div class="nav-links">
+      <a href="#demo">Démo</a>
+      <a href="#fonctions">Fonctions</a>
+      <a href="#local">Confidentialité</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a class="btn btn-primary" href="#telecharger">Télécharger</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-top">
+    <div>
+      <span class="eyebrow">Ward · le widget de ta file classée</span>
+      <h1>La file classée, <em>sans ouvrir le client.</em></h1>
+    </div>
+    <div>
+      <p class="lede">Un widget de 300 pixels posé sur ton bureau. Tu choisis tes rôles, tu invites ton duo, tu lances la recherche et tu acceptes la partie. League tourne en arrière-plan et ne s'affiche qu'à la sélection des champions.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+          Télécharger pour Windows
+        </a>
+        <a class="btn btn-ghost" href="#demo">Essayer la démo</a>
+      </div>
+      <div class="hero-meta">
+        <span>Gratuit</span>
+        <span>Exécutable portable, sans installation</span>
+        <span>Tout reste sur ton PC</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap playground" id="demo">
+    <div class="pg-bar">
+      <span class="pg-live">Démo jouable</span>
+      <span class="pg-hint" id="hint" role="status">League démarre en arrière-plan…</span>
+      <button class="btn btn-ghost pg-reset" id="reset" type="button">Recommencer</button>
+    </div>
+    <div class="desk" id="desk" aria-label="Bureau de démonstration : le vrai widget, avec un faux client League">
+      <div class="desk-icons" aria-hidden="true">
+        <span>
+          <svg viewBox="0 0 40 40">
+            <defs>
+              <linearGradient id="bin-body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8eef5" stop-opacity=".95"/><stop offset="1" stop-color="#8fa3b8" stop-opacity=".8"/></linearGradient>
+              <linearGradient id="bin-lid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#b9c7d6"/></linearGradient>
+            </defs>
+            <path d="M10 12h20l-2 22a2 2 0 0 1-2 1.8H14A2 2 0 0 1 12 34z" fill="url(#bin-body)"/>
+            <path d="M16 16v15M20 16v15M24 16v15" stroke="#5f7489" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>
+            <rect x="8" y="8.5" width="24" height="4" rx="1.6" fill="url(#bin-lid)"/>
+            <path d="M16.5 8.5V6.8A1.3 1.3 0 0 1 17.8 5.5h4.4a1.3 1.3 0 0 1 1.3 1.3v1.7" fill="none" stroke="#dfe7ef" stroke-width="1.6"/>
+          </svg>
+          Corbeille
+        </span>
+        <span>
+          <svg viewBox="0 0 40 40">
+            <defs>
+              <linearGradient id="music-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6b8b"/><stop offset="1" stop-color="#b3265a"/></linearGradient>
+            </defs>
+            <rect x="4" y="4" width="32" height="32" rx="8" fill="url(#music-bg)"/>
+            <path d="M16.5 26.5V12.5l12-2.6v14" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+            <ellipse cx="13.8" cy="26.8" rx="3.4" ry="2.7" fill="#fff"/>
+            <ellipse cx="25.8" cy="24.2" rx="3.4" ry="2.7" fill="#fff"/>
+          </svg>
+          Musique
+        </span>
+        <span>
+          <svg viewBox="0 0 40 40">
+            <defs>
+              <linearGradient id="folder-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5c542"/><stop offset="1" stop-color="#d99a1e"/></linearGradient>
+              <linearGradient id="folder-front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f2b534"/></linearGradient>
+            </defs>
+            <path d="M4 10a2 2 0 0 1 2-2h9l3 3h16a2 2 0 0 1 2 2v19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="url(#folder-back)"/>
+            <path d="M4 15a2 2 0 0 1 2-2h28a2 2 0 0 1 2 2v17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="url(#folder-front)"/>
+            <rect x="13" y="18" width="14" height="10" rx="2" fill="none" stroke="#a86a0c" stroke-width="1.6"/>
+            <circle cx="20" cy="23" r="2.6" fill="none" stroke="#a86a0c" stroke-width="1.6"/>
+            <path d="M16.5 18l1-1.8h5l1 1.8" fill="none" stroke="#a86a0c" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          Captures
+        </span>
+      </div>
+      <div class="taskbar">
+        <i aria-hidden="true"></i><i aria-hidden="true"></i>
+        <button class="tb-app tb-widget open" id="tb-widget" type="button" title="Ward" aria-label="Afficher Ward"><b></b></button>
+        <button class="tb-app tb-client" id="tb-client" type="button" title="Client League (démo)" aria-label="Afficher le client League" hidden><b></b></button>
+        <i aria-hidden="true"></i>
+        <time id="clock">21:47</time>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="journey" aria-labelledby="parcours-title">
+  <div class="wrap">
+    <div class="journey-head">
+      <div>
+        <h2 id="parcours-title">Du bureau à la Faille</h2>
+        <span class="progress" id="progress">0 / 6 étapes</span>
+      </div>
+      <p>Joue la démo au-dessus : chaque étape se valide quand tu la fais. Tu peux déplacer les fenêtres, fermer le widget et le rouvrir depuis la barre des tâches.</p>
+    </div>
+    <ol class="steps" id="steps">
+      <li data-quest="launch"><span class="num">01</span><b>Lancer</b><span class="d">Le widget démarre League en arrière-plan, sans sa fenêtre.</span></li>
+      <li data-quest="roles"><span class="num">02</span><b>Rôles</b><span class="d">Principal et secondaire, mémorisés d'une session à l'autre.</span></li>
+      <li data-quest="duo"><span class="num">03</span><b>Duo</b><span class="d">Invite un ami connecté ou tape son Riot ID.</span></li>
+      <li data-quest="search"><span class="num">04</span><b>Recherche</b><span class="d">Chrono en direct et attente estimée dans l'en-tête.</span></li>
+      <li data-quest="accept"><span class="num">05</span><b>Accepter</b><span class="d">Une popup au premier plan, même si tu es sur une autre fenêtre.</span></li>
+      <li data-quest="champ"><span class="num">06</span><b>Champion</b><span class="d">Le client s'ouvre tout seul pour la sélection des champions.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="block" id="fonctions" aria-labelledby="fonctions-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">Fonctions</span>
+      <h2 id="fonctions-title">Tout ce qu'il faut pour lancer une partie classée</h2>
+      <p>Le widget couvre tout ce qui se passe avant la sélection des champions. Pour la suite, le vrai client prend le relais.</p>
+    </div>
+    <div class="features">
+      <article class="feature lead">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 8v8M8 12h8"/></svg></span>
+        <h3>Tes rôles, choisis une fois</h3>
+        <p>Choisis ton rôle principal et ton rôle secondaire dans une grille. Le widget les garde en mémoire et les applique au lobby avant chaque recherche. Si tu prends Fill, il ne demande pas de second rôle.</p>
+        <div class="role-row">
+          <span><img src="{{top}}" alt="" />Top</span>
+          <span><img src="{{jungle}}" alt="" />Jungle</span>
+          <span><img src="{{middle}}" alt="" />Mid</span>
+          <span><img src="{{bottom}}" alt="" />ADC</span>
+          <span><img src="{{utility}}" alt="" />Support</span>
+          <span><img src="{{fill}}" alt="" />Fill</span>
+        </div>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 9.5V13l2.5 1.5M9.5 3h5"/></svg></span>
+        <h3>Impossible de rater l'acceptation</h3>
+        <p>Quand une partie est trouvée, une popup s'affiche au premier plan avec un compte à rebours. Tu peux accepter depuis la popup ou depuis le widget.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M17 7v6M14 10h6"/></svg></span>
+        <h3>Duo en deux clics</h3>
+        <p>La liste de tes amis connectés se filtre pendant que tu tapes. Sinon, entre directement un Riot ID <span style="font-family:var(--mono);font-size:13px;color:var(--teal-pale)">Pseudo#TAG</span>.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg></span>
+        <h3>Toujours synchronisé</h3>
+        <p>L'état du client est relu chaque seconde. Si tu lances une recherche depuis un autre endroit, le widget la détecte et affiche le chrono.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M10 5H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4"/></svg></span>
+        <h3>Le client à portée de clic</h3>
+        <p>Un bouton dans l'en-tête affiche le client League à tout moment : pour la boutique, ton profil ou une file que le widget ne gère pas.</p>
+      </article>
+      <article class="feature">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <h3>Chef de lobby</h3>
+        <p>Si tu es chef de lobby, tu peux exclure ton partenaire depuis le widget, après confirmation.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="block" aria-labelledby="compare-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">Avant / après</span>
+      <h2 id="compare-title">Moins de clics avant chaque partie</h2>
+    </div>
+    <div class="compare">
+      <div class="col">
+        <h3>Avec le client seul</h3>
+        <ul>
+          <li>Ouvrir le client et attendre qu'il charge</li>
+          <li>Jouer → Classé → Solo/Duo → Confirmer</li>
+          <li>Rechoisir ses rôles dans le lobby</li>
+          <li>Garder un œil sur le client pour ne pas rater le « Accepter »</li>
+          <li>Une grande fenêtre ouverte en permanence</li>
+        </ul>
+      </div>
+      <div class="col with">
+        <h3>Avec Ward</h3>
+        <ul>
+          <li>Un clic sur « Lancer » depuis le bureau</li>
+          <li>Le lobby Solo/Duo est créé automatiquement</li>
+          <li>Tes rôles sont déjà enregistrés</li>
+          <li>Une popup au premier plan pour accepter la partie</li>
+          <li>300 × 230 pixels, là où tu veux sur l'écran</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="local" aria-labelledby="local-title">
+  <div class="wrap local">
+    <div>
+      <span class="eyebrow">Confidentialité</span>
+      <h2 id="local-title" style="font-size:clamp(30px,4vw,44px);line-height:1.1;margin-top:14px">Il ne parle qu'au client League de ton PC</h2>
+      <ul>
+        <li><b>Aucun serveur tiers</b><span>Le widget utilise l'interface locale du client League, sur 127.0.0.1. Rien ne sort de ta machine.</span></li>
+        <li><b>Aucun mot de passe</b><span>Il utilise la session déjà ouverte dans le Riot Client. Les identifiants de session ne sont ni enregistrés ni journalisés.</span></li>
+        <li><b>Ne touche pas au jeu</b><span>Il ne modifie aucun fichier du jeu et ne lit pas la mémoire de la partie. Il fait seulement ce que tu pourrais faire toi-même dans le client.</span></li>
+        <li><b>Code ouvert</b><span>Tout le code est public sur <a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">GitHub</a> : tu peux vérifier ce que fait Ward avant de le lancer.</span></li>
+      </ul>
+    </div>
+    <div class="console" role="img" aria-label="Exemple des appels envoyés au client League local">
+      <div class="console-bar">127.0.0.1 · client League</div>
+<pre><span class="c"># Lancer : créer le lobby Classé Solo/Duo</span>
+<span class="m">POST</span> /lol-lobby/v2/lobby            <span class="v">{ queueId: 420 }</span>
+
+<span class="c"># Appliquer tes rôles</span>
+<span class="m">PUT </span> /lol-lobby/v2/lobby/members/localMember/position-preferences
+      <span class="v">{ firstPreference: "MIDDLE", secondPreference: "JUNGLE" }</span>
+
+<span class="c"># Chercher une partie</span>
+<span class="m">POST</span> /lol-lobby/v2/lobby/matchmaking/search
+
+<span class="c"># Partie trouvée</span>
+<span class="m">POST</span> /lol-matchmaking/v1/ready-check/accept</pre>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="eyebrow">FAQ</span>
+      <h2 id="faq-title">Questions fréquentes</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Est-ce que je risque quelque chose sur mon compte ?</summary>
+        <p>Le widget passe par l'interface locale du client, comme de nombreux outils de la communauté. Il ne modifie pas le jeu, n'automatise rien en partie et ne lit pas la mémoire du jeu. Riot Games n'approuve pas officiellement l'outil : c'est une application indépendante.</p>
+      </details>
+      <details>
+        <summary>Faut-il installer quelque chose ?</summary>
+        <p>Non. C'est un exécutable portable pour Windows 10 et 11 (<code>Ward-0.1.2-portable.exe</code>) : tu le lances et le widget apparaît en haut à droite de ton écran. Il faut que League of Legends soit installé.</p>
+      </details>
+      <details>
+        <summary>Dois-je me connecter à chaque lancement ?</summary>
+        <p>Non, si l'option « Rester connecté » est cochée dans le Riot Client. Sinon, le Riot Client affiche sa fenêtre de connexion une fois, puis le widget prend le relais.</p>
+      </details>
+      <details>
+        <summary>Quelles files sont prises en charge ?</summary>
+        <p>La file Classé Solo/Duo, seul ou à deux. Pour les autres modes, le bouton dans l'en-tête ouvre le client en un clic.</p>
+      </details>
+      <details>
+        <summary>Que se passe-t-il pendant la partie ?</summary>
+        <p>Le widget affiche « Partie en cours » et reste en attente, sans rien faire. Une fois la partie terminée et de retour au lobby, tu peux relancer une recherche depuis le widget.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="download" id="telecharger" aria-labelledby="dl-title">
+  <div class="wrap">
+    <span class="eyebrow">Windows 10 · 11</span>
+    <h2 id="dl-title" style="margin-top:16px">Ta prochaine partie classée<br />se lance depuis le bureau.</h2>
+    <p>Télécharge l'exécutable et lance-le. Aucune installation, aucun compte à créer.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="https://github.com/gaut123456/ward/releases/latest/download/Ward-portable.exe" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>
+        Télécharger la v0.1.2
+      </a>
+    </div>
+    <div class="file"><span>Ward-0.1.2-portable.exe</span><span>x64</span><span>Portable</span></div>
+    <p class="source"><a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">Code source et versions sur GitHub</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Ward n'est pas approuvé par Riot Games et ne reflète pas les opinions de Riot Games ni de quiconque ayant participé à la production ou à la gestion de League of Legends. League of Legends et Riot Games sont des marques déposées de Riot Games, Inc.</p>
+    <p>Icônes de rôle : client League of Legends, via CommunityDragon. <a href="https://github.com/gaut123456/ward" target="_blank" rel="noopener">Code source sur GitHub</a>.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // ---------------------------------------------------------------------------
+  // Code réel du widget (renderer/), injecté par scripts/build-site.cjs.
+  // ---------------------------------------------------------------------------
+  const ICONS = /*{{ICONS}}*/;
+  const WIDGET_HTML = /*{{WIDGET_HTML}}*/;
+  const READY_HTML = /*{{READY_HTML}}*/;
+  const WIDGET_CSS = /*{{WIDGET_CSS}}*/;
+  const ROLE_ICON = name => ICONS[name] || ICONS.unselected;
+  const EXTRA_CSS = `
+    :host { display: block; user-select: none; cursor: default; }
+    .widget-body, .ready-body { height: 100%; }
+    .drag-handle, .panel-header, .ready-popup header { cursor: grab; touch-action: none; }
+    :host(.dragging) .drag-handle, :host(.dragging) .panel-header, :host(.dragging) header { cursor: grabbing; }`;
+
+  function runApp(ROOT, LEAGUE) {
+/*{{APP_JS}}*/
+  }
+  function runReady(ROOT, LEAGUE) {
+/*{{READY_JS}}*/
+  }
+
+  // ---------------------------------------------------------------------------
+  // Faux client League : remplace le processus Electron et l'API locale.
+  // ---------------------------------------------------------------------------
+  const FRIENDS = [
+    { summonerId: 11, name: 'Aerith#EUW', status: 'outOfGame', icon: 2, level: 212 },
+    { summonerId: 12, name: 'Brume#FR1', status: 'outOfGame', icon: 3, level: 88 },
+    { summonerId: 13, name: 'Kaelis#EUW', status: 'inGame', icon: 4, level: 301 },
+    { summonerId: 14, name: 'Lumen#EUW', status: 'outOfGame', icon: 5, level: 154 },
+    { summonerId: 15, name: 'Nox#0001', status: 'outOfGame', icon: 6, level: 47 },
+    { summonerId: 16, name: 'Orage#FR1', status: 'inGame', icon: 7, level: 520 },
+    { summonerId: 17, name: 'Sélène#EUW', status: 'outOfGame', icon: 8, level: 233 },
+    { summonerId: 18, name: 'Vesper#EUW', status: 'outOfGame', icon: 9, level: 176 }
+  ];
+  const ROLES = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'UTILITY', 'FILL'];
+  const READY_MS = 10733;
+  const CHAMP_MS = 30000;
+
+  function avatar(id) {
+    const hues = [42, 200, 280, 160, 330, 15, 120, 250, 190, 300];
+    const h = hues[Math.abs(id) % hues.length];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h},55%,42%)"/><stop offset="1" stop-color="hsl(${(h + 40) % 360},60%,12%)"/></linearGradient></defs><rect width="64" height="64" fill="url(#g)"/><path d="M32 11 47 32 32 53 17 32Z" fill="none" stroke="hsl(${h},70%,84%)" stroke-width="2.5"/><path d="M32 22 39 32 32 42 25 32Z" fill="hsl(${h},80%,86%)" opacity=".85"/></svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  function createBackend(ui) {
+    let alive = true;
+    const timers = new Set();
+    const later = (fn, ms) => { const t = setTimeout(() => { timers.delete(t); if (alive) fn(); }, ms); timers.add(t); return t; };
+    const cancel = t => { if (t) { clearTimeout(t); timers.delete(t); } };
+    const delay = ms => new Promise(resolve => later(resolve, ms));
+    const readyListeners = [];
+    const s = { connected: false, starting: true, phase: 'None', searchStart: 0, roles: null, partner: null,
+      ready: null, clientOpening: false, champDeadline: 0, champion: null, gameStart: 0, extraId: 90, t: {} };
+
+    const setPhase = phase => { s.phase = phase; ui.phaseChanged(phase); };
+    const readySnapshot = () => s.ready
+      ? { active: s.ready.active, response: s.ready.response, elapsed: (Date.now() - s.ready.start) / 1000,
+          deadline: s.ready.active ? s.ready.start + READY_MS : null, duration: READY_MS, sampledAt: Date.now() }
+      : { active: false, response: 'None', elapsed: null, deadline: null, duration: READY_MS, sampledAt: Date.now() };
+    const pushReady = () => { const value = readySnapshot(); readyListeners.forEach(cb => cb(value)); };
+
+    function connect() { s.connected = true; s.starting = false; ui.quest('launch'); }
+    later(connect, 1900);
+
+    function ensureLobby() {
+      if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
+      if (s.phase === 'None') setPhase('Lobby');
+    }
+    function partnerRoles() {
+      const mine = [s.roles?.firstPreference, s.roles?.secondPreference];
+      const free = ['BOTTOM', 'UTILITY', 'TOP', 'JUNGLE', 'MIDDLE'].filter(role => !mine.includes(role));
+      return { firstPreference: free[0], secondPreference: free[1] };
+    }
+    function join(friend) {
+      later(() => {
+        if (s.phase !== 'Lobby' || s.partner) return;
+        const short = friend.name.split('#')[0];
+        if (friend.status === 'inGame') { ui.notice(`${short} est en partie et a refusé l'invitation. Essaie un ami « En ligne ».`, true); return; }
+        s.partner = { summonerId: friend.summonerId, displayName: short, profileIconId: friend.icon,
+          summonerLevel: friend.level, ...partnerRoles() };
+        ui.quest('duo');
+        ui.notice(`${short} a rejoint ton lobby.`);
+      }, 1500);
+    }
+    function startReady() {
+      setPhase('ReadyCheck');
+      s.ready = { active: true, response: 'None', start: Date.now() };
+      ui.showReady();
+      const loop = () => { if (s.phase !== 'ReadyCheck') return; pushReady(); later(loop, 250); };
+      loop();
+      s.t.ready = later(() => {
+        if (s.ready?.response === 'Accepted') return;
+        s.ready = null; pushReady(); ui.hideReady(); setPhase('Lobby');
+        ui.notice('Tu n\'as pas accepté à temps : retour au lobby. Relance la recherche.', true);
+      }, READY_MS);
+    }
+    function toChampSelect() {
+      s.ready = null; pushReady(); ui.hideReady();
+      setPhase('ChampSelect');
+      s.champion = null;
+      s.champDeadline = Date.now() + CHAMP_MS;
+      s.clientOpening = true;
+      later(() => { s.clientOpening = false; ui.showClient(); }, 900);
+      s.t.champ = later(() => {
+        if (s.phase !== 'ChampSelect') return;
+        setPhase('Lobby'); ui.hideClient();
+        ui.notice('La sélection a expiré avant que tu verrouilles un champion. Retour au lobby.', true);
+      }, CHAMP_MS);
+    }
+    function endGame() {
+      if (!['InProgress', 'GameStart'].includes(s.phase)) return;
+      cancel(s.t.game);
+      setPhase('EndOfGame');
+      later(() => { setPhase('Lobby'); ui.hideClient(); ui.notice('Victoire, +21 LP (pour la démo). Tu peux relancer une partie.'); }, 3500);
+    }
+
+    const handlers = {
+      async getStatus() {
+        if (!s.connected) return { connected: false, starting: s.starting, message: s.starting ? 'Lancement de League…' : 'League est fermé' };
+        const searching = s.phase === 'Matchmaking';
+        return { connected: true, summoner: { summonerId: 1, gameName: 'Toi', summonerLevel: 379, profileIconId: 1 },
+          duoPartner: s.partner ? { ...s.partner } : null, canKick: Boolean(s.partner) && s.phase === 'Lobby',
+          phase: s.phase, searching, sampledAt: Date.now(),
+          timeInQueue: searching ? (Date.now() - s.searchStart) / 1000 : null,
+          estimatedQueueTime: searching ? 95 : null,
+          ready: readySnapshot(), clientUi: { opening: s.clientOpening, error: '' } };
+      },
+      async getProfileIcon(id) { return avatar(id); },
+      async getRoles() { return s.roles ? { ...s.roles } : null; },
+      async saveRoles(value) {
+        const first = value?.firstPreference;
+        const second = first === 'FILL' ? 'UNSELECTED' : value?.secondPreference;
+        if (!ROLES.includes(first)) throw new Error('Choisis ton rôle principal.');
+        if (first !== 'FILL' && !ROLES.includes(second)) throw new Error('Choisis ton rôle secondaire.');
+        if (first === second) throw new Error('Choisis deux rôles différents.');
+        if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Annule la recherche avant de changer tes rôles.');
+        await delay(160);
+        s.roles = { firstPreference: first, secondPreference: second };
+        ui.quest('roles');
+        return { ...s.roles, recovered: false };
+      },
+      async launch() { if (!s.connected) { s.starting = true; later(connect, 1500); } },
+      async openClient() { await delay(250); ui.showClient(); },
+      async getReadyState() { return readySnapshot(); },
+      async createRanked() { ensureLobby(); },
+      async invite(name) {
+        const value = String(name || '').trim();
+        if (!/^[^#]{3,16}#[\p{L}\p{N}]{2,5}$/u.test(value)) throw new Error('Riot ID introuvable. Utilise le format Pseudo#TAG.');
+        ensureLobby();
+        await delay(300);
+        join({ summonerId: ++s.extraId, name: value, status: 'outOfGame', icon: s.extraId, level: 30 + (s.extraId * 37) % 400 });
+      },
+      async getOnlineFriends() { await delay(220); return FRIENDS.map(({ summonerId, name, status }) => ({ summonerId, name, status })); },
+      async inviteSummoner(id) {
+        const friend = FRIENDS.find(item => item.summonerId === id);
+        if (!friend) throw new Error('Ami invalide.');
+        ensureLobby();
+        await delay(250);
+        join(friend);
+      },
+      async kickMember() {
+        if (s.phase !== 'Lobby') throw new Error('Impossible d\'exclure un joueur maintenant.');
+        await delay(200);
+        s.partner = null;
+      },
+      async startSearch() {
+        if (!['None', 'Lobby'].includes(s.phase)) throw new Error('Une partie ou une recherche est déjà en cours.');
+        if (!s.roles) throw new Error('Choisis tes positions avant de lancer.');
+        await delay(260);
+        setPhase('Matchmaking');
+        s.searchStart = Date.now();
+        ui.quest('search');
+        s.t.found = later(startReady, 6000 + Math.random() * 3000);
+      },
+      async cancelSearch() {
+        if (s.phase !== 'Matchmaking') return;
+        await delay(160);
+        cancel(s.t.found);
+        setPhase('Lobby');
+      },
+      async acceptReady() {
+        if (!s.ready?.active) throw new Error('Aucune partie à accepter.');
+        await delay(180);
+        s.ready.response = 'Accepted';
+        cancel(s.t.ready);
+        pushReady();
+        ui.quest('accept');
+        later(toChampSelect, 2600);
+      },
+      async hideReady() { ui.hideReady(true); },
+      async closeWidget() { ui.hideWidget(); },
+      onReadyCheck(callback) { readyListeners.push(callback); }
+    };
+
+    const api = {};
+    for (const [name, fn] of Object.entries(handlers)) {
+      api[name] = name === 'onReadyCheck' ? fn : (...args) => alive ? fn(...args) : new Promise(() => {});
+    }
+    return {
+      api,
+      get phase() { return s.phase; },
+      get connected() { return s.connected; },
+      get roles() { return s.roles; },
+      get partner() { return s.partner; },
+      get ready() { return s.ready; },
+      get champion() { return s.champion; },
+      champLeft: () => Math.max(0, s.champDeadline - Date.now()),
+      gameSeconds: () => Math.floor((Date.now() - s.gameStart) / 1000 * 30),
+      lock(name) {
+        if (s.phase !== 'ChampSelect' || s.champion) return;
+        s.champion = name;
+        cancel(s.t.champ);
+        ui.quest('champ');
+        later(() => { setPhase('GameStart'); later(() => { setPhase('InProgress'); s.gameStart = Date.now(); s.t.game = later(endGame, 60000); }, 2500); }, 1500);
+      },
+      endGame,
+      destroy() { alive = false; timers.forEach(clearTimeout); timers.clear(); }
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Bureau : fenêtres déplaçables, barre des tâches, faux client, étapes.
+  // ---------------------------------------------------------------------------
+  const desk = document.getElementById('desk');
+  const hint = document.getElementById('hint');
+  const tbWidget = document.getElementById('tb-widget');
+  const tbClient = document.getElementById('tb-client');
+  const TASKBAR = 42;
+  const QUESTS = ['launch', 'roles', 'duo', 'search', 'accept', 'champ'];
+  const CHAMPS = [['Ahri', 330], ['Lee Sin', 20], ['Jinx', 290], ['Thresh', 150], ['Darius', 0], ['Orianna', 45],
+    ["Kai'Sa", 270], ['Leona', 40], ['Viego', 170], ['Garen', 220], ['Lux', 55], ['Ezreal', 200]];
+  let z = 10, backend = null, hosts = {}, quests = new Set(), notice = null, readyDismissed = false, clientKey = '', picked = null;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  function place(el, x, y) {
+    const maxX = Math.max(0, desk.clientWidth - el.offsetWidth);
+    const maxY = Math.max(0, desk.clientHeight - TASKBAR - el.offsetHeight);
+    el._x = clamp(x, 0, maxX); el._y = clamp(y, 0, maxY);
+    el.style.transform = `translate(${el._x}px, ${el._y}px)`;
+  }
+  function front(el) { el.style.zIndex = ++z; }
+  function show(el) {
+    el.hidden = false;
+    el.classList.remove('popin'); void el.offsetWidth; el.classList.add('popin');
+    place(el, el._x, el._y);
+    front(el);
+  }
+  function draggable(el, handleSelector) {
+    el.addEventListener('pointerdown', event => {
+      front(el);
+      if (event.button !== 0) return;
+      let handle = false;
+      for (const node of event.composedPath()) {
+        if (node === el) break;
+        if (!(node instanceof Element)) continue;
+        if (node.matches('button, input, a, [role="button"], .champ')) return;
+        if (node.matches(handleSelector)) handle = true;
+      }
+      if (!handle) return;
+      event.preventDefault();
+      const start = { x: event.clientX, y: event.clientY, ox: el._x, oy: el._y };
+      el.setPointerCapture(event.pointerId);
+      el.classList.add('dragging');
+      const move = ev => place(el, start.ox + ev.clientX - start.x, start.oy + ev.clientY - start.y);
+      const up = () => {
+        el.classList.remove('dragging');
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerup', up);
+        el.removeEventListener('pointercancel', up);
+      };
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up);
+      el.addEventListener('pointercancel', up);
+    });
+  }
+
+  function shadowWindow(className, html) {
+    const host = document.createElement('div');
+    host.className = `win ${className}`;
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = `<style>${WIDGET_CSS}${EXTRA_CSS}</style>${html}`;
+    desk.insertBefore(host, desk.querySelector('.taskbar'));
+    return { host, root };
+  }
+
+  const ui = {
+    quest(key) { quests.add(key); renderQuests(); },
+    notice(text, alert = false) { notice = { text, alert, until: Date.now() + 6000 }; renderHint(); },
+    phaseChanged() { clientKey = ''; },
+    showReady() { readyDismissed = false; show(hosts.ready); },
+    hideReady(dismiss = false) { if (dismiss) readyDismissed = true; hosts.ready.hidden = true; },
+    hideWidget() { hosts.widget.hidden = true; tbWidget.classList.remove('open'); tbWidget.classList.add('nudge'); },
+    showClient() { clientKey = ''; renderClient(); show(hosts.client); tbClient.hidden = false; tbClient.classList.add('open'); },
+    hideClient() { hosts.client.hidden = true; tbClient.hidden = true; }
+  };
+
+  function buildClient() {
+    const el = document.createElement('div');
+    el.className = 'win client';
+    el.hidden = true;
+    el.innerHTML = '<div class="client-bar"><b>Client League</b><small>version démo</small><button type="button" aria-label="Fermer le client">×</button></div><div class="client-body"></div>';
+    el.querySelector('.client-bar button').addEventListener('click', () => { el.hidden = true; tbClient.classList.remove('open'); });
+    el.querySelector('.client-body').addEventListener('click', event => {
+      const champ = event.target.closest('.champ');
+      if (champ && !backend.champion) { picked = champ.dataset.name; clientKey = ''; renderClient(); return; }
+      if (event.target.closest('[data-lock]') && picked) { backend.lock(picked); clientKey = ''; renderClient(); return; }
+      if (event.target.closest('[data-end]')) backend.endGame();
+    });
+    desk.insertBefore(el, desk.querySelector('.taskbar'));
+    return el;
+  }
+
+  function renderClient() {
+    const el = hosts.client;
+    if (!el || el.hidden && clientKey) return;
+    const phase = backend.phase;
+    const body = el.querySelector('.client-body');
+    const key = `${phase}|${picked}|${backend.champion}`;
+    if (key !== clientKey) {
+      clientKey = key;
+      if (phase === 'ChampSelect') {
+        const locked = backend.champion;
+        body.innerHTML = `<div class="cs-head"><div><h3>Sélection des champions</h3><p>Classé Solo/Duo · ${locked ? 'en attente des autres joueurs…' : 'choisis ton champion puis verrouille-le.'}</p></div><span class="cs-timer" data-timer>30</span></div>
+          <div class="champs">${CHAMPS.map(([name, hue]) => `<button type="button" class="champ" data-name="${name}" aria-pressed="${name === (locked || picked)}" ${locked ? 'disabled' : ''}><i style="background:linear-gradient(135deg,hsl(${hue},55%,40%),hsl(${(hue + 40) % 360},60%,12%))">${name[0]}</i>${name}</button>`).join('')}</div>
+          <div class="client-actions">${locked ? `<p>Verrouillé : <b style="color:var(--gold)">${locked}</b></p>` : `<button type="button" class="btn btn-gold" data-lock ${picked ? '' : 'disabled'}>Verrouiller</button>`}</div>`;
+      } else if (phase === 'GameStart') {
+        body.innerHTML = `<div class="game"><h3>Chargement de la partie</h3><p>${backend.champion || ''} · Faille de l'invocateur</p></div>`;
+      } else if (phase === 'InProgress') {
+        body.innerHTML = `<div class="game"><p>Partie en cours · ${backend.champion || ''}</p><div class="clock" data-clock>0:00</div><button type="button" class="btn btn-ghost" data-end>Terminer la partie</button><p>Le widget reste en attente pendant la partie.</p></div>`;
+      } else if (phase === 'EndOfGame') {
+        body.innerHTML = '<div class="game"><div class="victory">Victoire</div><p>+21 LP · démo</p></div>';
+      } else {
+        picked = null;
+        body.innerHTML = `<h3>Accueil</h3><p>Dans l'application, ce bouton affiche le vrai client League, pour la boutique, ton profil ou un autre mode de jeu.</p><p>Ici, c'est une version simplifiée pour la démo. ${phase === 'Matchmaking' ? 'La recherche continue : le widget s’en occupe.' : 'Ferme cette fenêtre et reviens au widget.'}</p>`;
+      }
+    }
+    const timer = body.querySelector('[data-timer]');
+    if (timer) { const left = Math.ceil(backend.champLeft() / 1000); timer.textContent = left; timer.classList.toggle('low', left <= 10); }
+    const clock = body.querySelector('[data-clock]');
+    if (clock) { const sec = backend.gameSeconds(); clock.textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
+  }
+
+  function renderQuests() {
+    const next = QUESTS.find(key => !quests.has(key));
+    document.querySelectorAll('#steps li').forEach(li => {
+      li.classList.toggle('done', quests.has(li.dataset.quest));
+      li.classList.toggle('on', li.dataset.quest === next);
+    });
+    document.getElementById('progress').textContent = quests.size === QUESTS.length ? '6 / 6 étapes · bravo !' : `${quests.size} / 6 étapes`;
+  }
+
+  function hintText() {
+    if (notice && Date.now() < notice.until) return notice;
+    if (hosts.widget.hidden) return { text: 'Widget fermé : clique sur son icône dans la barre des tâches pour le rouvrir.' };
+    const phase = backend.phase;
+    if (!backend.connected) return { text: 'League démarre en arrière-plan…' };
+    if (phase === 'ReadyCheck') return { text: backend.ready?.response === 'Accepted' ? 'Accepté ! Les autres joueurs arrivent…' : 'Partie trouvée : accepte dans la popup ou dans le widget.' };
+    if (phase === 'Matchmaking') return { text: 'Recherche en cours… Tu peux déplacer le widget pendant ce temps.' };
+    if (phase === 'ChampSelect') return { text: backend.champion ? 'Champion verrouillé. La partie va commencer.' : 'Le client s’est ouvert tout seul : choisis un champion et verrouille-le.' };
+    if (phase === 'GameStart') return { text: 'Chargement de la partie…' };
+    if (phase === 'InProgress') return { text: 'Partie en cours. Termine-la depuis la fenêtre du client quand tu veux.' };
+    if (phase === 'EndOfGame') return { text: 'Fin de partie…' };
+    if (!backend.roles) return { text: 'Clique sur « Lancer » ou sur les icônes sous ton portrait pour choisir tes rôles.' };
+    if (!backend.partner && !quests.has('duo')) return { text: 'Invite un ami avec le cercle « Inviter », ou clique directement sur « Lancer ».' };
+    return { text: 'Tout est prêt : clique sur « Lancer ».' };
+  }
+  function renderHint() {
+    if (!backend) return;
+    const { text, alert } = hintText();
+    if (hint.textContent !== text) hint.textContent = text;
+    hint.classList.toggle('alert', Boolean(alert));
+  }
+
+  function mount() {
+    backend = createBackend(ui);
+    quests = new Set(); notice = null; readyDismissed = false; clientKey = ''; picked = null;
+    renderQuests();
+    const widget = shadowWindow('w-host', `<div class="widget-body">${WIDGET_HTML}</div>`);
+    const ready = shadowWindow('r-host', `<div class="ready-body">${READY_HTML}</div>`);
+    ready.host.hidden = true;
+    hosts = { widget: widget.host, ready: ready.host, client: buildClient() };
+    draggable(widget.host, '.drag-handle, .panel-header');
+    draggable(ready.host, 'header');
+    draggable(hosts.client, '.client-bar');
+    const W = desk.clientWidth, H = desk.clientHeight - TASKBAR;
+    widget.host._x = W - 300 - 14; widget.host._y = 14;
+    ready.host._x = W - 310 - 14; ready.host._y = H - 260 - 10;
+    hosts.client._x = W < 700 ? 8 : Math.max(8, Math.min(110, W - 620 - 340)); hosts.client._y = W < 700 ? 60 : 50;
+    place(widget.host, widget.host._x, widget.host._y); front(widget.host);
+    place(ready.host, ready.host._x, ready.host._y);
+    place(hosts.client, hosts.client._x, hosts.client._y);
+    tbWidget.classList.add('open'); tbWidget.classList.remove('nudge');
+    tbClient.hidden = true; tbClient.classList.remove('open');
+    runApp(widget.root, backend.api);
+    runReady(ready.root, backend.api);
+  }
+
+  tbWidget.addEventListener('click', () => {
+    const w = hosts.widget;
+    if (w.hidden) { show(w); tbWidget.classList.add('open'); tbWidget.classList.remove('nudge'); }
+    else if (Number(w.style.zIndex) === z) { w.hidden = true; tbWidget.classList.remove('open'); }
+    else front(w);
+  });
+  tbClient.addEventListener('click', () => {
+    const c = hosts.client;
+    if (c.hidden) { show(c); tbClient.classList.add('open'); renderClient(); }
+    else { c.hidden = true; tbClient.classList.remove('open'); }
+  });
+  document.getElementById('reset').addEventListener('click', () => {
+    backend.destroy();
+    Object.values(hosts).forEach(el => el.remove());
+    mount();
+  });
+  addEventListener('resize', () => Object.values(hosts).forEach(el => place(el, el._x, el._y)));
+
+  const clock = document.getElementById('clock');
+  const tickClock = () => { const d = new Date(); clock.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  tickClock(); setInterval(tickClock, 30000);
+
+  mount();
+  setInterval(() => { renderHint(); if (!hosts.client.hidden) renderClient(); }, 250);
+})();
+</script>
